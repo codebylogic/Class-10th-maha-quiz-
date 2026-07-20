@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bseb-quiz-v2';
+const CACHE_NAME = 'bseb-quiz-v3';
 const ASSETS_TO_CACHE = [
   '/Class-10th-maha-quiz-/index.html',
   '/Class-10th-maha-quiz-/manifest.json',
