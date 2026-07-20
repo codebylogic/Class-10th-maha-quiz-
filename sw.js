@@ -1,9 +1,9 @@
-// 🌟 वर्जन बदलकर v4 कर दिया ताकि नया ऑफलाइन पाथ एक्टिवेट हो सके
-const CACHE_NAME = 'bseb-quiz-v4'; 
+const CACHE_NAME = 'bseb-quiz-v5'; // 🌟 वर्जन बढ़ा दिया (v4 से v5)
+const OFFLINE_URL = '/Class-10th-maha-quiz-/offline.html';
 const ASSETS_TO_CACHE = [
   '/Class-10th-maha-quiz-/index.html',
   '/Class-10th-maha-quiz-/manifest.json',
-  '/Class-10th-maha-quiz-/offline.html', // 👈 पक्का करें कि यह पाथ बिल्कुल ऐसा ही है
+  OFFLINE_URL,
   '/Class-10th-maha-quiz-/icon-192.png',
   '/Class-10th-maha-quiz-/icon-512.png'
 ];
@@ -11,8 +11,6 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Caching assets');
-      // 🌟 force-fetch करके स्टोर करना ताकि फाइल मिस न हो
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
@@ -25,28 +23,29 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
+            return caches.delete(cache); // पुराना कैश डिलीट करना बहुत ज़रूरी है
           }
         })
       );
     })
   );
-  self.clients.claim();
 });
 
-// 🌟 ऑफलाइन होने पर फ़ाइल दिखाने का सबसे सटीक और मजबूत तरीका
+// 🌟 असली सुधार यहाँ है (Fetch Event में):
 self.addEventListener('fetch', (event) => {
+  // अगर छात्र पेज खोल रहा है (Navigation request)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request) // पहले नेटवर्क से कोशिश करो
+        .catch(() => caches.match(OFFLINE_URL)) // अगर इंटरनेट नहीं है, तो ऑफलाइन फाइल दिखाओ
+    );
+    return;
+  }
+
+  // अगर कोई इमेज या अन्य फाइल है, तो कैश का इस्तेमाल करो
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        // अगर छात्र इंटरनेट बंद में पेज रिफ्रेश या नेविगेट करता है
-        if (event.request.mode === 'navigate') {
-          return caches.match('/Class-10th-maha-quiz-/offline.html');
-        }
-      });
+      return cachedResponse || fetch(event.request);
     })
   );
 });
