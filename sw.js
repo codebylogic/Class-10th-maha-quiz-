@@ -1,11 +1,13 @@
 const CACHE_NAME = 'bseb-quiz-v1';
 const ASSETS_TO_CACHE = [
-  './index.html',
-  './manifest.json',
-  './offline.html',
-  './icon-192.png',
-  './icon-512.png'
+  '/Class-10th-maha-quiz-/index.html',
+  '/Class-10th-maha-quiz-/manifest.json',
+  '/Class-10th-maha-quiz-/offline.html',
+  '/Class-10th-maha-quiz-/icon-192.png',
+  '/Class-10th-maha-quiz-/icon-512.png'
 ];
+
+
 
 // इंस्टॉल होने पर फाइलों को कैश में सेव करना
 self.addEventListener('install', (event) => {
