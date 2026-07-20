@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>जीव विज्ञान क्विज़ - जैव प्रक्रम</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdf4;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(34, 197, 94, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #22c55e;
+            background-color: #f0fdf4;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #4ade80, #22c55e); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #22c55e, #16a34a); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(34, 197, 94, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #4ade80, #22c55e); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "वे सभी प्रक्रम जो सम्मिलित रूप से सजीवों में अनुरक्षण (Maintenance) का कार्य करते हैं, क्या कहलाते हैं?", o: ["पोषण", "श्वसन", "जैव प्रक्रम (Life Processes)", "उत्सर्जन"], a: 2 },
+            { q: "सजीवों को अपने जीवन को बनाए रखने और जैविक कार्यों के लिए किस चीज़ की अनिवार्य आवश्यकता होती है?", o: ["ऊर्जा (Energy)", "गति", "केवल जल", "प्रकाश"], a: 0 },
+            { q: "ऊर्जा के स्रोत को बाहर से सजीव के शरीर के अंदर ग्रहण करने के प्रक्रम को क्या कहते हैं?", o: ["श्वसन", "पोषण (Nutrition)", "उत्सर्जन", "वहन"], a: 1 },
+            { q: "जैव प्रक्रम के अंतर्गत जीवों द्वारा भोजन से ऊर्जा प्राप्त करने के लिए ऑक्सीजन का उपयोग क्या कहलाता है?", o: ["पोषण", "श्वसन (Respiration)", "परिसंचरण", "उत्सर्जन"], a: 1 },
+            { q: "वैसे जीव जो अकार्बनिक स्रोतों से कार्बन डाइऑक्साइड तथा जल के रूप में सरल पदार्थ प्राप्त करते हैं, क्या कहलाते हैं?", o: ["विषमपोषी", "स्वपोषी (Autotrophs)", "मृतजीवी", "परजीवी"], a: 1 },
+            { q: "सभी हरे पौधे और कुछ जीवाणु (Bacteria) पोषण की किस विधि का उपयोग करते हैं?", o: ["परपोषी पोषण", "स्वपोषी पोषण (Autotrophic)", "सहोपकारिता", "मृतोपजीवी पोषण"], a: 1 },
+            { q: "प्रकाश संश्लेषण (Photosynthesis) की प्रक्रिया में पौधे सौर ऊर्जा को किस ऊर्जा में परिवर्तित करते हैं?", o: ["भौतिक ऊर्जा", "रासायनिक ऊर्जा (Chemical Energy)", "विद्युत ऊर्जा", "गतिज ऊर्जा"], a: 1 },
+            { q: "प्रकाश संश्लेषण के लिए निम्नलिखित में से कौन सी सामग्री आवश्यक नहीं है?", o: ["कार्बन डाइऑक्साइड", "जल", "क्लोरोफिल व सूर्य का प्रकाश", "ऑक्सीजन (Oxygen)"], a: 3 },
+            { q: "पौधों की पत्तियों में उपस्थित वह हरा रंजक (Pigment) कौन सा है जो सौर ऊर्जा को अवशोषित करता है?", o: ["कैरोटीन", "क्लोरोफिल (Chlorophyll)", "जैंथोफिल", "हीमोग्लोबिन"], a: 1 },
+            { q: "प्रकाश संश्लेषण की मुख्य रासायनिक अभिक्रिया में उप-उत्पाद (By-product) के रूप में क्या मुक्त होता है?", o: ["CO₂", "O₂ (ऑक्सीजन गैस)", "H₂", "N₂"], a: 1 },
+            { q: "पत्तियों की सतह पर पाए जाने वाले वे सूक्ष्म छिद्र क्या कहलाते हैं जिनसे गैसों का आदान-प्रदान होता है?", o: ["कोशिका झिल्ली", "रंध्र या स्टोमेटा (Stomata)", "वातरंध्र", "कुपिका"], a: 1 },
+            { q: "रंध्रों (Stomata) के खुलने और बंद होने की प्रक्रिया को कौन सी कोशिकाएं नियंत्रित करती हैं?", o: ["द्वार कोशिकाएं (Guard Cells)", "सहायक कोशिकाएं", "जाइलम कोशिकाएं", "एपिडर्मल कोशिकाएं"], a: 0 },
+            { q: "जब द्वार कोशिकाओं (Guard Cells) के अंदर जल जाता है, तो वे फूल जाती हैं जिससे रंध्र पर क्या प्रभाव पड़ता है?", o: ["रंध्र बंद हो जाता है", "रंध्र खुल जाता है (Opens)", "रंध्र नष्ट हो जाता है", "कोई प्रभाव नहीं पड़ता"], a: 1 },
+            { q: "क्लोरोफिल पौधे की कोशिकाओं के किस विशिष्ट कोशिकांग (Organelle) में पाया जाता है?", o: ["माइटोकॉन्ड्रिया", "क्लोरोप्लास्ट या हरितलवक (Chloroplast)", "लाइसोसोम", "गॉल्जीकाय"], a: 1 },
+            { q: "वैसे जीव जो जटिल पदार्थों को शरीर के बाहर ही विघटित करके उनका अवशोषण करते हैं (जैसे कवक, यीस्ट)?", o: ["परजीवी", "मृतजीवी (Saprophytes)", "शाकाहारी", "स्वपोषी"], a: 1 },
+            { q: "अमीबा (Amoeba) भोजन को पकड़ने के लिए अपनी कोशिका की सतह पर किस अस्थायी प्रवर्ध का उपयोग करता है?", o: ["कशाभिका (Flagella)", "पादाम या कूटपाद (Pseudopodia)", "सीलिया", "स्पर्शक"], a: 1 },
+            { q: "अमीबा में भोजन का पाचन मुख्य रूप से कहाँ संपन्न होता है?", o: ["केन्द्रक में", "खाद्य रिक्तिका (Food Vacuole) में", "कोशिका द्रव में", "सिटोस्टोम में"], a: 1 },
+            { q: "पैरामिशियम (Paramecium) में भोजन एक निश्चित स्थान से ही ग्रहण किया जाता है, वहाँ तक भोजन किसके द्वारा पहुँचता है?", o: ["कूटपाद", "सीलिया की गति द्वारा (Cilia Movement)", "स्पर्शक", "हवा"], a: 1 },
+            { q: "मनुष्य की पाचन नली मुख से लेकर गुदा तक विस्तारित है, इसे संयुक्त रूप से क्या कहते हैं?", o: ["श्वसन नली", "आहार नाल (Alimentary Canal)", "ग्रसनी", "रक्त वाहिनी"], a: 1 },
+            { q: "लार (Saliva) में कौन सा एंजाइम पाया जाता है जो स्टार्च को जटिल शर्करा में तोड़ता है?", o: ["पेप्सिन", "लार एमाइलेज या टाइलिन (Amylase)", "ट्रिप्सिन", "लाइपेज"], a: 1 },
+            { q: "आहार नाल के पूरे अस्तर में भोजन को आगे बढ़ाने के लिए होने वाली लयबद्ध संकुचन गति क्या कहलाती है?", o: ["क्रमानुकुंचन गति (Peristaltic Movement)", "विसरण", "परासरण", "ब्राउनियन गति"], a: 0 },
+            { q: "आमाशय (Stomach) की भित्ति में उपस्थित जठर ग्रंथियां (Gastric调节) कौन सा अम्ल स्रावित करती हैं?", o: ["सल्फ्यूरिक अम्ल", "हाइड्रोक्लोरिक अम्ल (HCl)", "एसिटिक अम्ल", "नाइट्रिक अम्ल"], a: 1 },
+            { q: "आमाशय में प्रोटीन का पाचन करने वाले एंजाइम पेप्सिन (Pepsin) को सक्रिय होने के लिए कैसा माध्यम चाहिए?", o: ["क्षारीय", "उदासीन", "अम्लीय माध्यम (Acidic)", "लवणीय"], a: 2 },
+            { q: "आमाशय के आंतरिक अस्तर की हाइड्रोक्लोरिक अम्ल से रक्षा कौन करता है?", o: ["पेप्सिन", "श्लेष्मा या म्यूकस (Mucus)", "पित्त रस", "लार"], a: 1 },
+            { q: "आहार नाल का सबसे लंबा भाग कौन सा है जहाँ भोजन का पूर्ण पाचन संपन्न होता है?", o: ["ग्रसिका", "आमाशय", "क्षुद्रांत्र या छोटी आंत (Small Intestine)", "बड़ी आंत"], a: 2 },
+            { q: "शाकाहारी जीवों की छोटी आंत मांसाहारी जीवों की तुलना में लंबी क्यों होती है?", o: ["वसा पचाने के लिए", "सेल्युलोज़ को आसानी से पचाने के लिए (Cellulose Digestion)", "मांस पचाने के लिए", "कम पानी पीने के कारण"], a: 1 },
+            { q: "यकृत (Liver) द्वारा स्रावित होने वाला पित्त रस (Bile Juice) कहाँ संचित रहता है?", o: ["अग्न्याशय में", "पिताशय (Gall Bladder) में", "आमाशय में", "यकृत के अंदर"], a: 1 },
+            { q: "पित्त रस का मुख्य कार्य क्या है?", o: ["प्रोटीन का पाचन", "वसा का इमल्सीकरण (Emulsification of Fats) व माध्यम को क्षारीय बनाना", "स्टार्च का पाचन", "श्लेष्मा का स्राव"], a: 1 },
+            { q: "अग्न्याशय (Pancreas) से स्रावित होने वाले अग्न्याशयी रस में प्रोटीन पाचन के लिए कौन सा एंजाइम होता है?", o: ["पेप्सिन", "ट्रिप्सिन (Trypsin)", "लाइपेज", "एमाइलेज"], a: 1 },
+            { q: "इमल्सीकृत वसा को ग्लिसरॉल और वसा अम्ल में तोड़ने का कार्य कौन सा एंजाइम करता है?", o: ["ट्रिप्सिन", "लाइपेज (Lipase)", "पेप्सिन", "टाइलिन"], a: 1 },
+            { q: "छोटी आंत के आंतरिक अस्तर पर पाए जाने वाले उंगली जैसे प्रवर्ध जो अवशोषण का सतही क्षेत्रफल बढ़ाते हैं?", o: ["कुपिका", "दीर्घरोम या विलाई (Villi)", "नेफ्रॉन", "रंध्र"], a: 1 },
+            { q: "पचे हुए भोजन का अवशोषण मुख्य रूप से आहार नाल के किस भाग में होता है?", o: ["आमाशय", "बड़ी आंत", "क्षुद्रांत्र (Small Intestine)", "मुख"], a: 2 },
+            { q: "बिना पचा भोजन बड़ी आंत (Large Intestine) में भेजा जाता है, जहाँ मुख्य रूप से किसका अवशोषण होता है?", o: ["प्रोटीन का", "वसा का", "जल का (Water Absorption)", "कार्बोहाइड्रेट का"], a: 2 },
+            { q: "कोशिका के अंदर ग्लूकोज (6-कार्बन अणु) का पायरुवेट (3-कार्बन अणु) में टूटना कहाँ संपन्न होता है?", o: ["माइटोकॉन्ड्रिया में", "कोशिकाद्रव्य (Cytoplasm) में", "केन्द्रक में", "राइबोसोम में"], a: 1 },
+            { q: "ऑक्सीजन की अनुपस्थिति में होने वाले श्वसन को क्या कहते हैं, जैसा कि यीस्ट में होता है?", o: ["वायवीय श्वसन", "अवायवीय श्वसन (Anaerobic)", "कोशिकीय श्वसन", "बाह्य श्वसन"], a: 1 },
+            { q: "यीस्ट में अवायवीय श्वसन के दौरान पायरुवेट किसमें परिवर्तित होता है?", o: ["लैक्टिक अम्ल", "एथेनॉल और कार्बन डाइऑक्साइड (Ethanol + CO₂)", "केवल जल", "ग्लूकोज"], a: 1 },
+            { q: "हमारी पेशी कोशिकाओं में अचानक अत्यधिक दौड़ने या व्यायाम करने से लैक्टिक अम्ल का संचय क्यों होता है?", o: ["प्रचुर ऑक्सीजन मिलने से", "ऑक्सीजन के अभाव या कमी के कारण अवायवीय श्वसन होने से", "वसा के जलने से", "पानी की कमी से"], a: 1 },
+            { q: "ऑक्सीजन की उपस्थिति में पायरुवेट का पूरी तरह टूटकर CO₂, जल और अत्यधिक ऊर्जा देना कहाँ होता है?", o: ["कोशिकाद्रव्य", "माइटोकॉन्ड्रिया (Mitochondria)", "हरितलवक", "लाइसोसोम"], a: 1 },
+            { q: "वायवीय श्वसन (Aerobic Respiration) अवायवीय श्वसन की तुलना में कितनी ऊर्जा मुक्त करता है?", o: ["बहुत कम ऊर्जा", "समान ऊर्जा", "बहुत अधिक ऊर्जा (Much More Energy)", "शून्य ऊर्जा"], a: 2 },
+            { q: "कोशिकीय श्वसन के दौरान मुक्त हुई ऊर्जा तुरंत किस अणु के संश्लेषण में प्रयुक्त होती है, जो ऊर्जा मुद्रा है?", o: ["ADP", "ATP (एडेनोसिन ट्राइफॉस्फेट)", "AMP", "NADP"], a: 1 },
+            { q: "जलीय जीव (जैसे मछलियाँ) स्थलीय जीवों की तुलना में तेजी से सांस क्यों लेते हैं?", o: ["मछलियों के फेफड़े छोटे होते हैं", "जल में घुली हुई ऑक्सीजन की मात्रा वायुमंडल की तुलना में बहुत कम होती है", "वे ठंडे खून के होते हैं", "पानी में तैरने के कारण"], a: 1 },
+            { q: "मछलियों में श्वसन के लिए कौन सा विशिष्ट अंग पाया जाता है?", o: ["फेफड़े", "त्वचा", "क्लोम या गलफड़े (Gills)", "श्वासनली"], a: 2 },
+            { q: "मानव श्वसन तंत्र में कंठ के ऊपर उपास्थि के वलय (Rings of Cartilage) क्यों उपस्थित होते हैं?", o: ["सुंदरता के लिए", "ताकि वायु मार्ग निपतित (Collapse) न हो", "आवाज तेज करने के लिए", "भोजन रोकने के लिए"], a: 1 },
+            { q: "फेफड़ों के अंदर वह गुब्बारे जैसी संरचना क्या कहलाती है जो गैसों के विनिमय के लिए व्यापक सतह प्रदान करती है?", o: ["श्वसनी", "कुपिका या एलीविओलाई (Alveoli)", "नेफ्रॉन", "श्वासनली"], a: 1 },
+            { q: "मानव में श्वसन वर्णक (Respiratory Pigment) कौन सा है जो ऑक्सीजन को फेफड़ों से पूरे शरीर की कोशिकाओं तक ले जाता है?", o: ["क्लोरोफिल", "प्लाज्मा", "हीमोग्लोबिन (Hemoglobin)", "श्वेत रक्त कणिकाएं"], a: 2 },
+            { q: "हीमोग्लोबिन मुख्य रूप से रक्त की किन कोशिकाओं में पाया जाता है और इसका रंग लाल होता है?", o: ["WBC", "प्लेटलेट्स", "RBC (लाल रक्त कणिकाएं)", "लसीका कोशिकाओं में"], a: 2 },
+            { q: "कार्बन डाइऑक्साइड (CO₂) जल में अधिक घुलनशील है, इसलिए इसका परिवहन रक्त में मुख्य रूप से किस रूप में होता है?", o: ["ठोस रूप में", "विलीन अवस्था में (Dissolved form)", "गैस के बुलबुलों के रूप में", "RBC से बंधकर"], a: 1 },
+            { q: "रक्त (Blood) एक तरल संयोजी ऊतक है। इसके तरल माध्यम को क्या कहते हैं जिसमें कोशिकाएं तैरती हैं?", o: ["लसीका", "प्लाज्मा (Plasma)", "सीरम", "गोंद"], a: 1 },
+            { q: "मानव हृदय (Human Heart) में कुल कितने कोष्ठक या चैंबर (Chambers) होते हैं?", o: ["दो", "तीन", "चार (4 Chambers - 2 अलिंद, 2 निलय)", "पांच"], a: 2 },
+            { q: "ऑक्सीजन-प्रचुर रुधिर (Oxygenated Blood) फेफड़ों से हृदय के किस कोष्ठक में सबसे पहले आता है?", o: ["बायाँ अलिंद (Left Atrium)", "दायाँ अलिंद", "बायाँ निलय", "दायाँ निलय"], a: 0 },
+            { q: "हृदय के कोष्ठकों में वाल्व (Valves) की उपस्थिति का क्या मुख्य उद्देश्य है?", o: ["रक्त को रोकना", "रुधिर का उलटा प्रवाह (Backflow) रोकना", "रक्त का दाब बढ़ाना", "दिल की धड़कन पैदा करना"], a: 1 },
+            { q: "हृदय से शरीर के विभिन्न अंगों तक उच्च दाब पर ऑक्सीजन युक्त रक्त ले जाने वाली रक्त वाहिकाएं क्या कहलाती हैं?", o: ["शिराएं", "धमनियां (Arteries)", "केशिकाएं", "लसीका वाहिकाएं"], a: 1 },
+            { q: "धमनियों की भित्ति शिराओं की तुलना में मोटी और लचीली क्यों होती है?", o: ["वे बड़ी होती हैं", "रुधिर हृदय से उच्च दाब पर निकलता है (High Pressure)", "वे अशुद्ध रक्त ले जाती हैं", "वे त्वचा के ऊपर होती हैं"], a: 1 },
+            { q: "विभिन्न अंगों से अशुद्ध या विऑक्सीजनित रुधिर को वापस हृदय तक लाने वाली वाहिकाएं क्या कहलाती हैं?", o: ["धमनियां", "शिराएं (Veins)", "केशिकाएं", "महाधमनी"], a: 1 },
+            { q: "किस एकमात्र धमनी में अशुद्ध (विऑक्सीजनित) रुधिर प्रवाहित होता है जो उसे फेफड़ों तक ले जाती है?", o: ["महाधमनी", "फुफ्फुस धमनी (Pulmonary Artery)", "फुफ्फुस शिरा", "वृक्क धमनी"], a: 1 },
+            { q: "किस एकमात्र शिरा में शुद्ध (ऑक्सीजन युक्त) रुधिर बहता है जो फेफड़ों से उसे हृदय तक लाती है?", o: ["महाशिरा", "फुफ्फुस शिरा (Pulmonary Vein)", "फुफ्फुस धमनी", "यकृत शिरा"], a: 1 },
+            { q: "धमनियां आगे चलकर अत्यंत पतली वाहिकाओं में विभाजित हो जाती हैं जिनकी भित्ति एक कोशिकीय मोटी होती है, इन्हें क्या कहते हैं?", o: ["शिराएं", "रुधिर केशिकाएं (Capillaries)", "लसीका", "वाल्व"], a: 1 },
+            { q: "रुधिर वाहिकाओं की भित्ति के विरुद्ध जो दाब लगता है, उसे क्या कहते हैं और इसे किस यंत्र से मापते हैं?", o: ["नाड़ी दाब, थर्मामीटर", "रक्तदाब (Blood Pressure), स्फिग्मोमैनोमीटर", "वायुमंडलीय दाब, बैरोमीटर", "परासरण दाब"], a: 1 },
+            { q: "एक सामान्य स्वस्थ मनुष्य का प्रकुंचन (Systolic) और अनुशिथिलन (Diastolic) रक्तदाब कितना होता है?", o: ["80/120 mm Hg", "120/80 mm Hg", "100/50 mm Hg", "140/90 mm Hg"], a: 1 },
+            { q: "रक्त का थक्का (Blood Clot) बनाने में कौन सी रक्त कोशिकाएं सहायक होती हैं जो चोट लगने पर रक्तस्राव रोकती हैं?", o: ["RBC", "WBC", "प्लेटलेट्स (Platelets / थ्रोम्बोसाइट्स)", "प्लाज्मा"], a: 2 },
+            { q: "केशिकाओं की भित्ति से छना हुआ एक अन्य तरल जो अंतरकोशकीय अवकाश में एकत्रित होता है, क्या कहलाता है?", o: ["रुधिर", "लसीका या लिम्फ (Lymph)", "सीरम", "मूत्र"], a: 1 },
+            { q: "लसीका (Lymph) का रंग कैसा होता है और इसमें रुधिर की तुलना में किसकी मात्रा कम होती है?", o: ["लाल, जल की", "रंगहीन/हल्का पीला, प्रोटीन की मात्रा कम (Less Protein)", "नीला, ऑक्सीजन की", "काला, वसा की"], a: 1 },
+            { q: "पौधों में जल और खनिज लवणों के वहन के लिए कौन सा संवहन ऊतक (Vascular Tissue) उत्तरदायी है?", o: ["फ्लोएम", "जाइलम (Xylem)", "मृदूतक", "दृढ़ूतक"], a: 1 },
+            { q: "पौधों में तैयार भोजन (सक्रोज़) को पत्तियों से शरीर के अन्य भागों तक पहुँचाने का कार्य कौन करता है?", o: ["जाइलम", "फ्लोएम (Phloem)", "रंध्र", "मूलरोम"], a: 1 },
+            { q: "पौधों के हवाई भागों (पत्तियों) द्वारा जल वाष्प के रूप में जल की हानि की प्रक्रिया क्या कहलाती है?", o: ["उत्सर्जन", "वाष्पोत्सर्जन (Transpiration)", "श्वसन", "प्रकाश संश्लेषण"], a: 1 },
+            { q: "वाष्पोत्सर्जन का पौधों के लिए क्या मुख्य लाभ है?", o: ["भोजन का निर्माण", "जड़ों से जल एवं खनिज लवणों के ऊर्ध्वगामी खिंचाव (Suction Pull) और तापमान नियमन में सहायक", "गैसों का अवशोषण", "ऊर्जा संचय"], a: 1 },
+            { q: "फ्लोएम द्वारा प्रकाश संश्लेषण के उत्पादों के परिवहन की इस सक्रिय प्रक्रिया को क्या कहा जाता है?", o: ["वाष्पीकरण", "स्थानांतरण (Translocation)", "विसरण", "अवशोषण"], a: 1 },
+            { q: "फ्लोएम में भोजन का स्थानांतरण करने के लिए ऊर्जा किस रूप में प्रयुक्त होती है?", o: ["सौर ऊर्जा", "ATP के रूप में (Active Transport using ATP)", "गर्मी", "गतिज ऊर्जा"], a: 1 },
+            { q: "जीवों के शरीर से उपापचयी क्रियाओं द्वारा उत्पन्न नाइट्रोजनयुक्त हानिकारक अपशिष्ट पदार्थों के निष्कासन को क्या कहते हैं?", o: ["पोषण", "श्वसन", "उत्सर्जन (Excretion)", "परिसंचरण"], a: 2 },
+            { q: "मानव उत्सर्जन तंत्र (Human Excretory System) का मुख्य अंग कौन सा है जो रुधिर से अपशिष्टों को छानता है?", o: ["फेफड़े", "यकृत", "एक जोड़ी वृक्क (Pair of Kidneys)", "त्वचा"], a: 2 },
+            { q: "वृक्क (Kidney) के अंदर पाई जाने वाली उसकी मुख्य संरचनात्मक और कार्यात्मक छानन इकाई क्या कहलाती है?", o: ["न्यूरॉन", "कुपिका", "वृक्काणु या नेफ्रॉन (Nephron)", "मूत्रवाहिनी"], a: 2 },
+            { q: "नेफ्रॉन का वह कप जैसा हिस्सा क्या कहलाता है जिसमें केशिकाओं का गुच्छ (Glomerulus) स्थित होता है?", o: ["हेनले का लूप", "बोमन संपुट (Bowman's Capsule)", "संग्राहक वाहिनी", "मूत्रमार्ग"], a: 1 },
+            { q: "प्रारंभिक निस्यंद (Filtrate) में उपस्थित ग्लूकोज, अमीनो अम्ल और प्रचुर जल का नेफ्रॉन की नलिका में दोबारा सोखा जाना क्या कहलाता है?", o: ["अल्ट्राफिल्ट्रेशन", "चयनात्मक पुनरावशोषण (Selective Reabsorption)", "उत्सर्जन", "स्राव"], a: 1 },
+            { q: "वृक्क में निर्मित मूत्र (Urine) किसके माध्यम से मूत्राशय (Urinary Bladder) तक पहुँचता है?", o: ["मूत्रमार्ग", "मूत्रवाहिनियाँ (Ureters)", "नेफ्रॉन", "महाशिरा"], a: 1 },
+            { q: "कृत्रिम वृक्क द्वारा रुधिर से नाइट्रोजनयुक्त अपशिष्ट पदार्थों को बाहर निकालने की चिकित्सा पद्धति क्या कहलाती है?", o: ["एंजियोग्राफी", "अपोहन या डायलिसिस (Hemodialysis)", "इलेक्ट्रोकार्डियोग्राम", "पेसमेकर"], a: 1 },
+            { q: "पौधों में अपशिष्ट पदार्थ जैसे रेजिन (Resin) और गोंद (Gum) मुख्य रूप से कहाँ संचित होते हैं?", o: ["नई पत्तियों में", "पुरानी जाइलम (Old Xylem) कोशिकाओं में", "जड़ों में", "फूलों में"], a: 1 },
+            { q: "सजीव और निर्जीव के बीच मुख्य अंतर यह है कि सजीवों में गतियां आणविक स्तर पर:", o: ["दिखाई नहीं देतीं पर लगातार होती रहती हैं (Molecular Movements)", "बिल्कुल नहीं होतीं", "केवल सोते समय होती हैं", "गैस बनने पर होती हैं"], a: 0 },
+            { q: "मानव हृदय में रुधिर का एक चक्र में दो बार गुजरना क्या कहलाता है?", o: ["एकल परिसंचरण", "द्वि-परिसंचरण (Double Circulation)", "खुला परिसंचरण", "अपोहन"], a: 1 },
+            { q: "मछलियों के हृदय में कुल कितने कोष्ठक होते हैं और वहाँ कैसा परिसंचरण होता है?", o: ["चार, द्वि-परिसंचरण", "दो, एकल परिसंचरण (Single Circulation)", "तीन, मिश्रित परिसंचरण", "एक"], a: 1 },
+            { q: "उभयचरों (Amphibians) और अधिकांश सरीसृपों (Reptiles) का हृदय कितने कोष्ठकीय होता है जो कुछ सीमा तक ऑक्सीजनित और विऑक्सीजनित रुधिर को मिलने दे सकते हैं?", o: ["दो", "तीन (3 Chambers)", "चार", "एक"], a: 1 },
+            { q: "पक्षियों और स्तनधारियों (Mammals) को चार कोष्ठकीय हृदय की आवश्यकता क्यों होती है?", o: ["वे तैरते हैं", "शरीर का तापमान नियत बनाए रखने के लिए प्रचुर ऊर्जा की आपूर्ति हेतु (Warm-blooded)", "उनका आकार छोटा होता है", "वे शाकाहारी होते हैं"], a: 1 },
+            { q: "आमाशय में पेप्सिन के अलावा बच्चों में दूध प्रोटीन (केसीन) को पचाने वाला कौन सा एंजाइम पाया जाता है?", o: ["एमाइलेज", "रेनिन (Rennin)", "ट्रिप्सिन", "लाइपेज"], a: 1 },
+            { q: "दीर्घरोम (Villi) में किसकी प्रचुरता होती है जो अवशोषित भोजन को पूरे शरीर तक पहुँचाती है?", o: ["वायु वाहिनी", "रुधिर वाहिकाएं और लिम्फ वाहिकाएं (Blood Vessels)", "हड्डियाँ", "श्लेष्मा"], a: 1 },
+            { q: "ग्लूकोज के एक अणु के पूर्ण वायवीय ऑक्सीकरण से कुल कितने ATP अणुओं का लाभ होता है?", o: ["2 ATP", "36 या 38 ATP (38 ATP)", "8 ATP", "100 ATP"], a: 1 },
+            { q: "अवायवीय श्वसन (जैसे यीस्ट या पेशी में) प्रति ग्लूकोज अणु कुल कितने नेट ATP का निर्माण करता है?", o: ["2 ATP", "38 ATP", "4 ATP", "0 ATP"], a: 0 },
+            { q: "श्वसन के दौरान फेफड़ों और रक्त के बीच गैसों का विनिमय (Exchange) मुख्य रूप से किस भौतिक प्रक्रिया द्वारा होता है?", o: ["सक्रिय परिवहन", "सरल विसरण (Simple Diffusion)", "परासरण", "क्रमानुकुंचन"], a: 1 },
+            { q: "मनुष्य के वृक्क का आकार किस बीज के समान होता है?", o: ["मटर के", "सेम के बीज के आकार का (Bean Shaped)", "आम की गुठली", "चने"], a: 1 },
+            { q: "मनुष्य में मुख्य उत्सर्जी पदार्थ कौन सा होता है जिसे वृक्क अलग करता है?", o: ["अमोनिया", "यूरिया (Urea)", "यूरिक अम्ल", "अमीनो अम्ल"], a: 1 },
+            { q: "यकृत (Liver) अमोनिया को कम हानिकारक किस पदार्थ में बदलता है, जिसे बाद में मूत्र द्वारा निकाला जाता है?", o: ["यूरिक अम्ल", "यूरिया (Urea)", "ग्लूकोज", "प्लाज्मा"], a: 1 },
+            { q: "पौधे रात के समय जब प्रकाश संश्लेषण नहीं होता, मुख्य रूप से कौन सी गैस बाहर निकालते हैं?", o: ["ऑक्सीजन", "कार्बन डाइऑक्साइड (CO₂)", "नाइट्रोजन", "हाइड्रोजन"], a: 1 },
+            { q: "दिन के समय जब पौधे प्रकाश संश्लेषण करते हैं, तो श्वसन में निकली CO₂ का क्या होता है?", o: ["वह बाहर निकल जाती है", "वह प्रकाश संश्लेषण में प्रयुक्त हो जाती है (Used in Photosynthesis)", "वह जमा रहती है", "नष्ट हो जाती है"], a: 1 },
+            { q: "विषमपोषी जीव (Heterotrophs) प्रत्यक्ष या परोक्ष रूप से अपनी ऊर्जा के लिए किस पर निर्भर होते हैं?", o: ["अन्य विषमपोषियों पर", "स्वपोषी जीवों (हरे पौधों) पर", "खनिजों पर", "हवा पर"], a: 1 },
+            { q: "अमरबेल (Cuscuta), जूँ और फीताकृमि (Tapeworm) पोषण की किस विशिष्ट परपोषी विधि का उपयोग करते हैं?", o: ["मृतोपजीवी पोषण", "परजीवी पोषण (Parasitic Nutrition)", "प्राणिसम पोषण", "स्वपोषण"], a: 1 },
+            { q: "मनुष्य, कुत्ता और अमीबा पोषण की किस विधि का प्रदर्शन करते हैं जिसमें जटिल भोजन का अंतर्ग्रहण होता है?", o: ["परजीवी", "प्राणिसम या पूर्णभgeneric पोषण (Holozoic)", "मृतोपजीवी", "स्वपोषी"], a: 1 },
+            { q: "लार ग्रंथि, जठर ग्रंथि, यकृत और अग्न्याशय को संयुक्त रूप से क्या कहा जाता है?", o: ["श्वसन ग्रंथियां", "संबद्ध पाचन ग्रंथियां (Associated Digestive调节)", "उत्सर्जी अंग", "परिसंचरण अंग"], a: 1 },
+            { q: "मनुष्य के दांतों का सबसे ऊपरी सफेद और चमकीला कठोर आवरण क्या कहलाता है?", o: ["डेंटाइन", "इनेमल (Enamel)", "मज्जा गुहा", "सीमेंटम"], a: 1 },
+            { q: "जीवाणुओं द्वारा शर्करा पर क्रिया करके अम्ल बनाने से दांतों पर जमने वाली पीली परत क्या कहलाती है?", o: ["दंत कैविटी", "दंत प्लाक (Dental Plaque)", "इनेमल क्षय", "मसूड़ों की सूजन"], a: 1 },
+            { q: "मूत्र का रंग हल्का पीला किस वर्णक (Pigment) की उपस्थिति के कारण होता है?", o: ["हीमोग्लोबिन", "यूरोक्रोम (Urochrome)", "मेलानिन", "क्लोरोफिल"], a: 1 },
+            { q: "डायलेसिस मशीन (कृत्रिम वृक्क) की नलिकाएं किसकी बनी होती हैं जो चयनात्मक पारगम्य होती हैं?", o: ["प्लास्टिक", "सेलोफेन (Cellophane)", "कांच", "रबर"], a: 1 },
+            { q: "जैव प्रक्रम (Life Processes) के इस संपूर्ण अध्याय का मूल रासायनिक व जैविक निष्कर्ष क्या है?", o: ["सजीवों को किसी प्रक्रम की आवश्यकता नहीं है", "शरीर की कोशिकाओं में ऊर्जा का निरंतर उत्पादन, आवश्यक पदार्थों का वहन तथा हानिकारक अपशिष्टों का समय पर निष्कासन ही जीवन के अनुरक्षण का मूल आधार है", "श्वसन और पोषण एक दूसरे से अलग हैं", "सजीव और निर्जीव समान रूप से कार्य करते हैं"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">जैव प्रक्रम (Life Processes)</h1>
+                    <p style="color: #4a5568; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (अध्याय 6)</p>
+                    <p style="color: #6b7280; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">पोषण, श्वसन, वहन और उत्सर्जन के 100 चुनिंदा वैचारिक प्रश्नों का महा-संग्रह। आधुनिक ग्लासमोर्फिज्म इंटरफ़ेस और लाइव ट्रैकिंग के साथ अभ्यास शुरू करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #16a34a; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1a202c;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #2d3748;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #4ade80;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #16a34a;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! आपने जैव प्रक्रम अध्याय में शत-प्रतिशत अंक प्राप्त किए हैं।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "उत्कृष्ट प्रदर्शन! जैविक तंत्रों पर आपकी समझ अत्यंत गहरी और स्पष्ट है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! अध्यायों का एक बार और गहराई से रिवीजन करें।"; emoji = "👍"; }
+            else { message = "निराश न हों! लाइफ प्रोसेस के मुख्य सिद्धांतों को दोबारा पढ़ें और प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

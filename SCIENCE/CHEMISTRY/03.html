@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>रसायन विज्ञान क्विज़ - धातु एवं अधातु</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdfa;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0ea5e9;
+            background-color: #f0f9ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #2dd4bf, #0ea5e9); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #14b8a6, #06b6d4); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "कमरे के ताप पर द्रव अवस्था में पाई जाने वाली एकमात्र धातु कौन सी है?", o: ["सोडियम", "पारा (मरकरी)", "गैलियम", "लिथियम"], a: 1 },
+            { q: "कमरे के ताप पर द्रव अवस्था में पाई जाने वाली एकमात्र अधातु कौन सी है?", o: ["आयोडीन", "क्लोरीन", "ब्रोमीन", "फॉस्फोरस"], a: 2 },
+            { q: "धातुओं को पीटकर पतली चादर बनाने के गुणधर्म को क्या कहा जाता है?", o: ["तन्यता", "आघातवर्धनीयता (Malleability)", "ध्वानिकता", "चालकता"], a: 1 },
+            { q: "धातुओं के पतले तार के रूप में खींचे जाने की क्षमता को क्या कहते हैं?", o: ["तन्यता (Ductility)", "आघातवर्धनीयता", "कठोरता", "भंगुरता"], a: 0 },
+            { q: "निम्नलिखित में से कौन सी धातु सर्वाधिक आघातवर्धनीय तथा तन्य होती है?", o: ["चांदी", "सोना (Gold)", "तांबा", "एल्युमिनियम"], a: 1 },
+            { q: "1 ग्राम सोने से लगभग कितना लंबा बारीक तार खींचा जा सकता है?", o: ["500 मीटर", "1 किलोमीटर", "2 किलोमीटर", "5 किलोमीटर"], a: 2 },
+            { q: "कौन सी धातुएं ऊष्मा की सबसे अच्छी चालक (Best Conductors) मानी जाती हैं?", o: ["लोहा और टिन", "सिल्वर और कॉपर", "लेड और मरकरी", "सोडियम और पोटेशियम"], a: 1 },
+            { q: "निम्नलिखित में से कौन सी धातु ऊष्मा की कुचालक (Poor Conductor) होती है?", o: ["लेड (शीशा)", "तांबा", "एल्युमिनियम", "चांदी"], a: 0 },
+            { q: "वे धातुएं जिन्हें चाकू से आसानी से काटा जा सकता है क्योंकि वे अत्यधिक मुलायम होती हैं?", o: ["लोहा, तांबा, जस्ता", "लिथियम, सोडियम, पोटेशियम", "सोना, चांदी, प्लेटिनम", "मैग्नीशियम, कैल्शियम"], a: 1 },
+            { q: "आमतौर पर अधातुएं चमकीली नहीं होती हैं, लेकिन कौन सी अधातु चमकीली (Lustrous) होती है?", o: ["सल्फर", "कार्बन", "आयोडीन", "नाइट्रोजन"], a: 2 },
+            { q: "कार्बन का वह अपररूप (Allotrope) जो प्रकृति का सबसे कठोर प्राकृतिक पदार्थ है?", o: ["ग्रेफाइट", "हीरा (Diamond)", "कोयला", "फुलरीन"], a: 1 },
+            { q: "अधातुएं विद्युत की कुचालक होती हैं, लेकिन carbon का कौन सा अपररूप विद्युत का सुचालक है?", o: ["हीरा", "ग्रेफाइट", "चारकोल", "काजल"], a: 1 },
+            { q: "धातुओं के ऑक्साइड की सामान्य रासायनिक प्रकृति कैसी होती है?", o: ["अम्लीय", "क्षारीय (Basic)", "उदासीन", "उभयधर्मी"], a: 1 },
+            { q: "अधातुओं के ऑक्साइड की सामान्य रासायनिक प्रकृति क्या होती है?", o: ["अम्लीय (Acidic)", "क्षारीय", "उभयधर्मी", "इनमें से कोई नहीं"], a: 0 },
+            { q: "एल्युमिनियम ऑक्साइड (Al₂O₃) और जिंक ऑक्साइड (ZnO) किस प्रकार के ऑक्साइड हैं?", o: ["अम्लीय ऑक्साइड", "क्षारीय ऑक्साइड", "उभयधर्मी ऑक्साइड (Amphoteric)", "उदासीन ऑक्साइड"], a: 2 },
+            { q: "कौन सी धातुएं वायु में खुली रखने पर आग पकड़ लेती हैं, इसलिए इन्हें केरोसिन तेल में डुबोकर रखा जाता है?", o: ["मैग्नीशियम और कैल्शियम", "लोहा और तांबा", "सोडियम और पोटेशियम", "सोना और चांदी"], a: 2 },
+            { q: "ठंडे जल के साथ अत्यधिक तेजी और विस्फोटक रूप से अभिक्रिया करने वाली धातु कौन सी है?", o: ["मैग्नीशियम", "लोहा", "पोटेशियम", "एल्युमिनियम"], a: 2 },
+            { q: "कौन सी धातु ठंडे जल से क्रिया नहीं करती परंतु गर्म जल से क्रिया करती है?", o: ["सोडियम", "कैल्शियम", "मैग्नीशियम", "लोहा"], a: 2 },
+            { q: "लोहा और एल्युमिनियम जल के किस रूप के साथ अभिक्रिया करके ऑक्साइड और हाइड्रोजन गैस बनाते हैं?", o: ["ठंडा जल", "गर्म जल", "भाप (Steam)", "अभिक्रिया नहीं करते"], a: 2 },
+            { q: "निम्नलिखित में से कौन सी धातुएं जल या भाप के साथ बिल्कुल भी अभिक्रिया नहीं करती हैं?", o: ["सोडियम और पोटेशियम", "लेड, कॉपर,转换, गोल्ड", "लोहा और जस्ता", "मैग्नीशियम और कैल्शियम"], a: 1 },
+            { q: "सक्रियता श्रेणी (Reactivity Series) में सबसे शीर्ष पर स्थित अत्यधिक क्रियाशील धातु कौन सी है?", o: ["सोडियम", "पोटेशियम (K)", "कैल्शियम", "सोना"], a: 1 },
+            { q: "सक्रियता श्रेणी में सबसे नीचे स्थित न्यूनतम क्रियाशील धातु कौन सी है?", o: ["तांबा", "चांदी", "सोना (Au)", "लोहा"], a: 2 },
+            { q: "जब कोई अधिक अभिक्रियाशील धातु कम अभिक्रियाशील धातु को उसके लवण विलयन से हटा देती है, तो उसे क्या कहते हैं?", o: ["संयोजन अभिक्रिया", "वियोजन अभिक्रिया", "विस्थापन अभिक्रिया (Displacement)", "द्विविस्थापन अभिक्रिया"], a: 2 },
+            { q: "तांबे के बर्तन पर आर्द्र वायु के कारण बनने वाली हरी परत का रासायनिक संगठन क्या है?", o: ["कॉपर सल्फेट", "कॉपर कार्बोनेट और कॉपर हाइड्रॉक्साइड", "कॉपर ऑक्साइड", "कॉपर नाइट्रेट"], a: 1 },
+            { q: "लोहे पर जंग (Rust) लगने के लिए किन दो कारकों की उपस्थिति अनिवार्य है?", o: ["केवल ऑक्सीजन", "केवल पानी", "ऑक्सीजन और नमी (आर्द्रता दोनों)", "नाइट्रोजन और पानी"], a: 2 },
+            { q: "लोहे को जंग से बचाने के लिए उस पर जस्ते (जिंक) की पतली परत चढ़ाने की प्रक्रिया क्या कहलाती है?", o: ["विद्युत लेपन", "यशदलेपन (Galvanization)", "मिश्रधातु बनाना", "एनोडीकरण"], a: 1 },
+            { q: "धातु से अधातु में इलेक्ट्रॉन के स्थानांतरण से बने यौगिकों को क्या कहा जाता है?", o: ["सहसंयोजक यौगिक", "आयनिक यौगिक (Ionic Compounds)", "उप-सहसंयोजक यौगिक", "कार्बनिक यौगिक"], a: 1 },
+            { q: "आयनिक यौगिकों के गलनांक और क्वथनांक उच्च क्यों होते हैं?", o: ["वे हल्के होते हैं", "मजबूत अंतर-आयनिक आकर्षण बल के कारण", "वे जल में अघुलनशील होते हैं", "वे आसानी से टूट जाते हैं"], a: 1 },
+            { q: "आयनिक यौगिक किस विलायक में सामान्यतः घुलनशील होते हैं?", o: ["केरोसिन", "पेट्रोल", "जल (Water)", "बेंजीन"], a: 2 },
+            { q: "आयनिक यौगिक विद्युत का चालन किस अवस्था में करते हैं?", o: ["केवल ठोस अवस्था में", "गलित या जलीय विलयन अवस्था में", "किसी भी अवस्था में नहीं", "गैसीय अवस्था में"], a: 1 },
+            { q: "पृथ्वी की भूपर्पटी में प्राकृतिक रूप से पाए जाने वाले तत्वों या यौगिकों को क्या कहते हैं?", o: ["खनिज (Minerals)", "अयस्क", "गैंग", "धातु"], a: 0 },
+            { q: "उन खनिजों को जिनमें कोई विशेष धातु प्रचुर मात्रा में होती है और उसे निकालना लाभकारी होता है, क्या कहते हैं?", o: ["धातुमल", "अयस्क (Ores)", "गैंग", "मिश्रधातु"], a: 1 },
+            { q: "पृथ्वी से खनित अयस्कों में उपस्थित मिट्टी, रेत आदि जैसी अवांछनीय अशुद्धियों को क्या कहा जाता है?", o: ["गैंग (Gangue)", "धातुमल", "फ्लक्स", "उत्प्रेरक"], a: 0 },
+            { q: "सल्फाइड अयस्क को वायु की उपस्थिति में अधिक ताप पर गर्म करके ऑक्साइड में बदलने की प्रक्रिया क्या है?", o: ["निस्तापन", "भर्जन (Roasting)", "अपचयन", "प्रगलन"], a: 1 },
+            { q: "कार्बोनेट अयस्क को सीमित वायु में अधिक ताप पर गर्म करके ऑक्साइड में बदलने की प्रक्रिया क्या कहलाती है?", o: ["भर्जन", "निस्तापन (Calcination)", "विद्युत अपघटन", "यशोधन"], a: 1 },
+            { q: "सक्रियता श्रेणी में मध्य में स्थित धातुओं (जैसे Fe, Zn) के ऑक्साइड्स का धातु में अपचयन करने के लिए किसका उपयोग होता है?", o: ["ऑक्सीजन", "कार्बन (Coke)", "नाइट्रोजन", "क्लोरीन"], a: 1 },
+            { q: "अत्यधिक अभिक्रियाशील धातुओं (जैसे Na, Al) को उनके अयस्कों से प्राप्त करने के लिए किस विधि का उपयोग किया जाता है?", o: ["कार्बन द्वारा अपचयन", "विद्युत अपघटनी अपचयन (Electrolytic Reduction)", "भर्जन", "निस्तापन"], a: 1 },
+            { q: "धातुओं के विद्युत अपघटनी परिष्करण (Electrolytic Refining) में अशुद्ध धातु को कहाँ बनाया जाता है?", o: ["कैथोड पर", "एनोड (Anode) पर", "विद्युत अपघट्य में", "बर्तन की तली पर"], a: 1 },
+            { q: "विद्युत अपघटनी परिष्करण में शुद्ध धातु कहाँ पर निक्षेपित (Deposit) होती है?", o: ["एनोड पर", "कैथोड (Cathode) पर", "एनोड पंक में", "कहीं भी नहीं"], a: 1 },
+            { q: "विद्युत अपघटनी परिष्करण के दौरान एनोड के नीचे एकत्रित होने वाली अघुलनशील अशुद्धियों को क्या कहते हैं?", o: ["गैंग", "एनोड पंक (Anode Mud)", "धातुमल", "अमलगम"], a: 1 },
+            { q: "दो या दो से अधिक धातुओं, या एक धातु एवं एक अधातु के समांगी मिश्रण को क्या कहते हैं?", o: ["यौगिक", "तत्व", "मिश्रधातु (Alloy)", "निलंबन"], a: 2 },
+            { q: "यदि मिश्रधातु में एक धातु पारा (मरकरी) हो, तो उस मिश्रधातु को विशेष रूप से क्या कहा जाता है?", o: ["कांसा", "पीतल", "अमलगम (Amalgam)", "सोल्डर"], a: 2 },
+            { q: "पीतल (Brass) किन दो धातुओं की मिश्रधातु है?", o: ["तांबा और जस्ता", "तांबा और टिन", "सीसा और टिन", "लोहा और क्रोमियम"], a: 0 },
+            { q: "कांसा (Bronze) किन दो अवयवों का मिश्रण होता है?", o: ["तांबा और जस्ता", "तांबा और टिन", "सीसा और टिन", "लोहा और क्रोमियम"], a: 1 },
+            { q: "विद्युत तारों की वेल्डिंग के लिए प्रयुक्त होने वाला 'सोल्डर' (Solder) किसकी मिश्रधातु है?", o: ["तांबा और जस्ता", "सीसा और टिन", "एल्युमिनियम और मैग्नीशियम", "लोहा और निकेल"], a: 1 },
+            { q: "शुद्ध सोना कितने कैरेट का होता है जो बहुत मुलायम होने के कारण आभूषण के लिए उपयुक्त नहीं होता?", o: ["22 कैरेट", "24 कैरेट", "18 कैरेट", "20 कैरेट"], a: 1 },
+            { q: "भारत में आभूषण बनाने के लिए सामान्यतः कितने कैरेट सोने का उपयोग किया जाता है?", o: ["24 कैरेट", "22 कैरेट", "18 कैरेट", "12 कैरेट"], a: 1 },
+            { q: "स्टेनलेस स्टील (Stainless Steel) में लोहे के साथ किन तत्वों को मिलाया जाता है जिससे उसमें जंग नहीं लगता?", o: ["तांबा और जस्ता", "निकेल और क्रोमियम", "सीसा और टिन", "सल्फर और कार्बन"], a: 1 },
+            { q: "ऐनोडीकरण (Anodizing) किस धातु पर एक मोटी ऑक्साइड की परत बनाने की प्रक्रिया है जिससे उसका संक्षारण रुकता है?", o: ["लोहा", "तांबा", "एल्युमिनियम", "जस्ता"], a: 2 },
+            { q: "सिनाबार (Cinnabar - HgS) निम्नलिखित में से किस धातु का प्रमुख अयस्क है?", o: ["तांबा", "पारा (Mercury)", "सीसा", "लोहा"], a: 1 },
+            { q: "बॉक्साइट (Bauxite) निम्नलिखित में से किस धातु का मुख्य अयस्क माना जाता है?", o: ["लोहा", "एल्युमिनियम", "तांबा", "जस्ता"], a: 1 },
+            { q: "हेमैटाइट (Hematite) किस धातु का अत्यंत महत्वपूर्ण अयस्क है?", o: ["तांबा", "एल्युमिनियम", "लोहा", "जस्ता"], a: 2 },
+            { q: "कॉपर पायराइट्स किस धातु का मुख्य अयस्क है?", o: ["लोहा", "जस्ता", "तांबा", "सोडियम"], a: 2 },
+            { q: "कौन सी अधातु कमरे के तापमान पर ठोस अवस्था में पाई जाती है और पीले रंग की होती है?", o: ["क्लोरीन", "नाइट्रोजन", "सल्फर", "ऑक्सीजन"], a: 2 },
+            { q: "वह कौन सी अधातु है जो गैसीय अवस्था में पाई जाती है और वायुमंडल में 78% विद्यमान है?", o: ["ऑक्सीजन", "नाइट्रोजन", "हाइड्रोजन", "हीलियम"], a: 1 },
+            { q: "निम्नलिखित में से कौन सी धातु ठंडे या गर्म जल से क्रिया नहीं करती परंतु लाल तप्त होने पर भाप से क्रिया करती है?", o: ["सोडियम", "पोटेशियम", "लोहा", "कैल्शियम"], a: 2 },
+            { q: "जब धातुओं की क्रिया तनु नाइट्रिक अम्ल (HNO₃) से होती है, तो हाइड्रोजन गैस क्यों नहीं निकलती?", o: ["HNO₃ एक प्रबल ऑक्सीकारक है जो H₂ को जल में बदल देता है", "HNO₃ बहुत दुर्बल है", "अभिक्रिया अत्यंत धीमी होती है", "धातुएं नष्ट हो जाती हैं"], a: 0 },
+            { q: "मैंगनीज (Mn) और मैग्नीशियम (Mg) अति तनु किसके साथ अभिक्रिया करके हाइड्रोजन गैस उत्सर्जित कर सकते हैं?", o: ["HCl", "H₂SO₄", "HNO₃", "CH₃COOH"], a: 2 },
+            { q: "थर्मिट अभिक्रिया (Thermit Reaction) में आयरन ऑक्साइड के साथ किस धातु का उपयोग पटरियों को जोड़ने में होता है?", o: ["जस्ता", "एल्युमिनियम", "तांबा", "सोडियम"], a: 1 },
+            { q: "धातुएं इलेक्ट्रॉन्स का क्या करती हैं जब वे रासायनिक बंध बनाती हैं?", o: ["इलेक्ट्रॉन ग्रहण करती हैं", "इलेक्ट्रॉन का त्याग करती हैं", "इलेक्ट्रॉन की साझेदारी करती हैं", "कुछ नहीं करतीं"], a: 1 },
+            { q: "अधातुएं रासायनिक अभिक्रिया के दौरान इलेक्ट्रॉन्स के संदर्भ में क्या व्यवहार करती हैं?", o: ["इलेक्ट्रॉन त्यागती हैं", "इलेक्ट्रॉन ग्रहण करती हैं", "बंध नहीं बनातीं", "उदासीन रहती हैं"], a: 1 },
+            { q: "सोडियम क्लोराइड (NaCl) में किस प्रकार का रासायनिक बंध उपस्थित होता है?", o: ["सहसंयोजक बंध", "आयनिक बंध", "उप-सहसंयोजक बंध", "धात्विक बंध"], a: 1 },
+            { q: "मैग्नीशियम क्लोराइड (MgCl₂) का मेल्टिंग पॉइंट कैसा होता है?", o: ["अत्यंत निम्न", "उच्च", "सामान्य", "शून्य"], a: 1 },
+            { q: "धातुओं को पीटने पर उत्पन्न होने वाली विशेष गूंजती ध्वनि के गुण को क्या कहते हैं?", o: ["तन्यता", "ध्वानिकता (Sonorous)", "चमक", "विद्युत चालकता"], a: 1 },
+            { q: "स्कूल की घंटियाँ या वाद्य यंत्रों के तार धातुओं के किस गुण के कारण बनाए जाते हैं?", o: ["तन्यता", "ध्वानिकता", "आघातवर्धनीयता", "कठोरता"], a: 1 },
+            { q: "सोडियम धातु की परमाणु संख्या 11 है, इसका सही इलेक्ट्रॉनिक विन्यास क्या होगा?", o: ["2, 8", "2, 8, 1", "2, 8, 2", "2, 7"], a: 1 },
+            { q: "क्लोरीन की परमाणु संख्या 17 है, इसके बाह्यतम कोश में कितने इलेक्ट्रॉन्स होते हैं?", o: ["5", "6", "7", "8"], a: 2 },
+            { q: "सल्फाइड अयस्कों का सांद्रण सामान्यतः किस भौतिक-रासायनिक विधि द्वारा किया जाता है?", o: ["गुरुत्वीय पृथक्करण", "फेन प्लवन विधि (Froth Flotation)", "चुम्बकीय पृथक्करण", "रासायनिक विधि"], a: 1 },
+            { q: "दिल्ली में कुतुब मीनार के पास स्थित प्रसिद्ध लौह स्तंभ लगभग कितने वर्षों से बिना जंग के खड़ा है?", o: ["500 वर्ष", "1000 वर्ष", "1600 से अधिक वर्ष", "5000 वर्ष"], a: 2 },
+            { q: "गैलेना निम्नलिखित में से किस धातु का मुख्य खनिज/अयस्क है?", o: ["तांबा", "जस्ता", "सीसा (Lead)", "टिन"], a: 2 },
+            { q: "जस्ता (Zinc) का मुख्य अयस्क निम्नलिखित में से कौन सा है?", o: ["जिंक ब्लेंड या कैलामाइन", "बॉक्साइट", "सिनाबार", "हेमैटाइट"], a: 0 },
+            { q: "अक्रिय गैसों के बाह्यतम कोश पूर्ण रूप से भरे होते हैं, हीलियम के बाह्यतम कोश में कितने इलेक्ट्रॉन हैं?", o: ["2", "8", "18", "0"], a: 0 },
+            { q: "आयनिक यौगिक ठोस अवस्था में विद्युत का चालन क्यों नहीं करते हैं?", o: ["उनमें आयन नहीं होते", "ठोस संरचना में आयनों की गतिशीलता न होने के कारण", "वे गर्म होते हैं", "वे पानी सोखते हैं"], a: 1 },
+            { q: "तांबे का परिष्करण करने के लिए किस विलयन को विद्युत अपघट्य (Electrolyte) के रूप में प्रयुक्त किया जाता है?", o: ["कॉपर सल्फेट का अम्लीकृत विलयन", "सोडियम क्लोराइड विलयन", "सल्फ्यूरिक अम्ल", "सिल्वर नाइट्रेट"], a: 0 },
+            { q: "जब कोई धातु किसी अम्ल से क्रिया करती है तो लवण के साथ कौन सी गैस बनती है?", o: ["O₂", "CO₂", "H₂", "N₂"], a: 2 },
+            { q: "अधातुओं के विद्युत ऋणात्मक तत्व होने का क्या कारण है?", o: ["वे इलेक्ट्रॉन दान करते हैं", "वे इलेक्ट्रॉन ग्रहण करके ऋणायन बनाते हैं", "वे भारी होते हैं", "वे ठोस होते हैं"], a: 1 },
+            { q: "निम्नलिखित में से कौन सी धातु अपने ऊपर ऑक्साइड की सुरक्षित परत बना लेती है जिससे उसका आगे संक्षारण नहीं होता?", o: ["सोडियम", "लोहा", "एल्युमिनियम", "सोना"], a: 2 },
+            { q: "कांसा (Bronze) विद्युत का कैसा चालक होता है?", o: ["अत्यधिक सुचालक", "कुचालक या बहुत कम चालक", "अतिचालक", "इनमें से कोई नहीं"], a: 1 },
+            { q: "शुद्ध तांबे का उपयोग विद्युत संचरण तारों (Electric Wires) में क्यों किया जाता है?", o: ["यह सस्ता होता है", "इसकी विद्युत प्रतिरोधकता बहुत कम और चालकता उच्च होती है", "यह बहुत सुंदर दिखता है", "यह पिघलता नहीं"], a: 1 },
+            { q: "भूपर्पटी में सर्वाधिक मात्रा में पाई जाने वाली धातु कौन सी है?", o: ["लोहा", "तांबा", "एल्युमिनियम", "कैल्शियम"], a: 2 },
+            { q: "भूपर्पटी में सर्वाधिक मात्रा में पाया जाने वाला तत्व (Element) कौन सा है?", o: ["लोहा", "ऑक्सीजन", "सिलिकॉन", "एल्युमिनियम"], a: 1 },
+            { q: "मैग्नीशियम रिबन को वायु में जलाने पर किस रंग की चमकदार ज्वाला उत्पन्न होती है?", o: ["लाल", "नीली", "चमकदार श्वेत", "पीली"], a: 2 },
+            { q: "कैल्शियम जल के साथ अभिक्रिया करने पर तैरने क्यों लगता है?", o: ["यह बहुत हल्का होता .है", "उत्पन्न हाइड्रोजन गैस के बुलबुले धातु की सतह से चिपक जाते हैं", "यह जल में घुल जाता है", "यह बर्फ बन जाता है"], a: 1 },
+            { q: "सोडियम और पोटेशियम की जल के साथ अभिक्रिया की प्रकृति कैसी होती है?", o: ["अत्यधिक ऊष्माशोषी", "अत्यधिक ऊष्माक्षेपी", "धीमी", "उदासीन"], a: 1 },
+            { q: "जब लोहे की कड़ाही को जंग से बचाना हो, तो कौन सी विधि सबसे उपयुक्त है?", o: ["ग्रीस लगाना", "पेंट लगाना", "जस्ते की परत चढ़ाना (Galvanizing)", "पानी में रखना"], a: 2 },
+            { q: "धातुओं के गलनांक आमतौर पर उच्च होते हैं, लेकिन किन दो धातुओं का गलनांक इतना कम है कि हाथ पर रखने पर पिघलने लगती हैं?", o: ["सोडियम और पोटेशियम", "गैलियम और सीजियम", "लोहा और तांबा", "सोना और चांदी"], a: 1 },
+            { q: "मिश्रधातु 'सोल्डर' का गलनांक कैसा होता है जिससे इसका उपयोग वेल्डिंग में होता है?", o: ["अत्यधिक उच्च", "बहुत कम", "परिवर्तनीय", "लोहे के बराबर"], a: 1 },
+            { q: "अमलगम में आवश्यक रूप से मुख्य धातु कौन सी होती है?", o: ["जस्ता", "पारा (Mercury)", "तांबा", "सोना"], a: 1 },
+            { q: "तांबे को वायु में खुला छोड़ने पर वह किसके साथ अभिक्रिया करके धीरे-धीरे अपनी हरी चमक खो देता है?", o: ["केवल शुष्क नाइट्रोजन", "आर्द्र कार्बन डाइऑक्साइड और ऑक्सीजन", "केवल हीलियम", "हाइड्रोजन"], a: 1 },
+            { q: "धातुएं तनु अम्लों से किस गैस को विस्थापित करती हैं?", o: ["नाइट्रोजन", "ऑक्सीजन", "हाइड्रोजन", "क्लोरीन"], a: 2 },
+            { q: "अधातुएं सामान्यतः तनु अम्लों के साथ हाइड्रोजन गैस क्यों नहीं देती हैं?", o: ["वे प्रोटॉन नहीं दे सकतीं", "वे अम्ल से H⁺ आयनों को इलेक्ट्रॉन देकर विस्थापित नहीं कर सकतीं", "वे तरल होती हैं", "वे भारी होती हैं"], a: 1 },
+            { q: "जंग का सही रासायनिक सूत्र क्या होता है?", o: ["Fe₂O₃", "Fe₃O₄", "Fe₂O₃·xH₂O", "Fe(OH)₃"], a: 2 },
+            { q: "विद्युत तारों पर किस सामग्री की परत चढ़ाई जाती है ताकि बिजली का झटका न लगे?", o: ["सल्फर", "ग्रेफाइट", "PVC या रबर", "लोहा"], a: 2 },
+            { q: "फास्फोरस को वायु में खुला रखने पर स्वतः दहन हो जाता है, इसे सुरक्षित रखने के लिए कहाँ रखा जाता है?", o: ["केरोसिन तेल में", "जल में (In Water)", "खुले बर्तन में", "अम्ल में"], a: 1 },
+            { q: "निम्नलिखित में से कौन सी धातु ठंडे जल से अभिक्रिया करके तैरने लगती है?", o: ["पोटेशियम", "सोडियम", "कैल्शियम", "लोहा"], a: 2 },
+            { q: "कॉपर सल्फेट के नीले विलयन में लोहे की कील डालने पर रंग हरा क्यों हो जाता है?", o: ["लोहा कॉपर को विस्थापित करके आयरन सल्फेट बनाता है", "कील जंग खा जाती है", "विलयन वाष्पीकृत होता है", "तांबा नष्ट हो जाता है"], a: 0 },
+            { q: "धात्विक बंध मुख्य रूप से किसमें पाया जाता है?", o: ["लवणों में", "अधातुओं में", "धातुओं और मिश्रधातुओं में", "गैसों में"], a: 2 },
+            { q: "सक्रियता श्रेणी में सबसे नीचे आने वाली धातुएं प्रकृति में किस अवस्था में पाई जाती हैं?", o: ["सल्फाइड रूप में", "कार्बोनेट रूप में", "मुक्त अवस्था में", "ऑक्साइड रूप में"], a: 2 },
+            { q: "अयस्क में से गैंग को हटाने की भौतिक या रासायनिक प्रक्रियाओं को संयुक्त रूप से क्या कहते हैं?", o: ["परिष्करण", "अयस्क का समृद्धीकरण/सांद्रण", "भर्जन", "अपचयन"], a: 1 },
+            { q: "धातु एवं अधातु के इस संपूर्ण अध्याय का मूल निष्कर्ष क्या है?", o: ["धातुएं और अधातुएं समान भौतिक गुण प्रदर्शित करती हैं", "इलेक्ट्रॉनिक विन्यास और इलेक्ट्रॉन त्यागने या ग्रहण करने की प्रवृत्ति ही उनके गुणों को तय करती है", "सभी अधातुएं ठोस होती हैं", "सभी धातुएं जल से समान वेग से क्रिया करती हैं"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #e0f2fe; color: #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">धातु एवं अधातु (Metals & Non-metals)</h1>
+                    <p style="color: #4a5568; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (अध्याय 3)</p>
+                    <p style="color: #6b7280; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">पूरी तरह से 100 चुनिंदा वैचारिक प्रश्नों का महा-संग्रह। नेविगेशन पैनल और लाइव स्कोरिंग के साथ अभ्यास शुरू करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #0284c7; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Overview -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1a202c;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #2d3748;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #3b82f6;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #0284c7;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने इस अध्याय में 100% अंक अर्जित किए हैं।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "अधुदभुत प्रदर्शन! धातुओं और अधातुओं पर आपकी पकड़ मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! बेहतर स्कोर के लिए एक बार फिर से प्रयास करें।"; emoji = "👍"; }
+            else { message = "घबरेएं नहीं! अध्याय को दोबारा पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

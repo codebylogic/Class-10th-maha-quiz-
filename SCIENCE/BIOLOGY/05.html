@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>जीव विज्ञान क्विज़ - हमारा पर्यावरण एवं संसाधन प्रबंधन</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdf4;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(13, 148, 136, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0d9488;
+            background-color: #f0fdfa;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #2dd4bf, #0d9488); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #0d9488, #0f766e); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(13, 148, 136, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #2dd4bf, #0d9488); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "किसी क्षेत्र के सभी सजीव (जैव घटक) तथा निर्जीव (अजैव घटक) मिलकर संयुक्त रूप से किसका निर्माण करते हैं?", o: ["खाद्य जाल", "पारिस्थितिक तंत्र या परितंत्र (Ecosystem)", "बायोम", "समुदाय"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा एक पारिस्थितिक तंत्र के 'अजैव घटक' (Abiotic Component) का सटीक उदाहरण है?", o: ["पौधे", "जीवाणु", "तापमान, वर्षा और पवन (Temperature, Rain & Wind)", "कवक"], a: 2 },
+            { q: "निम्नलिखित में से कौन सा परितंत्र का एक 'जैव घटक' (Biotic Component) माना जाता है?", o: ["मृदा", "प्रकाश", "सूक्ष्मजीव एवं जंतु (Microorganisms & Animals)", "वायु"], a: 2 },
+            { q: "मानव द्वारा निर्मित या कृत्रिम परितंत्र (Artificial Ecosystem) का सबसे सटीक उदाहरण कौन सा है?", o: ["वन", "झील", "बगीचा या खेत (Garden / Crop field)", "समुद्र"], a: 2 },
+            { q: "प्रकृति में पाए जाने वाले वन, तालाब और झील किस प्रकार के परितंत्र की श्रेणी में आते हैं?", o: ["कृत्रिम परितंत्र", "प्राकृतिक परितंत्र (Natural Ecosystem)", "अजैविक परितंत्र", "मिश्रित परितंत्र"], a: 1 },
+            { q: "सूर्य के प्रकाश एवं क्लोरोफिल की उपस्थिति में अकार्बनिक पदार्थों से अपना भोजन स्वयं बनाने वाले जीव क्या कहलाते हैं?", o: ["उत्पादक (Producers)", "उपभोक्ता", "अपघटक", "परजीवी"], a: 0     },
+            { q: "सभी हरे पौधे और नील-हरित शैवाल (Blue-green algae) पारिस्थितिक तंत्र में किस भूमिका में होते हैं?", o: ["प्राथमिक उपभोक्ता", "द्वितीयक उपभोक्ता", "उत्पादक (Producers)", "अपघटक"], a: 2 },
+            { q: "वे जीव जो अपने निर्वाह के लिए परोक्ष या अपरोक्ष रूप से उत्पादकों द्वारा निर्मित भोजन पर निर्भर होते हैं?", o: ["स्वपोषी", "उपभोक्ता (Consumers)", "अपघटक", "खनिज"], a: 1 },
+            { q: "सीधे तौर पर हरे पौधों (उत्पादकों) को खाने वाले शाकाहारी जंतुओं को क्या कहा जाता है?", o: ["प्राथमिक उपभोक्ता (Primary Consumers)", "द्वितीयक उपभोक्ता", "तृतीयक उपभोक्ता", "शीर्ष मांसाहारी"], a: 0 },
+            { q: "शाकाहारी जंतुओं का शिकार करने वाले छोटे मांसाहारी जीवों को किस श्रेणी में रखा जाता है?", o: ["प्राथमिक उपभोक्ता", "द्वितीयक उपभोक्ता (Secondary Consumers)", "उत्पादक", "मृतजीवी"], a: 1 },
+            { q: "जटिल कार्बनिक पदार्थों को सरल अकार्बनिक पदार्थों में बदलकर मृदा में मिलाने वाले जीवाणु और कवक क्या कहलाते हैं?", o: ["उत्पादक", "परजीवी", "अपघटक या अपमार्जक (Decomposers)", "शाकाहारी"], a: 2 },
+            { q: "यदि पारिस्थितिक तंत्र से अपघटकों (Decomposers) को पूरी तरह हटा दिया जाए तो क्या प्रभाव पड़ेगा?", o: ["पौधे तेजी से बढ़ेंगे", "कचरे और मृत अवशेषों का ढेर लग जाएगा तथा पोषक चक्र रुक जाएगा", "जंतु अमर हो जाएंगे", "कोई प्रभाव नहीं पड़ेगा"], a: 1 },
+            { q: "एक जीव से दूसरे जीव में पोषक पदार्थों और ऊर्जा के स्थानांतरण की क्रमिक श्रृंखला क्या कहलाती है?", o: ["खाद्य श्रृंखला (Food Chain)", "खाद्य जाल", "ऊर्जा पिरामिड", "जैव आवर्धन"], a: 0 },
+            { q: "घास → हिरण → शेर। यह किस प्रकार की खाद्य श्रृंखला का एक सरल उदाहरण है?", o: ["जलीय खाद्य श्रृंखला", "वन या स्थलीय खाद्य श्रृंखला (Forest Food Chain)", "कृत्रिम श्रृंखला", "तालाब खाद्य श्रृंखला"], a: 1 },
+            { q: "एक मैदानी या तालाब परितंत्र की खाद्य श्रृंखला में कीटों को खाने वाला मेंढक किस स्तर पर आता है?", o: ["उत्पादक", "प्राथमिक उपभोक्ता", "द्वितीयक उपभोक्ता (Secondary Consumer)", "अपघटक"], a: 2 },
+            { q: "खाद्य श्रृंखला का प्रत्येक चरण या स्तर तकनीकी रूप से क्या कहलाता है?", o: ["ऊर्जा स्तर", "पोषी स्तर (Trophic Level)", "उपभोक्ता स्तर", "जैव स्तर"], a: 1     },
+            { q: "किसी भी खाद्य श्रृंखला में प्रथम पोषी स्तर (First Trophic Level) पर हमेशा कौन स्थित होते हैं?", o: ["शाकाहारी", "मांसाहारी", "उत्पादक या हरे पौधे (Producers)", "अपघटक"], a: 2 },
+            { q: "खाद्य श्रृंखला में दूसरे पोषी स्तर पर कौन से जीव आते हैं?", o: ["हरे पौधे", "शाकाहारी जंतु (Herbivores)", "छोटे मांसाहारी", "शीर्ष मांसाहारी"], a: 1 },
+            { q: "हरे पौधे सौर ऊर्जा का लगभग कितने प्रतिशत भाग अवशोषित करके खाद्य ऊर्जा में बदलते हैं?", o: ["1 प्रतिशत (लगभग 1%)", "10 प्रतिशत", "50 प्रतिशत", "90 प्रतिशत"], a: 0 },
+            { q: "लिंडमैन के '10 प्रतिशत नियम' (10% Law) के अनुसार, एक पोषी स्तर से अगले पोषी स्तर में कितनी ऊर्जा स्थानांतरित होती है?", o: ["90%", "50%", "10% ऊर्जा ही आगे बढ़ती है", "1%"], a: 2 },
+            { q: "यदि उत्पादक स्तर पर 10,000 जूल ऊर्जा उपलब्ध है, तो प्राथमिक उपभोक्ता (शाकाहारी) को कितनी ऊर्जा मिलेगी?", o: ["10,000 जूल", "1,000 जूल (1000 J)", "100 जूल", "10 जूल"], a: 1 },
+            { q: "किसी परितंत्र में ऊर्जा का प्रवाह (Flow of Energy) हमेशा कैसा होता है?", o: ["एकदिशीय या एक ही दिशा में (Unidirectional)", "द्विदिशीय", "बहुदिशीय", "चक्रीय"], a: 0 },
+            { q: "प्रकृति में अनेक खाद्य श्रृंखलाएं आपस में आड़े-तिरछे जुड़कर एक जटिल जाल बनाती हैं, उसे क्या कहते हैं?", o: ["ऊर्जा जाल", "खाद्य जाल (Food Web)", "पोषी जाल", "पर्यावरण जाल"], a: 1 },
+            { q: "खाद्य श्रृंखला में जैसे-जैसे हम उच्च पोषी स्तर पर बढ़ते हैं, जीवों की संख्या आमतौर पर क्या होती है?", o: ["बढ़ती है", "कम होती जाती है (संख्या का पिरामिड सीधा होने पर)", "स्थिर रहती है", "अनंत होती है"], a: 1 },
+            { q: "कीटनाशकों (जैसे DDT) जैसे अजैव निम्नीकरणीय रसायनों का खाद्य श्रृंखला में प्रवेश कर उच्च पोषी स्तर पर लगातार सांद्रित होना?", o: ["बहुलीकरण", "जैव आवर्धन (Biological Magnification)", "तनुकरण", "प्रदूषण"], a: 1 },
+            { q: "जैव आवर्धन (Biomagnification) के कारण किसी खाद्य श्रृंखला में सबसे अधिक रसायन किस जीव के शरीर में संचित होते हैं?", o: ["उत्पादक में", "प्राथमिक उपभोक्ता में", "शीर्ष उपभोक्ता या मानव (Top Consumer / Human)", "जीवाणु में"], a: 2 },
+            { q: "वे पदार्थ जो जैविक प्रक्रम (जीवाणुओं या अपघटकों) द्वारा आसानी से अपघटित हो जाते हैं, क्या कहलाते हैं?", o: ["अजैव निम्नीकरणीय", "जैव निम्नीकरणीय पदार्थ (Biodegradable)", "प्लास्टिक पदार्थ", "स्थायी पदार्थ"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा समूह केवल जैव निम्नीकरणीय (Biodegradable) पदार्थों का है?", o: ["प्लास्टिक, काँच, धातु", "फलों के छिलके, केक, नींबू का रस और लकड़ी", "DDT, पॉलिथीन, चमड़ा", "काँच, पॉलिथीन, घास"], a: 1 },
+            { q: "वे पदार्थ जो जीवाणुओं या अन्य अपघटकों द्वारा सरल रूपों में आसानी से नहीं तोड़े जा सकते और पर्यावरण में लंबे समय तक बने रहते हैं?", o: ["जैव निम्नीकरणीय", "अजैव निम्नीकरणीय पदार्थ (Non-biodegradable)", "खाद्य पदार्थ", "तरल पदार्थ"], a: 1 },
+            { q: "वायुमंडल के उच्च स्तर (स्ट्रैटोस्फीयर) में ओजोन (O₃) परत हमारी पृथ्वी की किससे रक्षा करती है?", o: ["अवरक्त किरणों से", "सूर्य की हानिकारक पराबैंगनी विकिरणों से (UV Rays)", "एक्स-रे से", "ग्लोबल वार्मिंग से"], a: 1 },
+            { q: "ओजोन (O₃) के एक अणु में ऑक्सीजन के कुल कितने परमाणु आपस में जुड़े होते हैं?", o: ["1", "2", "3 परमाणु", "4"], a: 2 },
+            { q: "वायुमंडल के उच्च स्तर पर सामान्य ऑक्सीजन (O₂) अणु को ओजोन (O₃) में बदलने का कार्य कौन करता है?", o: ["पवन", "उच्च ऊर्जा पराबैंगनी (UV) विकिरण", "नाइट्रोजन गैस", "कार्बन डाइऑक्साइड"], a: 1 },
+            { q: "1980 के दशक से ओजोन परत में तीव्रता से आ रही कमी (ओजोन छिद्र) के लिए मुख्य रूप से कौन सा रसायन जिम्मेदार है?", o: ["CO₂", "क्लोरोफ्लोरोकार्बन या सीएफसी (CFCs)", "CH₄", "SO₂"], a: 1 },
+            { q: "CFCs (क्लोरोफ्लोरोकार्बन) का उपयोग मुख्य रूप से मानव द्वारा कहाँ किया जाता था?", o: ["गाड़ियों के इंजन में", "रेफ्रिजरेटर (शीतलन) तथा अग्निशमन यंत्रों में (AC / Refrigerators)", "खेतों में खाद के रूप में", "साबुन बनाने में"], a: 1 },
+            { q: "1987 में संयुक्त राष्ट्र पर्यावरण कार्यक्रम (UNEP) में सर्वसम्मति से सीएफसी के उत्पादन को किस वर्ष के स्तर पर फ्रीज करने का समझौता हुआ?", o: ["1986 के स्तर पर (Montreal Protocol)", "1990", "2000", "1975"], a: 0 },
+            { q: "कचरा प्रबंधन की वह विधि जिसमें कचरे को अत्यधिक ऊंचे तापमान पर जलाकर राख में बदल दिया जाता है?", o: ["भराव क्षेत्र", "भस्मीकरण या इंसिनरेशन (Incineration)", "कंपोस्टिंग", "पुनर्चक्रण"], a: 1 },
+            { q: "कुलियों या ट्रेनों में चाय के लिए मिट्टी के कुल्हड़ों के उपयोग को बंद क्यों किया गया क्योंकि उससे नुकसान हो रहा था:", o: ["प्लास्टिक बढ़ रहा था", "उर्वरक ऊपरी मृदा (Top soil) का भारी नुकसान हो रहा था", "चाय ठंडी हो रही थी", "कुल्हड़ महंगे थे"], a: 1 },
+            { q: "हमारे द्वारा खाए गए भोजन का केवल कितना प्रतिशत भाग ही नए मांस या जैव भार (Biomass) में बदल पाता है?", o: ["100%", "50%", "लगभग 10% (10%)", "1%"], a: 2 },
+            { q: "पारिस्थितिक तंत्र में ऊर्जा का मुख्य और अंतिम परम स्रोत क्या है जहां से सब प्रारंभ होता है?", o: ["कोयला", "पेट्रोलियम", "सूर्य का प्रकाश (The Sun)", "लकड़ी"], a: 2 },
+            { q: "चमड़ा, सूती कपड़ा और जूट किस प्रकार के पदार्थों के सटीक उदाहरण हैं?", o: ["अजैव निम्नीकरणीय", "जैव निम्नीकरणीय (Biodegradable)", "सिंथेटिक प्लास्टिक", "स्थायी"], a: 1 },
+            { q: "प्लास्टिक और काँच की बोतलें अजैव निम्नीकरणीय क्यों हैं क्योंकि उनके पास नहीं होते:", o: ["परमाणु", "उन्हें तोड़ने वाले विशिष्ट एंजाइम या जीवाणु प्रकृति में उपलब्ध नहीं हैं", "वजन", "रंग"], a: 1 },
+            { q: "कचरे को अलग-अलग करके उपयोगी सामानों (जैसे प्लास्टिक, कागज) को पिघलाकर दोबारा नई वस्तुएं बनाना क्या कहलाता है?", o: ["भस्मीकरण", "पुनर्चक्रण (Recycling)", "लैंडफिल", "कंपोस्टिंग"], a: 1 },
+            { q: "वे संसाधन जो प्रकृति में सीमित मात्रा में हैं और एक बार समाप्त होने पर दोबारा आसानी से नहीं बन सकते?", o: ["नवीकरणीय संसाधन", "अनवीकरणीय या समाप्य संसाधन (Non-renewable Resources)", "असीमित संसाधन", "कृत्रिम संसाधन"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा एक पूरी तरह से नवीकरणीय या असमाप्य संसाधन (Inexhaustible Resource) है?", o: ["कोयला", "पेट्रोलियम", "सौर ऊर्जा तथा पवन ऊर्जा (Solar & Wind Energy)", "प्राकृतिक गैस"], a: 2 },
+            { q: "कोयला और पेट्रोलियम किस प्रकार के ईंधन हैं जो लाखों वर्ष पूर्व सजीवों के अवशेषों से बने हैं?", o: ["बायो ईंधन", "जीवाश्म ईंधन (Fossil Fuels)", "सिंथेटिक ईंधन", "नवीकरणीय ईंधन"], a: 1 },
+            { q: "संसाधनों का ऐसा विवेकपूर्ण उपयोग जिससे वर्तमान की ज़रूरतें भी पूरी हों और भविष्य की पीढ़ी के लिए भी वे सुरक्षित रहें?", o: ["अंधाधुंध दोहन", "सतत पोषणीय विकास (Sustainable Development)", "औद्योगीकरण", "शहरीकरण"], a: 1 },
+            { q: "पर्यावरण को बचाने के लिए '5 R' के सिद्धांत में पहले 'R' का क्या अर्थ है जिसका मतलब है - उपयोग न करना?", o: ["Refuse (इन्कार करना)", "Reduce (कम करना)", "Reuse (पुनः उपयोग)", "Recycle"], a: 0 },
+            { q: "5 R के सिद्धांत में 'Reduce' का वास्तविक अर्थ क्या है?", o: ["कचरा फेंकना", "संसाधनों और बिजली/पानी का कम से कम या जरूरत भर उपयोग करना (Less Use)", "सामान दोबारा खरीदना", "प्लास्टिक गलाना"], a: 1 },
+            { q: "रीसायकल (Recycle) की तुलना में 'पुनः उपयोग' (Reuse) को पर्यावरण के लिए बेहतर क्यों माना जाता है?", o: ["यह महंगा है", "इसमें पुनर्चक्रण की तरह कोई अतिरिक्त ऊर्जा या ईंधन खर्च नहीं होता (No energy needed)", "यह मुश्किल है", "कोई कारण नहीं है"], a: 1 },
+            { q: "1731 में राजस्थान के जोधपुर के खेजराली गाँव में खेजड़ी के वृक्षों को बचाने के लिए अपनी आहुति देने वाली साहसी महिला कौन थी?", o: ["मेधा पाटेकर", "अमृता देवी बिश्नोई (Amrita Devi Bishnoi)", "गौरा देवी", "सुनीता नारायण"], a: 1 },
+            { q: "भारत सरकार ने वन्यजीव संरक्षण के लिए अमृता देवी बिश्नोई के नाम पर कौन सा राष्ट्रीय पुरस्कार शुरू किया है?", o: ["अमृता देवी बिश्नोई राष्ट्रीय पुरस्कार (Wildlife Conservation Award)", "पद्म श्री", "वीरता पुरस्कार", "वन्यजीव रत्न"], a: 0 },
+            { q: "1970 के दशक में उत्तराखंड के गढ़वाल के रेनी गाँव से जंगलों के ठेकेदारों के खिलाफ शुरू हुआ प्रसिद्ध जन आंदोलन कौन सा था?", o: ["नर्मदा बचाओ आंदोलन", "चिपको आंदोलन (Chipko Movement)", "अपिको आंदोलन", "मूक घाटी आंदोलन"], a: 1 },
+            { q: "चिपको आंदोलन के दौरान रेनी गाँव की महिलाओं का नेतृत्व करने वाली स्थानीय महिला नेता कौन थी?", o: ["अमृता देवी", "गौरा देवी (Gaura Devi)", "मेधा पाटेकर", "इदिरा गांधी"], a: 1 },
+            { q: "चिपको आंदोलन को पूरे देश और वैश्विक स्तर पर पहचान दिलाने वाले प्रमुख पर्यावरणविद् कौन थे जिनका निधन हाल ही में हुआ था?", o: ["चंडी प्रसाद भट्ट", "सुंदरलाल बहुगुणा (Sundarlal Bahuguna)", "बाबा आम्टे", "सलीम अली"], a: 1 },
+            { q: "1972 में पश्चिम बंगाल के मिदनापुर के किस वन क्षेत्र में स्थानीय लोगों की मदद से साल (Sal) के वनों का शानदार पुनरुद्धार किया गया?", o: ["सुंदरवन", "अराबाड़ी वन क्षेत्र (Arabari Forest Range)", "काजीरंगा", "गिर वन"], a: 1 },
+            { q: "अराबाड़ी वन क्षेत्र में साल के जंगलों को जनभागीदारी से पुनर्जीवित करने वाले दूरदर्शी वन अधिकारी कौन थे?", o: ["ए. के. बनर्जी (A. K. Banerjee)", "सलीम अली", "एम. एस. स्वामीनाथन", "माधव गाडगिल"], a: 0 },
+            { q: "वनों को पूरी तरह नष्ट करने या काटने की प्रक्रिया को क्या कहा जाता है जिससे मृदा अपरदन और बाढ़ आती है?", o: ["वनरोपण", "वनोन्मूलन या वनों की कटाई (Deforestation)", "सतत कृषि", "वन संरक्षण"], a: 1 },
+            { q: "किसी क्षेत्र में जैव विविधता (Biodiversity) का एक मुख्य पैमाना या 'हॉटस्पॉट' (Hotspot) किसे माना जाता है?", o: ["रेगिस्तान को", "सड़क को", "वन या जंगलों को (Forests)", "शहर को"], a: 2 },
+            { q: "जंगलों के विनाश से केवल पेड़ ही नष्ट नहीं होते, बल्कि वन पर पूरी तरह आश्रित कौन सा बड़ा संकट में आ जाता है?", o: ["शहरी लोग", "स्थानीय आदिवासी और वन्य जीव (Local Communities & Wildlife)", "गाड़ियाँ", "फैक्ट्रियां"], a: 1 },
+            { q: "जल संग्रहण (Water Harvesting) का मुख्य उद्देश्य क्या होता है जिससे सूखे के दिनों में पानी मिल सके?", o: ["पानी को समुद्र में भेजना", "भूमिगत जल स्तर (Groundwater Level) को बढ़ाना और वर्षा जल संचित करना", "बाढ़ लाना", "नदियों को सुखाना"], a: 1 },
+            { q: "राजस्थान में प्राचीन काल से वर्षा जल संग्रहण के लिए उपयोग की जाने वाली पारंपरिक खांचेदार संरचना को क्या कहते हैं?", o: ["कुल्ह", "खादिन (Khadin) और टैंक", "बंधारस", "कट्टा"], a: 1 },
+            { q: "हिमाचल प्रदेश के पहाड़ी क्षेत्रों में सिंचाई के लिए बनाई जाने वाली स्थानीय मानव निर्मित नहर प्रणाली को क्या कहा जाता है?", o: ["बावड़ी", "कुल्ह (Kulhs)", "सुरंगम", "खादिन"], a: 1 },
+            { q: "महाराष्ट्र में जल संग्रहण की पारंपरिक पुरानी संरचनाएं निम्नलिखित में से कौन सी हैं?", o: ["खादिन", "बंधारस एवं ताल (Bandharas & Tals)", "कुल्ह", "एरिस"], a: 1 },
+            { q: "मध्य प्रदेश और उत्तर प्रदेश के कुछ हिस्सों में जल संचयन के लिए बनाए जाने वाले मिट्टी के बांधों को क्या कहते हैं?", o: ["सुरंगम", "बुँधिस (Bundhis)", "कट्टा", "आहार"], a: 1 },
+            { q: "बिहार में बाढ़ के पानी को खेतों तक ले जाने और जल संचित करने की पारंपरिक प्रणाली को क्या नाम दिया गया है?", o: ["कुल्ह", "आहार तथा पाइन (Ahars and Pynes)", "खादिन", "सुरंगम"], a: 1 },
+            { q: "तमिलनाडु में वर्षा जल संग्रहण के लिए बनाए जाने वाले पारंपरिक तालाबों को क्या कहा जाता है?", o: ["एरिस (Eris)", "कट्टा", "ताल", "कुल्ह"], a: 0 },
+            { q: "केरल के पहाड़ी भागों में पाई जाने वाली जल संग्रहण की विशेष सुरुंग जैसी संरचना क्या कहलाती है?", o: ["खादिन", "सुरंगम (Surangams)", "पाइन", "एरिस"], a: 1 },
+            { q: "कर्नाटक में जल संचयन के लिए बनाए जाने वाले पारंपरिक मिट्टी के अस्थायी बांधों को क्या कहा जाता है?", o: ["कुल्ह", "कट्टा (Kattas)", "आहार", "बुँधिस"], a: 1 },
+            { q: "नर्मदा नदी पर बनाए गए विशाल 'सरदार सरोवर बांध' (Sardar Sarovar Dam) के खिलाफ चलने वाले जन आंदोलन का नाम क्या है?", o: ["चिपको आंदोलन", "नर्मदा बचाओ आंदोलन (Narmada Bachao Andolan)", "मूक घाटी आंदोलन", "टहरी बांध आंदोलन"], a: 1 },
+            { q: "नर्मदा बचाओ आंदोलन का नेतृत्व करने वाली देश की प्रमुख महिला पर्यावरण सामाजिक कार्यकर्ता कौन हैं?", o: ["गौरा देवी", "मेधा पाटेकर (Medha Patkar)", "अमृता देवी", "किरण बेदी"], a: 1 },
+            { q: "गंगा नदी को प्रदूषण मुक्त करने के लिए भारत सरकार द्वारा 1985 में पहली बार कौन सी बड़ी योजना शुरू की गई थी?", o: ["नमामि गंगे", "गंगा कार्य योजना या गंगा एक्शन प्लान (GAP)", "यमुना एक्शन प्लान", "जल शक्ति अभियान"], a: 1 },
+            { q: "जल में किस हानिकारक जीवाणु (Bacteria) की उपस्थिति यह दर्शाती है कि पानी सीवेज या मल-मूत्र से दूषित हो चुका है?", o: ["लैक्टोबैसिलस", "कोलीफॉर्म जीवाणु (Coliform Bacteria)", "राइजोबियम", "यीस्ट"], a: 1 },
+            { q: "कोलीफॉर्म जीवाणु मुख्य रूप से मानव शरीर के किस अंग में प्राकृतिक रूप से पाए जाते हैं?", o: ["फेफड़ों में", "आंत (Intestine) में", "यकृत में", "हृदय में"], a: 1 },
+            { q: "जीवाश्म ईंधनों (कोयला और पेट्रोलियम) के दहन से वायुमंडल में मुख्य रूप से कौन सी विषैली गैसें निकलती हैं जो अम्ल वर्षा का कारण हैं?", o: ["नाइट्रोजन और हीलियम", "सल्फर और नाइट्रोजन के ऑक्साइड्स (Oxides of Sulphur & Nitrogen)", "केवल ऑक्सीजन", "आर्गन"], a: 1 },
+            { q: "कोयले और पेट्रोलियम में कार्बन के साथ-साथ कौन से दो अन्य प्रमुख तत्व सूक्ष्म मात्रा में उपस्थित होते हैं?", o: ["हाइड्रोजन और हीलियम", "नाइट्रोजन और सल्फर (Nitrogen & Sulphur)", "लोहा और तांबा", "ऑक्सीजन और क्लोरीन"], a: 1 },
+            { q: "जीवाश्म ईंधनों के अपूर्ण दहन (कम ऑक्सीजन में जलने) से कौन सी अत्यंत जहरीली और दमघोंटू गैस बनती है?", o: ["CO₂", "कार्बन मोनोऑक्साइड (CO)", "O₂", "N₂"], a: 1 },
+            { q: "वायुमंडल में कार्बन डाइऑक्साइड (CO₂) की सांद्रता लगातार बढ़ने से पृथ्वी का तापमान बढ़ रहा है, इस परिघटना को क्या कहते हैं?", o: ["अम्ल वर्षा", "ग्रीनहाउस प्रभाव या ग्लोबल वार्मिंग (Global Warming)", "ओजोन क्षरण", "तनुकरण"], a: 1 },
+            { q: "विश्व का सबसे बड़ा बांधों के निर्माण से जुड़ा नुकसान क्या है जिसके कारण बड़े पैमाने पर स्थानीय लोगों को विस्थापित होना पड़ता है?", o: ["औद्योगिक लाभ", "सामाजिक और पर्यावरणीय समस्या (Social & Ecological issues)", "पानी की कमी", "कोई नुकसान नहीं"], a: 1 },
+            { q: "गंगा नदी को पूरी तरह स्वच्छ और पुनर्जीवित करने के लिए वर्ष 2014 में केंद्र सरकार द्वारा शुरू किए गए नए फ्लैगशिप मिशन का नाम क्या है?", o: ["गंगा एक्शन प्लान", "नमामि गंगे मिशन (Namami Gange)", "जल जीवन मिशन", "स्वच्छ भारत"], a: 1 },
+            { q: "भूमिगत जल (Groundwater) के रूप में पानी को जमीन के नीचे संचित रखने का सबसे बड़ा फायदा क्या है?", o: ["वह वाष्प बनकर आसानी से उड़ता नहीं और मच्छरों से सुरक्षित रहता है", "वह खारा हो जाता है", "वह बह जाता है", "वह गर्म रहता है"], a: 0 },
+            { q: "राजस्थान के अलवर जिले में सूखी नदियों को पुनर्जीवित करने और जल संचयन के लिए 'जोहड़' बनाने वाले 'जल पुरुष' (Waterman of India) कौन हैं?", o: ["सुंदरलाल बहुगुणा", "डॉ. राजेंद्र सिंह (Dr. Rajendra Singh)", "बाबा आम्टे", "चंडी प्रसाद भट्ट"], a: 1 },
+            { q: "5 R के सिद्धांत में 'Refuse' का एक व्यावहारिक घरेलू उदाहरण क्या हो सकता है?", o: ["प्लास्टिक की थैलियों को पूरी तरह मना करना और कपड़े का थैला चुनना", "बिजली जलती छोड़ना", "कचरा सड़क पर फेंकना", "पुरानी बोतलें रीसायकल न करना"], a: 0 },
+            { q: "5 R के सिद्धांत में 'Repurpose' (पुनः प्रयोजन) का क्या अर्थ है?", o: ["सामान फेंकना", "जब कोई वस्तु मूल कार्य के लिए इस्तेमाल न हो सके, तो उसे किसी अन्य उपयोगी कार्य (जैसे टूटे कप में पौधा उगाना) में लगाना", "प्लास्टिक गलाना", "नया सामान खरीदना"], a: 1 },
+            { q: "खाद्य श्रृंखला में रासायनिक कीटनाशकों का प्रवेश क्यों होता है क्योंकि किसान खेतों में किसका छिड़काव करते हैं?", o: ["खाद का", "कीटनाशकों और पीड़कनाशकों का (Pesticides)", "शुद्ध जल का", "नीम के तेल का"], a: 1 },
+            { q: "ओजोन परत की मोटाई को मापने के लिए किस वैज्ञानिक इकाई (Unit) का उपयोग किया जाता है?", o: ["मीटर", "डॉब्सन इकाई (Dobson Unit - DU)", "किलोग्राम", "लीटर"], a: 1 },
+            { q: "मॉन्ट्रियल प्रोटोकॉल (Montreal Protocol) एक अंतरराष्ट्रीय संधि है, जो सीधे तौर पर किसके संरक्षण से जुड़ी हुई है?", o: ["वन्यजीव संरक्षण", "ओजोन परत के संरक्षण से (Ozone Layer Protection)", "ग्लोबल वार्मिंग", "नर्मदा नदी"], a: 1 },
+            { q: "कचरे को गड्ढे में दबाकर सड़ाने से जो जैविक खाद बनती है, उस पूरी प्रक्रिया को क्या कहते हैं?", o: ["भस्मीकरण", "कंपोस्टिंग या खाद बनाना (Composting)", "लैंडफिल", "रीसायकल"], a: 1 },
+            { q: "पारिस्थितिक तंत्र में ऊर्जा का प्रवाह हमेशा निचले स्तर से उच्च स्तर की ओर होता है। क्या ऊर्जा कभी वापस उत्पादकों को मिल सकती है?", o: ["हाँ", "नहीं, यह कभी वापस नहीं लौटती (Non-reversible)", "केवल रात में", "गैस बनने पर"], a: 1 },
+            { q: "खाद्य श्रृंखला में ऊर्जा की कमी प्रत्येक स्तर पर क्यों होती है क्योंकि अधिकांश ऊर्जा किस रूप में पर्यावरण में विसरित हो जाती है?", o: ["भोजन के रूप में", "ऊष्मा और जैविक क्रियाओं (Heat and Metabolic activities) के रूप में", "पानी के रूप में", "ठोस रूप में"], a: 1 },
+            { q: "विश्व पर्यावरण दिवस (World Environment Day) प्रतिवर्ष दुनिया भर में किस तिथि को मनाया जाता है?", o: ["22 अप्रैल", "5 जून (5th June)", "16 सितंबर", "1 दिसंबर"], a: 1 },
+            { q: "ओजोन परत संरक्षण के लिए अंतर्राष्ट्रीय ओजोन दिवस प्रतिवर्ष किस तारीख को मनाया जाता है?", o: ["5 जून", "16 सितंबर (16th September)", "22 मार्च", "15 अगस्त"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा कचरा 'जैव निम्नीकरणीय' नहीं है और मिट्टी को बंजर बनाता है?", o: ["कागज", "सूती कपड़ा", "प्लास्टिक की थैली (Plastic Bags)", "सड़े हुए फल"], a: 2 },
+            { q: "जैव निम्नीकरणीय अपशिष्टों को यदि खुले में छोड़ दिया जाए तो सड़ने पर कौन सी दुर्गंधयुक्त और ग्रीनहाउस गैस बनती है?", o: ["ऑक्सीजन", "मीथेन (CH₄) और हाइड्रोजन सल्फाइड", "नाइट्रोजन", "हीलियम"], a: 1 },
+            { q: "प्राकृतिक संसाधनों के अंधाधुंध दोहन से पर्यावरण को होने वाला सबसे बड़ा प्रत्यक्ष खतरा कौन सा है?", o: ["संसाधनों की प्रचुरता", "पारिस्थितिक असंतुलन और जलवायु परिवर्तन (Ecological Imbalance)", "जनसंख्या में कमी", "सड़कों का निर्माण"], a: 1 },
+            { q: "चिपको आंदोलन का मुख्य नारा क्या था जो वनों के महत्व को रेखांकित करता है?", o: ["लकड़ी काटो पैसा कमाओ", "क्या हैं इस जंगल के उपकार, मिट्टी, पानी और बयार। मिट्टी, पानी और बयार, जिंदा रहने के आधार।", "गाड़ियाँ चलाओ", "सब गलत"], a: 1 },
+            { q: "संसाधनों के प्रबंधन में 'थ्री आर' (3 R) के मूल नियम में कौन से तीन शब्द शामिल थे जो सबसे पहले आए थे?", o: ["Refuse, Repurpose, Repair", "Reduce, Reuse, Recycle (कम उपयोग, पुनः उपयोग, पुनर्चक्रण)", "Read, Write, Run", "Remove, Replace, Return"], a: 1 },
+            { q: "गंगा नदी उत्तराखंड के गंगोत्री ग्लेशियर से निकलकर बंगाल की खाड़ी तक लगभग कितने किलोमीटर की दूरी तय करती है?", o: ["500 किमी", "1200 किमी", "2500 किलोमीटर से अधिक (2500 km)", "5000 किमी"], a: 2 },
+            { q: "किसी जलीय परितंत्र में शैवालों की अत्यधिक तीव्र वृद्धि (Algal Bloom) पानी में किसकी कमी पैदा कर देती है जिससे मछलियाँ मर जाती हैं?", o: ["लवणों की", "विलीन ऑक्सीजन (Dissolved Oxygen) की कमी", "कार्बन डाइऑक्साइड की", "नाइट्रोजन की"], a: 1 },
+            { q: "बाजार से सामान खरीदते समय प्लास्टिक बैग की जगह किस बैग का उपयोग करना 5 R के 'Reduce' और 'Refuse' के अंतर्गत आता है?", o: ["नया प्लास्टिक बैग", "जूट या सूती कपड़े का थैला (Cloth/Jute Bag)", "चमड़े का बैग", "पॉलिथीन"], a: 1 },
+            { q: "हमारा पर्यावरण एवं प्राकृतिक संसाधनों का प्रबंधन के इस संपूर्ण पाठ्यक्रम का अंतिम तार्किक व वैज्ञानिक निष्कर्ष क्या है?", o: ["संसाधन असीमित हैं और उनका उपयोग जैसे चाहें किया जा सकता है", "पारिस्थितिक तंत्र का संतुलन बनाए रखने, भावी पीढ़ी के लिए संसाधनों को सुरक्षित करने तथा सतत पोषणीय विकास के लिए पर्यावरण के प्रति हमारी जिम्मेदारी और संसाधनों का विवेकपूर्ण प्रबंधन ही जीवन का मूल आधार है", "कचरा प्रबंधन केवल सरकार का काम है", "ओजोन परत का क्षरण इंसानों के कारण नहीं हो रहा है"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #ccfbf1; color: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">पर्यावरण एवं संसाधन प्रबंधन (Biology Grand Quiz)</h1>
+                    <p style="color: #4a5568; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (अध्याय 15 और 16)</p>
+                    <p style="color: #6b7280; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">परितंत्र, 10% ऊर्जा नियम, ओजोन परत, चिपको आंदोलन और जल संचयन प्रणालियों के 100 चुनिंदा प्रामाणिक प्रश्नों का संकलन। अभ्यास शुरू करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #0d9488; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1a202c;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #2d3748;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #2dd4bf;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #0d9488;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! पर्यावरण विज्ञान अध्याय पर आपका पूरा नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! पारिस्थितिकी और संसाधन प्रबंधन के सिद्धांतों पर आपकी समझ बेहतरीन है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! स्कोर को और बेहतर करने के लिए थोड़ा और रिवीजन करें।"; emoji = "👍"; }
+            else { message = "निराश न हों! जैव मंडलीय नियमों को दोबारा समझें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

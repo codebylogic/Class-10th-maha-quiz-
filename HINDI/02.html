@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 हिंदी - विष के दाँत क्विज़</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdfa;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0ea5e9;
+            background-color: #f0f9ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #2dd4bf, #0ea5e9); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #14b8a6, #06b6d4); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "'विष के दाँत' कहानी के कहानीकार कौन हैं?", o: ["मोहन राकेश", "कमलेश्वर", "प्रेमचंद", "नलिन विलोचन शर्मा"], a: 3 },
+            { q: "नलिन विलोचन शर्मा का जन्म कब हुआ था?", o: ["18 फरवरी 1916", "14 अप्रैल 1915", "20 मार्च 1918", "25 जनवरी 1920"], a: 0 },
+            { q: "लेखक नलिन विलोचन शर्मा का जन्म कहाँ हुआ था?", o: ["गांधी घाट, पटना", "बदरघाट, पटना", "सोनपुर, बिहार", "मुजफ्फरपुर"], a: 1 },
+            { q: "नलिन विलोचन शर्मा के पिता का नाम क्या था?", o: ["पंडित रामावतार शर्मा", "पंडित कृष्ण अवतार शर्मा", "पंडित मृत्युंजय शर्मा", "पंडित देव अवतार शर्मा"], a: 0 },
+            { q: "लेखक की माता का क्या नाम था?", o: ["रत्नावती शर्मा", "कलावती शर्मा", "लीलावती शर्मा", "भाग्यवती शर्मा"], a: 0 },
+            { q: "नलिन विलोचन शर्मा जी की स्कूल की पढ़ाई कहाँ से हुई?", o: ["पटना कॉलेजिएट स्कूल से", "पटना हाई स्कूल से", "मिल्लर हाई स्कूल से", "सेंट जेवियर्स से"], a: 0 },
+            { q: "लेखक किस भाषा के प्रमुख कवि और आलोचक थे?", o: ["संस्कृत", "हिंदी और भोजपुरी", "मैथिली", "उर्दू"], a: 1 },
+            { q: "शर्मा जी किस विश्वविद्यालय के हिंदी विभाग के अध्यक्ष रहे?", o: ["भागलपुर विश्वविद्यालय", "पटना विश्वविद्यालय", "बिहार विश्वविद्यालय", "रांची विश्वविद्यालय"], a: 1 },
+            { q: "नलिन विलोचन शर्मा जी की मृत्यु कब हुई थी?", o: ["12 सितंबर 1961", "18 सितंबर 1962", "20 अक्टूबर 1960", "15 अगस्त 1961"], a: 0 },
+            { q: "शर्मा जी ने हिंदी कविता में किस आंदोलन का प्रवर्तन किया?", o: ["प्रपद्यवाद (नकेनवाद)", "छायावाद", "प्रगतिवाद", "प्रयोगवाद"], a: 0 },
+            { q: "'विष के दाँत' कहानी किस वर्ग के अंतर्विरोधों को उजागर करती है?", o: ["उच्च वर्ग", "निम्न वर्ग", "मध्य वर्ग", "कृषक वर्ग"], a: 2 },
+            { q: "'विष के दाँत' तथा अन्य कहानियाँ नामक संग्रह से ली गई यह कहानी गद्य की कौन सी विधा है?", o: ["निबंध", "कहानी", "रेखाचित्र", "डायरी"], a: 1 },
+            { q: "सेन साहब की नई मोटरकार किस रंग की थी?", o: ["सफेद", "काली", "नीली", "लाल"], a: 1 },
+            { q: "सेन साहब की नई मोटरकार कितने रुपए की थी?", o: ["साढ़े सात हजार", "आठ हजार", "साढ़े आठ हजार", "दस हजार"], a: 0 },
+            { q: "मोटरकार को किससे खतरा हो सकता था?", o: ["मदन से", "गिरधर से", "खोखा (काशू) से", "इंजीनियर से"], a: 2 },
+            { q: "सेन साहब की कितनी पुत्रियाँ थीं?", o: ["तीन", "चार", "पाँच", "छह"], a: 2 },
+            { q: "निम्नलिखित में से कौन सेन साहब की बेटी नहीं है?", o: ["सीमा", "रजनी", "आलो", "आरती", "लतिका"], a: 4 },
+            { q: "सेन साहब की बेटियाँ कैसी थीं?", o: ["सुशील और तमीजदार", "लड़ाकू", "मूर्ख", "घमंडी"], a: 0 },
+            { q: "सेन साहब अपने बेटे खोखा को क्या बनाना चाहते थे?", o: ["डॉक्टर", "वकील", "इंजीनियर या बिजनेसमैन", "प्रोफेसर"], a: 2 },
+            { q: "खोखा का दूसरा नाम क्या था?", o: ["काशू", "मदन", "किशू", "शामू"], a: 0 },
+            { q: "सेन साहब के घर के नियमों का अपवाद कौन था?", o: ["मदन", "खोखा (काशू)", "गिरधर", "ड्राइवर"], a: 1 },
+            { q: "खोखा का जन्म कब हुआ था?", o: ["जब सेन साहब की कोई उम्मीद बाकी नहीं रही थी (बुढ़ापे में)", "शादी के तुरंत बाद", "बेटियों के जन्म से पहले", "जवानी में"], a: 0 },
+            { q: "खोखा किन मामलों में अपवाद था?", o: ["केवल घर के नियमों में", "जीवन के नियमों में भी", "पढ़ाई में", "खेलकूद में"], a: 1 },
+            { q: "सेन साहब के यहाँ खोखा को ट्रेनिंग देने के लिए कौन आता था?", o: ["बढ़ई (कार्पेंटर)", "लोहार", "ट्यूटर", "संगीत शिक्षक"], a: 0 },
+            { q: "मदन किसका बेटा था?", o: ["सेन साहब का", "गिरधरलाल का", "सोफ़र का", "मुखर्जी साहब का"], a: 1 },
+            { q: "गिरधरलाल सेन साहब की फैक्टरी में क्या था?", o: ["मैनेजर", "ड्राइवर", "किरानी (Clerk)", "चौकीदार"], a: 2 },
+            { q: "सेन साहब की मोटरकार को छूने की कोशिश कौन कर रहा था?", o: ["काशू", "मदन", "गिरधर", "मुखर्जी साहब"], a: 1 },
+            { q: "ड्राइवर ने मदन को गाड़ी छूने पर क्या किया?", o: ["प्यार किया", "ढकेल दिया और डांटा", "पैसे दिए", "गाड़ी में बैठाया"], a: 1 },
+            { q: "मदन की माँ और ड्राइवर के बीच हुए विवाद पर सेन साहब ने क्या रुख अपनाया?", o: ["मदन की माँ का साथ दिया", "गंभीर और शांत रहकर ड्राइवर का मौन समर्थन किया", "ड्राइवर को नौकरी से निकाल दिया", "हंसने लगे"], a: 1 },
+            { q: "सेन साहब ने गिरधरलाल को बुलाकर मदन के बारे में क्या कहा?", o: ["उसे इनाम दो", "मदन बहुत शरारती हो गया है, ऐसे ही लड़के आगे चलकर गुंडे, चोर, डाकू बनते हैं", "उसे स्कूल भेजो", "उसे कार चलाना सिखाओ"], a: 1 },
+            { q: "मदन अक्सर अपने पिता गिरधरलाल से क्या पाता था?", o: ["प्यार", "मार/पिटाई", "पैसे", "उपहार"], a: 1 },
+            { q: "काशू (खोखा) गली के बच्चों के साथ कौन सा खेल खेलना चाहता था?", o: ["क्रिकेट", "फुटबॉल", "लट्टू नचाने का खेल", "छुपन-छुपाई"], a: 2 },
+            { q: "मदन ने काशू को लट्टू देने से क्यों मना कर दिया?", o: ["क्योंकि काशू के ड्राइवर ने उसे कार छूने से मना किया और ढकेला था", "क्योंकि लट्टू टूट गया था", "डर के कारण", "पैसे न होने के कारण"], a: 0 },
+            { q: "मदन और काशू के बीच हुए झगड़े को लेखक ने क्या संज्ञा दी है?", o: ["अमीरी और गरीबी की लड़ाई", "हंसों और कौओं की लड़ाई (महल और झोपड़ी की लड़ाई)", "भाइयों की लड़ाई", "धार्मिक युद्ध"], a: 1 },
+            { q: "झगड़े के दौरान मदन ने काशू के कितने दाँत तोड़ डाले?", o: ["एक", "दो", "तीन", "चार"], a: 1 },
+            { q: "मदन द्वारा तोड़े गए काशू के दाँतों को कहानी में क्या कहा गया है?", o: ["सोने के दाँत", "विष के दाँत", "दूध के दाँत", "चांदी के दाँत"], a: 1 },
+            { q: "काशू के दाँत टूटने पर सेन साहब के घर का माहौल कैसा था?", o: ["उत्सव जैसा", "सनसनीखेज और सन्नाटा", "खुशी का", "क्रोधहीन"], a: 1 },
+            { q: "रात को जब मदन घर लौटा, तो गिरधरलाल ने उसके साथ कैसा व्यवहार किया?", o: ["उसे बहुत मारा", "उसे गले से लगा लिया और उसकी बहादुरी की तारीफ की", "घर से निकाल दिया", "पुलिस को बुला लिया"], a: 1 },
+            { q: "गिरधरलाल ने मदन को गले क्यों लगाया?", o: ["क्योंकि मदन ने सेन साहब के अहंकारी बेटे के 'विष के दाँत' तोड़ दिए थे", "क्योंकि वह पागल हो गया था", "पैसे मिलने की खुशी में", "कार जीतने की खुशी में"], a: 0 },
+            { q: "सेन साहब अपने दोस्तों के सामने अपने बेटे की हरकतों को क्या बताते थे?", o: ["शरारत", "इंजीनियर के लक्षण", "मूर्खता", "गंवारपन"], a: 1 },
+            { q: "सेन साहब की कार की हेडलाइट किसने तोड़ी थी?", o: ["मदन ने", "काशू ने", "गिरधर ने", "कुत्ते ने"], a: 1 },
+            { q: "जब काशू ने कार की हेडलाइट तोड़ी, तो सेन साहब ने क्या प्रतिक्रिया दी?", o: ["उसे डांटा", "कहा कि वह देख रहा था कि इसके अंदर क्या है, इसमें इंजीनियर के गुण हैं", "उसे पीटा", "रोने लगे"], a: 1 },
+            { q: "सेन साहब के मित्रों में कौन शामिल थे, जिनकी गाड़ी के टायर की हवा काशू ने निकाल दी थी?", o: ["पत्रकार महोदय", "सिंह साहब", "मुखर्जी साहब", "उपर्युक्त सभी"], a: 3 },
+            { q: "पत्रकार महोदय से जब पूछा गया कि वे अपने बेटे को क्या बनाना चाहते हैं, तो उन्होंने क्या जवाब दिया?", o: ["इंजीनियर", "वह जो भी बने, सबसे पहले एक भद्र पुरुष (जेंटलमैन) बने", "डॉक्टर", "व्यापारी"], a: 1 },
+            { q: "पत्रकार महोदय के उत्तर को सुनकर सेन साहब के चेहरे पर क्या छा गया?", o: ["मुस्कान", "क्रोध और ईर्ष्या का ऐंठन", "उदासी", "गर्व"], a: 1 },
+            { q: "मदन की उम्र लगभग कितनी थी?", o: ["3-4 साल", "5-6 साल", "8-9 साल", "11-12 साल"], a: 1 },
+            { q: "काशू मदन से पिटकर क्यों रोने लगा?", o: ["क्योंकि उसे पहली बार किसी ने प्रतिवाद किया और पीटा था", "लट्टू खोने के कारण", "पिता के डर से", "चोट न लगने पर भी"], a: 0 },
+            { q: "मदन के दोस्तों की टोली को लेखक ने क्या कहा है?", o: ["हंसों की जमात", "कौओं की जमात", "वीरों की जमात", "ज्ञानी जमात"], a: 1 },
+            { q: "सेन साहब की आँखों का तारा कौन था?", o: ["मदन", "खोखा (काशू)", "गिरधर", "ड्राइवर"], a: 1 },
+            { q: "खोखा किस भाषा का शब्द है, जिसका अर्थ बच्चा/बच्ची होता है?", o: ["भोजपुरी", "बंगला", "मैथिली", "उड़िया"], a: 1 },
+            { q: "सीमा, रजनी, आलो, शेफाली, आरती ये पाँचों किसकी बहनें थीं?", o: ["मदन की", "खोखा की", "लेखक की", "गिरधर की"], a: 1 },
+            { q: "सेन साहब की गाड़ी की सुरक्षा की पूरी जिम्मेदारी किस पर थी?", o: ["मदन पर", "सोफ़र (ड्राइवर) पर", "गिरधर पर", "नौकर पर"], a: 1 },
+            { q: "'नकेन के प्रपद्य' और 'मानदंड' किनकी कृतियाँ हैं?", o: ["रामधारी सिंह दिनकर", "नलिन विलोचन शर्मा", "प्रेमचंद", "अज्ञेय"], a: 1 },
+            { q: "मदन काशू के सामने क्यों तन कर खड़ा हो गया था?", o: ["स्वाभिमान और बदले की भावना के कारण", "पैसे मांगने के लिए", "लट्टू चुराने के लिए", "डर के मारे"], a: 0 },
+            { q: "इस कहानी का मुख्य संदेश क्या है?", o: ["अमीरों की चाटुकारिता करना", "झूठे अहंकार, तानाशाही और वर्ग-भेद का विरोध करना", "बच्चों को न पढ़ाना", "कार की सुरक्षा करना"], a: 1 },
+            { q: "सेन साहब का चरित्र कैसा दर्शाया गया है?", o: ["उदार और दयालु", "दंभी, अहंकारी और दोहरी मानसिकता वाला", "परोपकारी", "धार्मिक"], a: 1 },
+            { q: "कहानी में शोषित वर्ग का प्रतिनिधित्व कौन करता है?", o: ["सेन साहब", "गिरधरलाल और मदन का परिवार", "पत्रकार महोदय", "सिंह साहब"], a: 1 },
+            { q: "कहानी में शोषक और पूंजीपति वर्ग का प्रतीक कौन है?", o: ["मदन", "सेन साहब", "गिरधरलाल", "गली के बच्चे"], a: 1 },
+            { q: "मदन जब काशू को मारता है, तो वह वास्तव में किस पर प्रहार कर रहा होता है?", o: ["केवल काशू पर", "सेन साहब के वर्ग-अहंकार और अन्याय पर", "अपने पिता पर", "ड्राइवर पर"], a: 1 },
+            { q: "लट्टू नचाने की जगह पर काशू कैसे आया था?", o: ["दौड़ते हुए", "रॉब के साथ भोंपू की तरह गरजता हुआ", "रोते हुए", "चुपके से"], a: 1 },
+            { q: "गिरधरलाल को नौकरी से क्यों निकाल दिया गया था?", o: ["चोरी करने के कारण", "उसके बेटे मदन द्वारा सेन साहब के बेटे काशू की पिटाई करने के कारण", "काम न करने के कारण", "देर से आने के कारण"], a: 1 },
+            { q: "नौकरी से निकाले जाने के बाद भी गिरधरलाल क्यों खुश था?", o: ["क्योंकि उसे नई नौकरी मिल गई थी", "क्योंकि उसके बेटे ने अन्याय के खिलाफ आवाज उठाई थी और उसका डर खत्म हो गया था", "क्योंकि वह सेन साहब से नफरत करता था", "कोई कारण नहीं था"], a: 1 },
+            { q: "शर्मा जी के अनुसार आलोचना का क्या अर्थ है?", o: ["केवल कमियाँ ढूंढना", "किसी कृति का निष्पक्ष मूल्यांकन और वैज्ञानिक विश्लेषण", "झूठी तारीफ", "निंदा करना"], a: 1 },
+            { q: "सेन दंपति (पति-पत्नी) अपने बेटे को क्या मानते थे?", o: ["असाधारण और असाध्य", "मूर्ख", "कमजोर", "सामान्य"], a: 0 },
+            { q: "मदन को गाड़ी के पास देखकर ड्राइवर ने किस भाषा का प्रयोग किया था?", o: ["कठोर और झिड़की भरी", "मधुर", "संस्कृत", "अंग्रेजी"], a: 0 },
+            { q: "नलिन विलोचन शर्मा की कहानियों में किसके तत्व समग्रता से उभर कर आए हैं?", o: ["राजनीतिकता के", "मनोवैज्ञानिकता के", "आर्थिकता के", "धार्मिकता के"], a: 1 },
+            { q: "विष के दाँत कहानी का अंत कैसा है?", o: ["दुखद", "सुखद और क्रांतिकारी (बदलाव लाने वाला)", "अस्पष्ट", "भयावह"], a: 1 },
+            { q: "सेन साहब की बेटियों को क्या सिखाया गया था?", o: ["क्या करना चाहिए और विशेषकर क्या नहीं करना चाहिए", "केवल लड़ना", "कार चलाना", "कारोबार संभालना"], a: 0 },
+            { q: "मदन के मन में काशू के प्रति क्या था?", o: ["आदर", "आक्रोश और गुस्सा", "प्रेम", "दया"], a: 1 },
+            { q: "दाँत तोड़ना मुहावरे का इस कहानी के संदर्भ में क्या अर्थ है?", o: ["दंत चिकित्सक के पास जाना", "घमंड को पूरी तरह चूर-चूर कर देना", "कमजोर करना", "हंसना"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #fee2e2; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 22h20L12 2z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">BSEB कक्षा 10वीं हिंदी (गोधूलि)</h1>
+                    <h2 style="font-size: 1.5rem; color: #ef4444; font-weight: 700; margin-bottom: 16px;">अध्याय 2: विष के दाँत primary</h2>
+                    <p style="color: #4a5568; margin-bottom: 32px; max-width: 600px; font-size: 1.15rem;">पात्रों के चरित्र-चित्रण, लेखक परिचय और मनोवैज्ञानिक सामाजिक द्वंद्व पर आधारित 70 अति महत्वपूर्ण प्रश्न।</p>
+                    <button onclick="startQuiz()" class="btn-start" style="background: linear-gradient(to right, #ef4444, #f97316);">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #ef4444; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%; background: linear-gradient(to right, #ef4444, #f97316);"></div>
+                    </div>
+                    <!-- Right Profile Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.45rem; font-weight: bold; margin-bottom: 24px; line-height: 1.35;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center;">प्रश्नावली ओवरव्यू (कुल 70 प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #ef4444;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अविश्वसनीय! आपने विष के दाँत अध्याय का कोना-कोना समझ लिया है!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बेहतरीन! मदन की तरह आपका संकल्प और तैयारी भी पक्की है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ के पात्रों के संवादों को एक बार फिर से समझें।"; emoji = "👍"; }
+            else { message = "कोई बात नहीं! कहानी को दोबारा पढ़ें और फिर से बेहतर स्कोर लाएँ।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 70</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से खेलें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

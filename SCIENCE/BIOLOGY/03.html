@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>जीव विज्ञान क्विज़ - जीव जनन कैसे करते हैं?</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fdf2f8;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(219, 39, 119, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #db2777;
+            background-color: #fdf2f8;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #f472b6, #db2777); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #db2777, #be185d); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(219, 39, 119, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #f472b6, #db2777); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "जनन (Reproduction) की वह मूल घटना कौन सी है जो संतति में पैतृक लक्षणों के संचरण का आधार है?", o: ["कोशिका विभाजन", "DNA प्रतिकृति का बनना (DNA Replication)", "जीव का बड़ा होना", "युग्मक का नष्ट होना"], a: 1 },
+            { q: "DNA (डीऑक्सीराइबोन्यूक्लिक अम्ल) मुख्य रूप से कोशिका के किस विशिष्ट भाग में पाया जाता है?", o: ["कोशिका द्रव्य", "नाभिक या केन्द्रक (Nucleus) के गुणसूत्रों में", "माइटोकॉन्ड्रिया", "लाइसोसोम"], a: 1 },
+            { q: "जनन की वह विधि जिसमें केवल एक ही एकल जीव (Single Parent) नई संतति उत्पन्न करता है, क्या कहलाती है?", o: ["लैंगिक जनन", "अलैंगिक जनन (Asexual Reproduction)", "उभयलिंगी जनन", "निषेचन"], a: 1 },
+            { q: "अमीबा (Amoeba) में सामान्यतः अलैंगिक जनन की कौन सी विधि पाई जाती है जिसमें कोशिका दो भागों में बंटती है?", o: ["मुकुलन", "द्विखंडन (Binary Fission)", "बहुविखंडन", "खंडन"], a: 1 },
+            { q: "मलेरिया परजीवी 'प्लाज्मोडियम' (Plasmodium) एक साथ अनेक संतति कोशिकाओं में विभाजित होता है, इस प्रक्रिया को क्या कहते हैं?", o: ["द्विखंडन", "बहुविखंडन (Multiple Fission)", "पुनरुद्भवन", "कायिक प्रवर्धन"], a: 1 },
+            { q: "कालाजार के रोगाणु 'लीशमानिया' (Leishmania) में द्विखंडन एक निश्चित तल में क्यों होता है?", o: ["उसमें पैर होते हैं", "उसकी संरचना के एक सिरे पर कोड़े के समान सूक्ष्म चाबुक जैसी संरचना होती है", "वह गोल होता है", "उसमें केन्द्रक नहीं होता"], a: 1 },
+            { q: "सरल संरचना वाले बहुकोशिकीय जीव 'स्पाइरोगाइरा' (Spirogyra) के पूर्ण विकसित होने पर छोटे टुकड़ों में टूटने की प्रक्रिया क्या कहलाती है?", o: ["विखंडन", "खंडन (Fragmentation)", "मुकुलन", "बीजाणु समासंघ"], a: 1 },
+            { q: "हाइड्रा (Hydra) और प्लेनेरिया जैसे पूर्णरूपेण विभेदित जीवों में कटे हुए भागों से नए जीव बनने की क्षमता को क्या कहते हैं?", o: ["खंडन", "पुनरुद्भवन या पुनर्जनन (Regeneration)", "मुकुलन", "कायिक प्रवर्धन"], a: 1 },
+            { q: "यीस्ट (Yeast) और हाइड्रा में शरीर पर एक छोटा सा उभार या आउटग्रोथ निकलती है, इस अलैंगिक जनन विधि को क्या कहते हैं?", o: ["विखंडन", "मुकुलन (Budding)", "खंडन", "बीजाणु समासंघ"], a: 1 },
+            { q: "पौधों के कायिक भाग (जैसे जड़, तना या पत्तियाँ) से नए पौधे के विकसित होने के प्रक्रम को क्या कहते हैं?", o: ["अलैंगिक बीजाणु", "कायिक प्रवर्धन (Vegetative Propagation)", "लैंगिक जनन", "ऊतक संवर्धन"], a: 1 },
+            { q: "ब्रायोफिलम या पत्थरचट्टा (Bryophyllum) का पौधा अपने किस भाग द्वारा प्राकृतिक कायिक प्रवर्धन प्रदर्शित करता है?", o: ["जड़ द्वारा", "पत्ती के कोर की कलिकाओं द्वारा (Leaf Margins)", "तने द्वारा", "फूल द्वारा"], a: 1 },
+            { q: "गन्ना, गुलाब और अंगूर को कृषि में उगाने के लिए आमतौर पर कायिक प्रवर्धन की किस कृत्रिम विधि का उपयोग किया जाता है?", o: ["दाब लगाना", "कलम लगाना (Cutting)", "ग्राफ्टिंग", "बीजाणु समासंघ"], a: 1 },
+            { q: "पौधे के शीर्ष भाग से कोशिकाओं या ऊतकों को निकालकर कृत्रिम माध्यम में नए पौधे उगाने की आधुनिक तकनीक क्या कहलाती है?", o: ["कायिक प्रवर्धन", "ऊतक संवर्धन (Tissue Culture / Micropropagation)", "बीजाणु जनन", "मुकुलन"], a: 1 },
+            { q: "राइजोपस या ब्रेड मोल्ड (Rhizopus) कवक के तंतुओं के सिरे पर पाई जाने वाली गोल संरचनाएं क्या कहलाती हैं जो जनन में सहायक हैं?", o: ["मुकुल", "बीजाणुधानी (Sporangia)", "डेंड्राइट", "विलोम"], a: 1 },
+            { q: "बीजाणु (Spores) के चारों ओर एक मोटी भित्ति क्यों होती है जो उन्हें प्रतिकूल परिस्थितियों में सुरक्षित रखती है?", o: ["सुंदर दिखने के लिए", "ताकि वे नमी मिलने पर ही अंकुरित हों और सूखे से बचे रहें", "उन्हें तैरने में मदद के लिए", "हवा में उड़ने के लिए"], a: 1 },
+            { q: "जनन की वह विधि जिसमें नई संतति उत्पन्न करने के लिए दो भिन्न जीवों (नर और मादा) की भागीदारी आवश्यक होती है?", o: ["अलैंगिक जनन", "लैंगिक जनन (Sexual Reproduction)", "कायिक जनन", "मुकुलन"], a: 1 },
+            { q: "लैंगिक जनन की प्रक्रिया में नर और मादा की विशिष्ट जनन कोशिकाओं के मिलने को क्या कहा जाता है?", o: ["कोशिका विभाजन", "निषेचन (Fertilization)", "परागण", "श्रृंखलन"], a: 1 },
+            { q: "लैंगिक जनन में बनने वाली विशेष जनन कोशिकाओं को सामान्यतः क्या कहा जाता है जिसमें गुणसूत्रों की संख्या आधी होती है?", o: ["युग्मनज", "युग्मक या गैमीट (Gametes)", "जाइगोट", "कायिक कोशिकाएं"], a: 1 },
+            { q: "निषेचन के बाद नर और मादा युग्मकों के संलयन (मेल) से बनने वाली पहली द्विगुणित (2n) कोशिका क्या कहलाती है?", o: ["युग्मक", "युग्मनज या जाइगोट (Zygote)", "भ्रूण", "बीज"], a: 1 },
+            { q: "पुष्पी पौधों (आवृतबीजी या Angiosperms) में जनन अंग मुख्य रूप से कहाँ स्थित होते हैं?", o: ["जड़ में", "तने में", "पत्तियों में", "पुष्प या फूल (Flower) में"], a: 3 },
+            { q: "फूल के सबसे बाहरी हरे पत्तीनुमा भाग को क्या कहते हैं जो कली अवस्था में फूल की रक्षा करता है?", o: ["पंखुड़ी", "बाह्यदल (Sepals)", "पुंकेसर", "स्त्रीकेसर"], a: 1 },
+            { q: "फूल का रंगीन और आकर्षक भाग जो कीटों को परागण के लिए आकर्षित करता है, क्या कहलाता है?", o: ["बाह्यदल", "दलपत्र या पंखुड़ी (Petals)", "स्त्रीकेसर", "अंडप"], a: 1 },
+            { q: "फूल का नर जनन अंग कौन सा है जो परागकण (Pollen Grains) उत्पन्न करता है?", o: ["स्त्रीकेसर", "पुंकेसर (Stamen)", "बाह्यदल", "वर्तिका"], a: 1 },
+            { q: "पुंकेसर के शीर्ष पर स्थित फूली हुई थैलीनुमा संरचना क्या कहलाती है जिसमें परागकण भरे होते हैं?", o: ["तंतु", "परागकोश (Anther)", "वर्तिकाग्र", "अंडाशय"], a: 1 },
+            { q: "फूल का मादा जनन अंग कौन सा है जो पुष्प के केंद्र में स्थित होता है?", o: ["पुंकेसर", "स्त्रीकेसर या अंडप (Carpel / Pistil)", "परागकोश", "दलपुंज"], a: 1 },
+            { q: "स्त्रीकेसर का सबसे नीचे का फूला हुआ मुख्य भाग क्या कहलाता है जिसके अंदर बीजांड होते हैं?", o: ["वर्तिका", "वर्तिकाग्र", "अंडाशय (Ovary)", "परागकोश"], a: 2 },
+            { q: "स्त्रीकेसर का शीर्ष भाग जो चिपचिपा होता है और परागकणों को ग्रहण करता है, क्या कहलाता है?", o: ["वर्तिका", "वर्तिकाग्र (Stigma)", "अंडाशय", "तंतु"], a: 1},
+            { q: "परागकणों का परागकोश से स्त्रीकेसर के वर्तिकाग्र तक पहुँचने के प्रक्रम को क्या कहते हैं?", o: ["निषेचन", "परागण (Pollination)", "अंकुरण", "विसरण"], a: 1 },
+            { q: "जब एक ही फूल के परागकण उसी फूल के वर्तिकाग्र पर स्थानांतरित होते हैं, तो उसे क्या कहते हैं?", o: ["पर-परागण", "स्व-परागण (Self-Pollination)", "कृत्रिम परागण", "निषेचन"], a: 1 },
+            { q: "जब एक फूल के परागकण दूसरे पौधे पर स्थित फूल के वर्तिकाग्र पर हवा, पानी या कीटों द्वारा पहुँचते हैं, उसे क्या कहते हैं?", o: ["स्व-परागण", "पर-परागण (Cross-Pollination)", "द्विनिषेचन", "कायिक जनन"], a: 1 },
+            { q: "वर्तिकाग्र पर गिरने के बाद परागकण से एक नली निकलती है जो अंडाशय तक जाती है, इसे क्या कहते हैं?", o: ["अंडवाहिनी", "पराग नलिका (Pollen Tube)", "शुक्रवाहिनी", "मूत्रमार्ग"], a: 1 },
+            { q: "निषेचन के बाद पुष्प का अंडाशय (Ovary) विकसित होकर किस संरचना में बदल जाता है?", o: ["बीज में", "फल (Fruit) में", "पत्ती में", "जड़ में"], a: 1 },
+            { q: "निषेचन के बाद बीजांड (Ovule) एक कड़े आवरण में विकसित होकर क्या बनाता है जिसके अंदर भावी भ्रूण होता है?", o: ["फल", "बीज (Seed)", "फूल", "कलिका"], a: 1 },
+            { q: "बीज के अंदर उपस्थित भावी पौधे को जो अनुकूल परिस्थितियों में अंकुरित होकर नया पौधा बनाता है, क्या कहते हैं?", o: ["युग्मक", "भ्रूण (Embryo)", "फलभित्ति", "बाह्यदल"], a: 1 },
+            { q: "मानव में लैंगिक परिपक्वता की वह अवधि जब शरीर में किशोरों के शारीरिक और हार्मोनल बदलाव तीव्र होते हैं, क्या कहलाती है?", o: ["बाल्यावस्था", "यौवनारंभ या पुवर्टी (Puberty)", "वृद्धावस्था", "वयस्कता"], a: 1 },
+            { q: "मानव नर जनन तंत्र (Male Reproductive System) में मुख्य जनन अंग कौन सा है जो वृषणकोश में स्थित होता है?", o: ["शुक्रवाहिनी", "वृषण (Testes)", "शीश्न", "प्रोस्टेट ग्रंथि"], a: 1 },
+            { q: "वृषण उदर गुहा के बाहर वृषणकोश (Scrotum) में क्यों स्थित होते हैं?", o: ["सुरक्षा के लिए", "क्योंकि शुक्राणु निर्माण के लिए शरीर के तापमान से कम तापमान की आवश्यकता होती है", "मूत्र रोकने के लिए", "चलने में आसानी के लिए"], a: 1 },
+            { q: "वृषण द्वारा स्रावित होने वाला वह मुख्य नर हार्मोन कौन सा है जो शुक्राणु उत्पादन और यौवनारंभ के लक्षणों को नियंत्रित करता है?", o: ["एस्ट्रोजन", "टेस्टोस्टेरोन (Testosterone)", "इंसुलिन", "प्रोजेस्टेरोन"], a: 1 },
+            { q: "वृषण में बनने वाले नर युग्मकों को क्या कहा जाता है जिनकी एक लंबी पूंछ होती है?", o: ["अंडाणु", "शुक्राणु (Sperms)", "युग्मनज", "पोलर बॉडी"], a: 1 },
+            { q: "शुक्राणुओं को वृषण से आगे मूत्रमार्ग तक ले जाने वाली लंबी नलिका का नाम क्या है?", o: ["अंडवाहिनी", "शुक्रवाहिनी (Vas Deferens)", "मूत्रवाहिनी", "फेलोपियन ट्यूब"], a: 1 },
+            { q: "शुक्राणु मार्ग में अपने स्राव को जोड़ने वाली ग्रंथियां कौन सी हैं जो शुक्राणुओं को पोषण और तैरने के लिए माध्यम देती हैं?", o: ["जठर ग्रंथियां", "प्रोस्टेट और शुक्राशय (Prostate & Seminal Vesicles)", "थायरॉइड ग्रंथि", "पीयूष ग्रंथि"], a: 1 },
+            { q: "मानव मादा जनन तंत्र (Female Reproductive System) में प्राथमिक जनन अंग कौन सा है जहाँ अंडाणु बनते हैं?", o: ["गर्भाशय", "अंडाशय (Ovary)", "अंडवाहिनी", "योनि"], a: 1 },
+            { q: "मादा जनन तंत्र के किस भाग में निषेचन (Fertilization) की मुख्य घटना संपन्न होती है जहाँ शुक्राणु और अंडाणु मिलते हैं?", o: ["गर्भाशय", "अंडवाहिनी या फेलोपियन ट्यूब (Fallopian Tube)", "योनि", "ग्रीवा"], a: 1 },
+            { q: "वह थैलीनुमा पेशीय संरचना कौन सी है जहाँ निषेचित अंडा या भ्रूण स्थापित होकर 9 महीने तक विकसित होता है?", o: ["अंडवाहिनी", "गर्भाशय (Uterus / Womb)", "योनि", "अंडाशय"], a: 1 },
+            { q: "गर्भाशय की भित्ति और भ्रूण के बीच की वह विशिष्ट ऊतक संरचना कौन सी है जो माता के रक्त से भ्रूण को पोषण और ऑक्सीजन देती है?", o: ["फेलोपियन ट्यूब", "प्लेसेंटा या अपरा (Placenta)", "अंडकोश", "कॉर्पस ल्यूटियम"], a: 1 },
+            { q: "यदि अंडाणु का निषेचन नहीं होता है, तो गर्भाशय का आंतरिक अस्तर टूटकर रक्त और म्यूकस के रूप में योनि से बाहर आता है, इसे क्या कहते हैं?", o: ["निषेचन", "ऋतुस्राव, मासिक धर्म या रजोधर्म (Menstruation)", "अंडोत्सर्ग", "गर्भधारण"], a: 1 },
+            { q: "मानव मादा में मासिक धर्म चक्र (Menstrual Cycle) की सामान्य औसत अवधि कितने दिनों की होती है?", o: ["14 दिन", "28 से 30 दिन (28 Days)", "45 दिन", "5 दिन"], a: 1 },
+            { q: "लैंगिक संपर्क या असुरक्षित शारीरिक संबंध से फैलने वाले रोगों को क्या कहा जाता है?", o: ["संक्रामक रोग", "यौन संचारित रोग (STDs)", "आनुवंशिक रोग", "कमी वाले रोग"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा रोग एक जीवाणु जनित (Bacterial STD) यौन संचारित रोग का उदाहरण है?", o: ["एड्स (AIDS)", "सिफलिस और गोनोरिया (Syphilis & Gonorrhea)", "मसा (Warts)", "हेपेटाइटिस"], a: 1 },
+            { q: "एड्स (AIDS) किस अत्यंत घातक वायरस के कारण फैलने वाला यौन संचारित रोग है?", o: ["इन्फ्लूएंजा", "HIV (ह्यूमन इम्युनोडेफिशिएंसी वायरस)", "हेपेटाइटिस बी", "कोरोना वायरस"], a: 1 / 100 },
+            { q: "शारीरिक संबंधों के दौरान एड्स और अन्य यौन रोगों के प्रसार को रोकने के लिए प्रयुक्त यांत्रिक अवरोध कौन सा है?", o: ["कॉपर-टी", "कंडोम (Condom)", "गर्भनिरोधक गोली", "नसबंदी"], a: 1 },
+            { q: "मादा की अंडवाहिनी (Fallopian Tube) को धागे से बांधकर ब्लॉक करने की शल्य चिकित्सा गर्भनिरोधक विधि क्या कहलाती है?", o: ["वेसेक्टॉमी", "ट्यूबेक्टॉमी या महिला नसबंदी (Tubectomy)", "लूप लगाना", "कॉपर-टी"], a: 1 },
+            { q: "नर की शुक्रवाहिनी (Vas Deferens) को काटकर बांधने की स्थायी पुरुष गर्भनिरोधक विधि क्या कहलाती है?", o: ["ट्यूबेक्टॉमी", "वेसेक्टॉमी या पुरुष नसबंदी (Vasectomy)", "बैरियर विधि", "ओरल पिल्स"], a: 1 },
+            { q: "गर्भाशय के अंदर डॉक्टर द्वारा स्थापित की जाने वाली तांबे की वह लूप संरचना कौन सी है जो गर्भधारण रोकती है?", o: ["कंडोम", "कॉपर-टी (Copper-T)", "डायफ्राम", "पिल्स"], a: 1 },
+            { q: "स्त्रियों द्वारा ली जाने वाली गर्भनिरोधक गोलियाँ (Oral Contraceptive Pills) मुख्य रूप से शरीर में क्या बदलती हैं जिससे अंडोत्सर्ग नहीं होता?", o: ["रक्तदाब", "हार्मोन संतुलन (Hormone Levels)", "पाचन क्रिया", "तापमान"], a: 1 },
+            { q: "किसी जीव की प्रजाति की समष्टि (Population) के स्थायित्व का मुख्य कारण क्या है?", o: ["श्वसन", "जनन (Reproduction)", "उत्सर्जन", "पोषण"], a: 1 },
+            { q: "यदि किसी जीव में जनन के समय DNA प्रतिकृति में मामूली त्रुटि या बदलाव आ जाता है, तो उसे क्या कहते हैं जो विकास का आधार है?", o: ["समानता", "विभिन्नता (Variation)", "स्थिरता", "नष्ट होना"], a: 1 },
+            { q: "एकलिंगी (Unisexual) पुष्प का सटीक उदाहरण निम्नलिखित में से कौन सा है जिसमें केवल पुंकेसर या केवल स्त्रीकेसर होता है?", o: ["गुड़हल", "सरसों", "पपीता और तरबूज (Papaya / Watermelon)", "गुलाब"], a: 2 },
+            { q: "उभयलिंगी (Bisexual) पुष्प का उदाहरण कौन सा है जिसमें पुंकेसर और स्त्रीकेसर दोनों एक ही फूल में होते हैं?", o: ["पपीता", "तरबूज", "सरसों और गुड़हल (Mustard / Hibiscus)", "खजूर"], a: 2 },
+            { q: "स्त्रीकेसर के मध्य के लंबे पतले भाग को क्या कहते हैं जो वर्तिकाग्र को अंडाशय से जोड़ता है?", o: ["तंतु", "वर्तिका (Style)", "वर्तिकाग्र", "बीजांड"], a: 1 },
+            { q: "परागकणों का रंग आमतौर पर कैसा होता है जो मकरंद खोजने वाले कीटों के पैरों पर चिपक जाते हैं?", o: ["हरा", "लाल", "पीला (Yellow)", "नीला"], a: 2 },
+            { q: "मानव मादा में किस आयु के आसपास अंडाणु बनने बंद हो जाते हैं और मासिक धर्म रुक जाता है जिसे 'रजोनिवृत्ति' (Menopause) कहते हैं?", o: ["18 वर्ष", "30 वर्ष", "45 से 50 वर्ष", "65 वर्ष"], a: 2 },
+            { q: "मानव मादा में पहली बार मासिक धर्म का प्रारंभ होना (यौवनारंभ पर) क्या कहलाता है?", o: ["रजोनिवृत्ति", "रजोदर्शन या मेनार्चे (Menarche)", "निषेचन", "अंडोत्सर्ग"], a: 1 },
+            { q: "गर्भाशय की आंतरिक दीवार स्पंज जैसी और रक्त वाहिकाओं से प्रचुर क्यों हो जाती है हर महीने?", o: ["बीमारी के कारण", "निषेचित अंडे (भ्रूण) के रोपण और उसके पोषण की तैयारी हेतु", "मासिक धर्म रोकने के लिए", "वसा संचय के लिए"], a: 1 },
+            { q: "भ्रूण को माता के गर्भ में विकसित होने में औसतन कितने दिनों का समय लगता है जिसे गर्भावधि कहते हैं?", o: ["100 दिन", "180 दिन", "270 से 280 दिन (लगभग 9 महीने)", "365 दिन"], a: 2 },
+            { q: "भूण के लिंग का निर्धारण निषेचन के समय किस कोशिका द्वारा होता है?", o: ["अंडाणु द्वारा", "शुक्राणु के गुणसूत्र (X या Y) द्वारा", "माता के भोजन द्वारा", "तापमान द्वारा"], a: 1 },
+            { q: "एक कोशिकीय जीव 'पैरामिशियम' की पूरी सतह पर पाए जाने वाले बाल नुमा अंगों को क्या कहते हैं जो गति और भोजन में सहायक हैं?", o: ["कूटपाद", "सीलिया (Cilia)", "फ्लैजेला", "स्पर्शक"], a: 1 },
+            { q: "प्लेनेरिया को यदि कई टुकड़ों में काट दिया जाए, तो प्रत्येक टुकड़ा पुनरुद्भवन द्वारा क्या बना लेता है?", o: ["वह नष्ट हो जाता है", "एक पूर्ण नया प्लेनेरिया जीव", "केवल पूंछ", "केवल सिर"], a: 1 },
+            { q: "आलू के कंद पर पाई जाने वाली 'आँख' (Eyes of Potato) वास्तव में क्या है जिससे नया पौधा उगता है?", o: ["जड़", "कलिका (Bud)", "फल", "फूल"], a: 1 },
+            { q: "सजावटी पौधों और आर्किड को रोगमुक्त और तीव्र गति से प्रयोगशाला में उगाने के लिए किस तकनीक का सहारा लिया जाता है?", o: ["कलम लगाना", "ऊतक संवर्धन (Tissue Culture)", "बीजाणु जनन", "दाब लगाना"], a: 1 },
+            { q: "बीज के अंकुरण के समय भावी प्ररोह (Shoot) बनाने वाले भाग को क्या कहते हैं जो जमीन से ऊपर आता है?", o: ["मूलांकुर", "प्रांकुर (Plumule)", "बीजपत्र", "भ्रूणपोष"], a: 1 },
+            { q: "बीज के अंकुरण के समय भावी जड़ (Root) बनाने वाले भाग को क्या कहा जाता है जो नीचे की ओर जाता है?", o: ["प्रांकुर", "मूलांकुर (Radicle)", "बीजपत्र", "अंडाशय"], a: 1 },
+            { q: "बीज के अंदर भोजन संचित करने वाली संरचनाओं को क्या कहते हैं जो अंकुरण के समय पोषण देती हैं?", o: ["प्रांकुर", "बीजपत्र (Cotyledons)", "मूलांकुर", "फलभित्ति"], a: 1 },
+            { q: "मानव नर में शुक्राणु और मूत्र दोनों के बाहर निकलने का साझा मार्ग (Common Passage) कौन सा है?", o: ["शुक्रवाहिनी", "मूत्रमार्ग (Urethra)", "अंडवाहिनी", "प्रोस्टेट नलिका"], a: 1 },
+            { q: "नर जनन कोशिकाओं (शुक्राणु) का आकार मादा जनन कोशिका (अंडाणु) की तुलना में कैसा होता है?", o: ["बहुत बड़ा", "अत्यंत छोटा और गतिशील (Small and Motile)", "समान आकार का", "अगतिशील"], a: 1 },
+            { q: "मादा जनन कोशिका या अंडाणु (Egg) की मुख्य विशेषता क्या होती है?", o: ["यह बहुत छोटा और तीव्र गतिशील होता है", "यह बड़ा होता है और इसमें प्रचुर भोजन/ऊर्जा संचित होती है", "इसमें पूंछ होती है", "यह गुणसूत्रविहीन होता है"], a: 1 },
+            { q: "मानव मादा में दोनों अंडाशयों में से प्रति माह सामान्यतः कितने अंडे परिपक्व होकर बाहर निकलते हैं?", o: ["सैकड़ों", "दस", "केवल एक अंडा (One Egg)", "चार"], a: 2 },
+            { q: "अंडाशय से परिपक्व अंडे के बाहर निकलने की प्रक्रिया को क्या कहा जाता है?", o: ["निषेचन", "अंडोत्सर्ग या ओव्यूलेशन (Ovulation)", "ऋतुस्राव", "रोपण"], a: 1 },
+            { q: "असुरक्षित यौन संबंधों से एचआईवी के अलावा वायरस जनित (Viral STD) कौन सा रोग फैल सकता है?", o: ["सिफलिस", "गोनोरिया", "मसा (Warts) या हर्पीस", "टायफाइड"], a: 2 },
+            { q: "परिवार नियोजन की रासायनिक विधियों में मुख्य रूप से किसका उपयोग शामिल है जो हार्मोनल स्तर बदलती हैं?", o: ["कंडोम", "गर्भनिरोधक गोलियाँ या पिल्स (Contraceptive Pills)", "तांबा लूप", "शल्य चिकित्सा"], a: 1 },
+            { q: "किसी राष्ट्र की जनसंख्या की वृद्धि दर और उपलब्ध संसाधनों के बीच संतुलन बनाए रखने के अध्ययन को क्या कहते हैं?", o: ["जनन स्वास्थ्य (Reproductive Health) व परिवार नियोजन", "पारिस्थितिकी", "आनुवंशिकी", "भूगोल"], a: 0 },
+            { q: "अंडवाहिनी में निषेचित अंडा विभाजित होकर कोशिकाओं की गेंद जैसी संरचना बनाता है, इसे क्या कहते हैं?", o: ["युग्मक", "भ्रूण (Embryo)", "शुक्राणु", "बीजांड"], a: 1 },
+            { q: "भ्रूण का गर्भाशय के आंतरिक अस्तर पर मजबूती से चिपक जाने की क्रिया को क्या कहते हैं?", o: ["निषेचन", "रोपण या इम्प्लांटेशन (Implantation)", "अंडोत्सर्ग", "रजोदर्शन"], a: 1 },
+            { q: "मादा जनन तंत्र में गर्भाशय का निचला संकरा सिरा जो योनि में खुलता है, क्या कहलाता है?", o: ["फेलोपियन ट्यूब", "ग्रीवा (Cervix)", "अंडाशय", "अंडवाहिनी"], a: 1 },
+            { q: "यदि किसी पुरुष की शुक्रवाहिकाओं को ब्लॉक कर दिया जाए (वेसेक्टॉमी), तो वीर्य (Semen) पर क्या प्रभाव पड़ेगा?", o: ["वीर्य बनना बंद हो जाएगा", "वीर्य में शुक्राणु नहीं होंगे (No Sperms in Semen)", "वीर्य का रंग बदल जाएगा", "कोई प्रभाव नहीं पड़ेगा"], a: 1 },
+            { q: "लैंगिक जनन के कारण संतति में विभिन्नताएं उत्पन्न होने का मुख्य लाभ क्या है?", o: ["जीव का आकार छोटा रहता है", "प्रजाति की उत्तरजीविता (Survival) और पर्यावरण के प्रति अनुकूलन क्षमता बढ़ती है", "जनन की गति तेज होती है", "ऊर्जा की बचत होती है"], a: 1 },
+            { q: "DNA प्रतिकृति के बनने के दौरान होने वाली छोटी-छोटी तार्किक त्रुटियाँ जीव जगत में किसका मुख्य स्रोत हैं?", o: ["स्थिरता का", "जैव विकास और विभिन्नता का (Evolution)", "मृत्यु का", "रोगों का"], a: 1 },
+            { q: "पुनरुद्भवन (Regeneration) को जनन का एक पूर्ण विकल्प क्यों नहीं माना जा सकता?", o: ["यह बहुत आसान है", "क्योंकि जटिल जीव अपने शरीर के कटे हुए भाग से सामान्यतः नया जीव पूरी तरह विकसित नहीं कर सकते, यह केवल मरम्मत तक सीमित है", "यह केवल पौधों में होता है", "यह रासायनिक प्रक्रिया है"], a: 1 },
+            { q: "कायिक प्रवर्धन द्वारा उगाए गए पौधों की आनुवंशिक प्रकृति अपने जनक पौधे के कैसी होती है?", o: ["पूरी तरह भिन्न", "बिल्कुल समान या क्लोन (Identical)", "आधी भिन्न", "अस्थिर"], a: 1 },
+            { q: "बीज रहित पौधों (जैसे केला, संतरा, चमेली) को व्यावसायिक रूप से उगाने के लिए कौन सी विधि सर्वोत्तम है?", o: ["लैंगिक जनन", "कायिक प्रवर्धन (Vegetative Propagation)", "बहुविखंडन", "बीजाणु जनन"], a: 1 },
+            { q: "फेलोपियन ट्यूब को शल्य चिकित्सा द्वारा ब्लॉक करने पर अंडाणु कहाँ नहीं पहुँच पाता?", o: ["अंडाशय में", "गर्भाशय तक नहीं पहुँच पाता जिससे शुक्राणु से मिलन असंभव हो जाता है", "योनि में", "रक्त में"], a: 1 },
+            { q: "मानव आबादी को नियंत्रित करने और अवांछित गर्भधारण से बचने के उपायों को संयुक्त रूप से क्या कहते हैं?", o: ["पोषण उपाय", "गर्भनिरोधक उपाय (Contraceptive Methods)", "टीकाकरण", "स्वच्छता उपाय"], a: 1 },
+            { q: "कॉपर-टी (Copper-T) गर्भाशय में सूजन या अवांछित यांत्रिक अवरोध पैदा करके मुख्य रूप से किसे रोकती है?", o: ["शुक्राणु बनना", "भ्रूण के रोपण (Implantation) को रोकती है", "मासिक धर्म", "अंडोत्सर्ग"], a: 1 },
+            { q: "यौवनारंभ के समय बालकों में लड़कों वाले माध्यमिक लैंगिक लक्षणों का विकास किस हार्मोन के कारण होता है?", o: ["इंसुलिन", "टेस्टोस्टेरोन", "एस्ट्रोजन", "थायरोक्सिन"], a: 1 },
+            { q: "यौवनारंभ के समय बालिकाओं में स्तनों का विकास और नितंबों का भारी होना किस हार्मोन के स्राव के कारण होता है?", o: ["टेस्टोस्टेरोन", "एस्ट्रोजन (Estrogen)", "एड्रिनेलिन", "वृद्धि हार्मोन"], a: 1 },
+            { q: "सजीवों में जनन की प्रक्रिया के लिए बहुत अधिक ऊर्जा खर्च होती है, फिर भी जीव जनन क्यों करते हैं?", o: ["बड़ा होने के लिए", "अपनी प्रजाति के अस्तित्व को पीढ़ी दर पीढ़ी पृथ्वी पर बनाए रखने के लिए (To maintain species continuity)", "चलने के लिए", "अनिवार्य जैविक क्रिया होने के कारण"], a: 1 },
+            { q: "मुकुलन विधि द्वारा जनन करने वाले एक कोशिकीय कवक का नाम क्या है?", o: ["अमीबा", "यीस्ट (Yeast)", "प्लाज्मा", "राइजोपस"], a: 1 },
+            { q: "बहुकोशकीय जीव 'हाइड्रा' अनुकूल परिस्थितियों में अलैंगिक जनन किस विधि द्वारा करता है?", o: ["द्विखंडन", "मुकुलन (Budding)", "बीजाणु जनन", "निस्तापन"], a: 1 },
+            { q: "जीव जनन कैसे करते हैं? इस संपूर्ण अध्याय का अंतिम तार्किक व वैज्ञानिक निष्कर्ष क्या है?", o: ["जनन केवल एक ऐच्छिक क्रिया है जिसका कोई महत्व नहीं है", "जीवों द्वारा अपने समान नई संतति उत्पन्न करना, आनुवंशिक पदार्थ (DNA) का संचरण करना तथा विभिन्नताओं के माध्यम से जैव विकास को जारी रखना ही जनन का मूल आधार है", "अलैंगिक जनन लैंगिक से बेहतर होता है", "मानव आबादी को नियंत्रित करना जनन स्वास्थ्य का हिस्सा नहीं है"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #fce7f3; color: #db2777; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">जीव जनन कैसे करते हैं? (How organisms Reproduce)</h1>
+                    <p style="color: #4a5568; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (अध्याय 8)</p>
+                    <p style="color: #6b7280; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">अलैंगिक व लैंगिक जनन, पुष्पी पादप तथा मानव जनन तंत्र से संबंधित 100 शीर्ष स्तरीय प्रश्नों का संग्रह। आधुनिक इंटरफ़ेस और लाइव ट्रैकिंग के साथ अभ्यास शुरू करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #db2777; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1a202c;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #2d3748;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #f472b6;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #db2777;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! जनन जैविक विज्ञान अध्याय पर आपका पूरा नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! जनन स्वास्थ्य और जैविक प्रक्रियाओं पर आपकी समझ बेहतरीन है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! स्कोर को और बेहतर करने के लिए थोड़ा और रिवीजन करें।"; emoji = "👍"; }
+            else { message = "निराश न हों! प्रजनन तंत्र के मुख्य सिद्धांतों को दोबारा समझें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

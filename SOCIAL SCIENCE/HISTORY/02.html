@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>इतिहास क्विज़ - समाजवाद एवं साम्यवाद</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fcf2f2;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(220, 38, 38, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #dc2626;
+            background-color: #fef2f2;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #f87171, #dc2626); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #ef4444, #b91c1c); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #1e293b; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #475569; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .grid-container::-webkit-scrollbar { width: 6px; }
+        .grid-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #f87171, #dc2626); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "उत्पादन के साधनों पर निजी स्वामित्व के स्थान पर समाज या राज्य का अधिकार होना क्या कहलाता है?", o: ["पूंजीवाद", "सामंतवाद", "समाजवाद (Socialism)", "साम्राज्यवाद"], a: 2 },
+            { q: "समाजवादी विचारधारा का विकास मुख्य रूप से किस क्रांति के फलस्वरूप उत्पन्न श्रमिक शोषण के विरोध में हुआ?", o: ["फ्रांसीसी क्रांति", "औद्योगिक क्रांति (Industrial Revolution)", "अमेरिकी क्रांति", "गौरवपूर्ण क्रांति"], a: 1 },
+            { q: "ऐतिहासिक रूप से 'समाजवाद' शब्द का पहला प्रयोग किस वर्ष किया गया था?", o: ["1789 ई. में", "1827 ई. में", "1848 ई. में", "1867 ई. में"], a: 1 },
+            { q: "कार्ल मार्क्स से पहले के समाजवादियों को जो केवल आदर्श समाज की कल्पना करते थे, क्या कहा गया?", o: ["वैज्ञानिक समाजवादी", "यूटोपियन या स्वप्नदर्शी समाजवादी (Utopian Socialists)", "साम्यवादी", "अराजकतावादी"], a: 1 },
+            { q: "निम्नलिखित में से किसे फ्रांसीसी यूटोपियन समाजवाद का जन्मदाता माना जाता है, जिनका नारा था - 'प्रत्येक से उसकी क्षमता और कार्य के अनुसार'?", o: ["रॉबर्ट ओवेन", "सेंट साइमन (Saint-Simon)", "चार्ल्स फूरिए", "लुई ब्लां"], a: 1 },
+            { q: "ब्रिटेन के किस उद्योगपति ने यूटोपियन समाजवादी के रूप में स्कॉटलैंड के न्यू ल्यूनार्क में श्रमिकों के लिए आदर्श फैक्ट्री और कॉलोनी बनाई थी?", o: ["कार्ल मार्क्स", "रॉबर्ट ओवेन (Robert Owen)", "फ्रेडरिक एंगेल्स", "लुई ब्लां"], a: 1 },
+            { q: "'संतुष्ट श्रमिक ही वास्तविक लाभ है' यह किस समाजवादी विचारक का मुख्य कथन था?", o: ["सेंट साइमन", "चार्ल्स फूरिए", "रॉबर्ट ओवेन", "कार्ल मार्क्स"], a: 2 },
+            { q: "फ्रांस का वह पहला समाजवादी कौन था जिसने राजनीति में हिस्सा लिया और माना कि आर्थिक सुधारों के लिए राज्य का नियंत्रण आवश्यक है?", o: ["लुई ब्लां (Louis Blanc)", "चार्ल्स फूरिए", "सेंट साइमन", "प्रांसिस डीक"], a: 0 },
+            { q: "वैज्ञानिक समाजवाद (Scientific Socialism) का जनक निम्नलिखित में से किसे माना जाता है?", o: ["रॉबर्ट ओवेन", "सेंट साइमन", "कार्ल मार्क्स (Karl Marx)", "लेनिन"], a: 2 },
+            { q: "कार्ल मार्क्स का जन्म कब और कहाँ हुआ था?", o: ["5 मई 1818 को जर्मनी के ट्रियर नगर में", "10 मार्च 1820 को रूस में", "15 अगस्त 1815 को फ्रांस में", "5 मई 1818 को लंदन में"], a: 0 },
+            { q: "कार्ल मार्क्स ने बर्लिन विश्वविद्यालय में मुख्य रूप से किस दार्शनिक के विचारों का गहरा अध्ययन किया था?", o: ["रूसो", "हीगेल (Hegel)", "मांटेस्क्यू", "वॉल्टेयर"], a: 1 },
+            { q: "कार्ल मार्क्स ने अपने आजीवन मित्र फ्रेडरिक एंगेल्स के साथ मिलकर 1848 में कौन सा प्रसिद्ध घोषणापत्र जारी किया?", o: ["दास कैपिटल", "साम्यवादी घोषणापत्र या कम्युनिस्ट मेनिफेस्टो (Communist Manifesto)", "जनता का अधिकार", "पेरिस घोषणा"], a: 1 },
+            { q: "साम्यवादी घोषणापत्र (Communist Manifesto) को आधुनिक समाजवाद का क्या कहा जाता है?", o: ["संविधान", "बाइबल (Bible)", "इतिहास", "कानून"], a: 1 },
+            { q: "कार्ल मार्क्स की विश्व प्रसिद्ध पुस्तक 'दास कैपिटल' (Das Kapital) का प्रकाशन किस वर्ष हुआ था?", o: ["1848 ई. में", "1867 ई. में", "1883 ई. में", "1917 ई. में"], a: 1 },
+            { q: "समाजवादियों की बाइबल (Bible of Socialists) किस पुस्तक को कहा जाता है?", o: ["कम्युनिस्ट मेनिफेस्टो", "दास कैपिटल (Das Kapital)", "वार एंड पीस", "अप्रैल थीसिस"], a: 1 },
+            { q: "मार्क्स के अनुसार, मानव इतिहास मुख्य रूप से किसका इतिहास है?", o: ["राजाओं के युद्धों का", "वर्ग संघर्ष का इतिहास (History of Class Struggle)", "पारिस्थितिकी का", "धर्मों का"], a: 1 },
+            { q: "कार्ल मार्क्स का प्रसिद्ध नारा जो उन्होंने दुनिया भर के मजदूरों को एकजुट करने के लिए दिया था?", o: ["करो या मरो", "दुनिया के मजदूरों एक हो! तुम्हारे पास खोने के लिए बेड़ियों के अलावा कुछ नहीं है", "स्वतंत्रता हमारा अधिकार है", "इंकलाब जिंदाबाद"], a: 1 },
+            { q: "मार्क्स के द्वंद्वात्मक भौतिकवाद (Dialectical Materialism) के अनुसार, इतिहास का निर्धारण किस कारक द्वारा होता है?", o: ["धार्मिक भावनाओं द्वारा", "आर्थिक या भौतिक दशाओं और उत्पादन प्रणाली द्वारा", "राजनीतिक नेताओं की इच्छा द्वारा", "भाग्य द्वारा"], a: 1 },
+            { q: "समाजवादी आंदोलनों को अंतर्राष्ट्रीय स्तर पर जोड़ने के लिए 'प्रथम अंतर्राष्ट्रीय संघ' (First International) की स्थापना 1864 में कहाँ हुई थी?", o: ["पेरिस", "लंदन (London)", "मॉस्को", "बर्लिन"], a: 1 },
+            { q: "द्वितीय अंतर्राष्ट्रीय संघ (Second International) की स्थापना 14 जुलाई 1889 को किस शहर में हुई थी जहाँ 1 मई को मजदूर दिवस मनाने का निर्णय लिया गया?", o: ["लंदन", "मॉस्को", "पेरिस (Paris)", "जेनेवा"], a: 2 },
+            { q: "अंतर्राष्ट्रीय महिला दिवस प्रतिवर्ष दुनिया भर में किस तिथि को मनाया जाता है जिसकी शुरुआत समाजवादी आंदोलन से हुई?", o: ["1 मई", "8 मार्च (8th March)", "5 जून", "2 अक्टूबर"], a: 1 },
+            { q: "रूस के सम्राट (शासक) को 1917 से पहले ऐतिहासिक रूप से क्या कहा जाता था?", o: ["सुलतान", "जार (Czar)", "कैसर", "सम्राट"], a: 1 },
+            { q: "1917 की रूसी क्रांति के समय रूस पर किस निरंकुश और अकर्मण्य जार का शासन था?", o: ["जार निकोलस प्रथम", "जार निकोलस द्वितीय (Nicholas II)", "जार अलेक्जेंडर द्वितीय", "पीटर महान"], a: 1 },
+            { q: "1917 की रूसी क्रांति के समय रूस में किस राजवंश का राज था जो सदियों से चल रहा था?", o: ["बूर्बो वंश", "रोमानोव वंश (Romanov)", "हैब्सबर्ग वंश", "स्टुआर्ट वंश"], a: 1 },
+            { q: "रूस के बहुसंख्यक किसान जो अत्यंत दयनीय स्थिति में थे और 1861 तक बंधुआ मजदूर थे, क्या कहलाते थे?", o: ["कुलाक", "कृषि दास या सर्फ (Serfs)", "बोल्शेविक", "बुर्जुआ"], a: 1 },
+            { q: "रूस में कृषि दासता (Serfdom) का अंत 1861 में किस जार द्वारा कानून बनाकर किया गया था?", o: ["जार निकोलस द्वितीय", "जार अलेक्जेंडर द्वितीय (Alexander II)", "पीटर महान", "कैथरीन"], a: 1 },
+            { q: "रूस का एक विशाल साम्राज्य होने के बावजूद 1904-05 के युद्ध में किस छोटे से एशियाई देश ने उसे बुरी तरह हरा दिया था?", o: ["चीन", "जापान (Japan)", "कोरिया", "वियतनाम"], a: 1 },
+            { q: "9 जनवरी 1905 (रूसी कैलेंडर के अनुसार) को सेंट पीटर्सबर्ग में जार के महल की ओर जा रहे शांतिपूर्ण प्रदर्शनकारियों पर सेना की गोलीबारी की घटना क्या कहलाती है?", o: ["खूनी रविवार (Bloody Sunday)", "अक्टूबर क्रांति", "फरवरी क्रांति", "काली रात"], a: 0 },
+            { q: "रूसी इतिहास में 'खूनी रविवार' (Bloody Sunday) की घटना किस वर्ष हुई थी जिसने जार की बची-खुची प्रतिष्ठा समाप्त कर दी?", o: ["1861 ई.", "1905 ई.", "1917 ई.", "1924 ई."], a: 1 },
+            { q: "1905 की क्रांति के दबाव में जार निकोलस द्वितीय को रूस में किस निर्वाचित संसद या संस्था के गठन की अनुमति देनी पड़ी?", o: ["डाइट", "ड्यूमा (Duma)", "स्टेट्स जनरल", "सोवियत"], a: 1 },
+            { q: "रूस के श्रमिकों, सैनिकों और किसानों के स्थानीय प्रतिनिधि संगठनों या परिषदों को क्या कहा जाता था?", o: ["ड्यूमा", "सोवियत (Soviet)", "कुलाक", "चेका"], a: 1 },
+            { q: "रूस की 'रशियन सोशल डेमोक्रेटिक लेबर पार्टी' 1903 में वैचारिक मतभेद के कारण किन दो गुटों में विभाजित हो गई थी?", o: ["नरम दल और गरम दल", "बोल्शेविक और मेन्शेविक (Bolsheviks & Mensheviks)", "साम्यवादी और पूंजीवादी", "लाल सेना और श्वेत सेना"], a: 1 },
+            { q: "रूसी भाषा में 'बोल्शेविक' (Bolshevik) शब्द का वास्तविक अर्थ क्या होता है?", o: ["अल्पमत", "बहुमत या बहुसंख्यक (Majority)", "क्रांतिकारी", "मजदूर"], a: 1 },
+            { q: "रूसी भाषा में 'मेन्शेविक' (Menshevik) शब्द का वास्तविक अर्थ क्या होता है?", o: ["बहुमत", "अल्पमत या अल्पसंख्यक (Minority)", "शांतिवादी", "सैनिक"], a: 1 },
+            { q: "बोल्शेविक दल का सबसे प्रमुख, जुझारू और दूरदर्शी नेता कौन था जो मार्क्सवादी सिद्धांतों का कट्टर समर्थक था?", o: ["केरेन्सकी", "ट्रॉटस्की", "ब्लादिमीर इलीइच लेनिन (Lenin)", "स्टालिन"], a: 2 },
+            { q: "रूस में 1917 की पहली क्रांति किस महीने में हुई थी जिसके कारण जार को गद्दी छोड़नी पड़ी?", o: ["मार्च (रूसी पुराने कैलेंडर के अनुसार फरवरी की क्रांति)", "अक्टूबर", "नवंबर", "जनवरी"], a: 0 },
+            { q: "मार्च 1917 (फरवरी) की क्रांति के बाद रूस में केरेन्सकी के नेतृत्व में किस गुट की अंतरिम सरकार बनी?", o: ["बोल्शेविकों की", "मेन्शेविकों की (Menshevik / Liberal सरकार)", "जार समर्थकों की", "सैनिकों की"], a: 1 },
+            { q: "केरेन्सकी सरकार रूस की जनता में अलोकप्रिय क्यों हो गई?", o: ["वह राजा को वापस लाना चाहता था", "उसने प्रथम विश्व युद्ध से हटने से इनकार कर दिया और भूमि सुधार नहीं किए", "वह जर्मनी का समर्थक था", "वह बहुत कमजोर था"], a: 1 },
+            { q: "स्विट्जरलैंड से रूस लौटने के बाद लेनिन ने अप्रैल 1917 में बोल्शेविकों के सामने अपनी कौन सी तीन मुख्य माँगें (भूमि, शांति और रोटी) रखीं?", o: ["कम्युनिस्ट घोषणापत्र", "अप्रैल थीसिस (April Theses)", "दास कैपिटल", "नई आर्थिक नीति"], a: 1 },
+            { q: "7 नवंबर 1917 (पुराने कैलेंडर के अनुसार 25 अक्टूबर) को बोल्शेविकों द्वारा पेट्रोग्राद के रेलवे स्टेशन, बैंकों और विंटर पैलेस पर अधिकार करने की घटना क्या कहलाती है?", o: ["फरवरी क्रांति", "बोल्शेविक क्रांति या अक्टूबर क्रांति (October Revolution)", "खूनी रविवार", "सैनिक विद्रोह"], a: 1 },
+            { q: "बोल्शेविक क्रांति (अक्टूबर क्रांति) के सफल होने के बाद रूस में सत्ता की बागडोर किसने संभाली और प्रधानमंत्री बने?", o: ["केरेन्सकी", "लेनिन (Lenin)", "स्टालिन", "ट्रॉटस्की"], a: 1 },
+            { q: "लेनिन की सरकार में विदेश मंत्री और लाल सेना का कमांडर कौन था जिसने कूटनीतिक और सैनिक मोर्चे पर महत्वपूर्ण कार्य किया?", o: ["स्टालिन", "लियोन ट्रॉटस्की (Leon Trotsky)", "केरेन्सकी", "गोरबाचेव"], a: 1 },
+            { q: "लेनिन ने सत्ता संभालते ही मार्च 1918 में जर्मनी के साथ कौन सी अपमानजनक संधि करके रूस को प्रथम विश्व युद्ध से पूरी तरह अलग कर लिया?", o: ["ब्रेस्ट-लिटोवस्क की संधि (Treaty of Brest-Litovsk)", "वर्साय की संधि", "पेरिस की संधि", "फ्रैंकफर्ट की संधि"], a: 0 },
+            { q: "क्रांति के विरोधियों, जार समर्थकों और विदेशी हस्तक्षेपकारियों को दबाने के लिए लेनिन ने किस गुप्त पुलिस संगठन का गठन किया था?", o: ["लाल सेना", "चेका (Cheka)", "केजीबी", "गेस्टापो"], a: 1 },
+            { q: "क्रांति विरोधी ताकतों (श्वेत सेना) से लड़ने के लिए ट्रॉटस्की ने किस नाम से एक अनुशासित और विशाल सेना का गठन किया था?", o: ["काली सेना", "लाल सेना (Red Army)", "गुरिल्ला दस्ता", "आजाद सेना"], a: 1 },
+            { q: "रूसी साम्राज्य का नाम बदलकर दिसंबर 1922 में आधिकारिक रूप से क्या रखा गया, जो 15 गणराज्यों का संघ था?", o: ["रूस गणराज्य", "सोवियत संघ या यू.एस.एस.आर. (USSR - Union of Soviet Socialist Republics)", "साम्यावादी महासंघ", "पूर्वी ब्लॉक"], a: 1 },
+            { q: "लेनिन ने युद्धकालीन साम्यवाद की कठोरताओं को दूर करने के लिए 1921 में किस दूरगामी आर्थिक नीति की घोषणा की थी?", o: ["अप्रैल थीसिस", "नई आर्थिक नीति या एन.ई.पी. (New Economic Policy - NEP)", "पंचवर्षीय योजना", "दास कैपिटल"], a: 1 },
+            { q: "सोवियत संघ के महान नेता और आधुनिक रूस के निर्माता ब्लादिमीर लेनिन की मृत्यु किस वर्ष हुई थी?", o: ["1917 ई. में", "1921 ई. में", "1924 ई. में (1924)", "1930 ई. में"], a: 2 },
+            { q: "लेनिन की मृत्यु के बाद सोवे संघ का सर्वोच्च और निरंकुश शासक कौन बना जिसने रूस का तेजी से औद्योगीकरण किया?", o: ["ट्रॉटस्की", "जोसिफ स्टालिन (Joseph Stalin)", "ख्रुश्चेव", "ब्रेझनेव"], a: 1 },
+            { q: "स्टालिन ने रूस के छोटे और बिखरे हुए किसान खेतों को मिलाकर बड़े राज्य-नियंत्रित खेतों में बदलने की कौन सी नीति लागू की?", o: ["तनुकरण नीति", "सामूहिकीकरण नीति (Collectivization / कोल्खोज़)", "अप्रैल थीसिस", "निजीकरण"], a: 1 },
+            { q: "विश्व प्रसिद्ध ऐतिहासिक उपन्यास 'वार एंड पीस' (War and Peace / युद्ध और शांति) के लेखक कौन हैं जो रूसी विचारक थे?", o: ["कार्ल मार्क्स", "लियो टॉल्स्टॉय (Leo Tolstoy)", "मैक्सिम गोर्की", "तुर्गनेव"], a: 1 },
+            { q: "मजदूर वर्ग और शोषितों के जीवन पर आधारित कालजयी उपन्यास 'माँ' (The Mother) के रचनाकार कौन हैं?", o: ["लियो टॉल्स्टॉय", "मैक्सिम गोर्की (Maxim Gorky)", "दॉस्तोयेवस्की", "चेखव"], a: 1 },
+            { q: "पूंजीपतियों द्वारा श्रमिकों के श्रम से कमाए गए उस अतिरिक्त मूल्य को क्या कहते हैं जिसे मार्क्स ने शोषण का आधार माना?", o: ["मूलधन", "अतिरिक्त मूल्य का सिद्धांत (Theory of Surplus Value)", "ब्याज", "घाटा"], a: 1 },
+            { q: "रूस के धनी और संपन्न किसानों को जो स्टालिन की सामूहिकीकरण की नीति के घोर विरोधी थे, क्या कहा जाता था?", o: ["मूर्ख", "कुलाक (Kulaks)", "बोल्शेविक", "मुज़िक"], a: 1 },
+            { q: "साम्यवादी दर्शन और सोवे व्यवस्था के अंतर्गत समाज के सबसे निचले वर्ग (मजदूर, किसान, गरीब) को क्या नाम दिया गया है?", o: ["बुर्जुआ वर्ग", "सर्वहारा वर्ग (Proletariat)", "सामंत वर्ग", "मध्यम वर्ग"], a: 1 },
+            { q: "पूंजीवादी व्यवस्था के तहत समाज के अमीर, उद्योगपति और संपत्ति मालिक वर्ग को मार्क्सवादी शब्दावली में क्या कहते हैं?", o: ["सर्वहारा वर्ग", "बुर्जुआ वर्ग (Bourgeoisie)", "सर्फ", "चेका"], a: 1 },
+            { q: "दुनिया भर के कम्युनिस्ट दलों को वैचारिक दिशा देने के लिए लेनिन ने 1919 में मॉस्को में किस अंतरराष्ट्रीय संस्था का गठन किया था?", o: ["प्रथम अंतर्राष्ट्रीय", "कोमिन्टर्न या तृतीय अंतर्राष्ट्रीय (Comintern)", "लीग ऑफ नेशंस", "संयुक्त राष्ट्र"], a: 1 },
+            { q: "1917 की रूसी क्रांति का पूरी दुनिया पर क्या सबसे बड़ा राजनीतिक प्रभाव पड़ा?", o: ["साम्यवाद का अंत हो गया", "यह दुनिया की पहली सफल सर्वहारा क्रांति थी जिसने वैश्विक स्तर पर पूंजीवाद को चुनौती दी और समाजवाद को एक व्यावहारिक व्यवस्था बनाया", "रूस कमजोर हो गया", "इंग्लैंड ने रूस पर कब्जा कर लिया"], a: 1 },
+            { q: "रूस में जारशाही के समय आम जनता और किसानों की अत्यधिक दयनीय स्थिति का मुख्य कारण क्या था?", o: ["भारी टैक्स, आधुनिक तकनीकों की कमी और सामंती शोषण", "बाढ़ आना", "फैक्ट्रियां बंद होना", "कोई कारण नहीं था"], a: 0 },
+            { q: "लेनिन द्वारा घोषित 'नई आर्थिक नीति' (NEP) में मार्क्सवाद के साथ-साथ किस व्यावहारिक तत्व को सीमित छूट दी गई थी?", o: ["पूरी तरह साम्यवाद", "सीमित मात्रा में निजी व्यापार और पूंजीवाद (Limited Capitalism / Private trade)", "सामंतवाद", "विदेशी सेना का नियंत्रण"], a: 1 },
+            { q: "1905 के रूस-जापान युद्ध में रूस की हार ने रूसी जनता के मन में जार के प्रति क्या भावना जगाई?", o: ["सम्मान की", "जार की अयोग्यता को पूरी तरह उजागर किया और क्रांति का मार्ग प्रशस्त किया", "उदासीनता", "कोई प्रभाव नहीं"], a: 1 },
+            { q: "रूस की क्रांति के समय वहाँ की औद्योगिक स्थिति कैसी थी?", o: ["अत्यंत विकसित", "अत्यंत पिछड़ी हुई थी और फैक्ट्रियों में अधिकांश विदेशी पूंजी लगी थी जहाँ मजदूरों का भारी शोषण होता था", "शून्य थी", "पूंजीपतियों के अनुकूल थी"], a: 1 },
+            { q: "मेंडल के नियमों की तरह कार्ल मार्क्स का समाजवाद भी एक तार्किक सिद्धांत पर आधारित है। मार्क्स के समाजवाद को 'वैज्ञानिक' क्यों कहते हैं?", o: ["यह केवल धर्म पर आधारित था", "क्योंकि यह इतिहास के भौतिकवादी विश्लेषण, वर्ग संघर्ष और आर्थिक नियमों के वैज्ञानिक तर्कों पर आधारित था", "यह प्रयोगशाला में बना था", "यह राजा का समर्थन करता था"], a: 1 },
+            { q: "यूटोपियन समाजवादियों की सबसे बड़ी विसंगति या दोष क्या थी जिसके कारण वे असफल रहे?", o: ["वे गरीब थे", "उनके पास कोई व्यावहारिक योजना या वर्ग संघर्ष को संचालित करने की समझ नहीं थी, वे केवल पूंजीपतियों के हृदय परिवर्तन की कल्पना करते थे", "वे राजा थे", "वे युद्ध चाहते थे"], a: 1 },
+            { q: "लेनिन ने रूस की सत्ता संभालते ही देश के सभी बड़े उद्योगों, बैंकों और भूमि का क्या किया?", o: ["उन्हें निजी हाथों में बेच दिया", "उनका राष्ट्रीयकरण (Nationalization) कर दिया और भूमि को किसानों के बीच बांट दिया", "उन्हें नष्ट कर दिया", "विदेशी कंपनियों को सौंप दिया"], a: 1 },
+            { q: "रूसी इतिहास में 'चेका' का मुख्य कार्य क्या था जो लेनिन की सरकार के समय सक्रिय था?", o: ["शिक्षा का प्रसार", "क्रांति विरोधियों और जासूसों की पहचान करके उन्हें खत्म करना (Counter-revolutionary suppression)", "फसल काटना", "टैक्स इकट्ठा करना"], a: 1 },
+            { q: "रूसी क्रांति के परिणामस्वरूप महिलाओं को समाज और राजनीति में क्या अधिकार मिला जो पहले नहीं था?", o: ["कोई अधिकार नहीं मिला", "पुरुषों के समान कानूनी, आर्थिक और पूर्ण मताधिकार (Equal Rights & Suffrage)", "घर से बाहर निकलने पर प्रतिबंध", "सब गलत"], a: 1 },
+            { q: "सोवे संघ (USSR) का लाल झंडा जिस पर 'हँसिया और हथौड़ा' (Hammer and Sickle) अंकित था, किसका प्रतीक था?", o: ["राजा की शक्ति का", "मजदूरों (हथौड़ा) और किसानों (हँसिया) की एकता और सत्ता का", "विदेशी सेना का", "युद्ध का"], a: 1 },
+            { q: "कार्ल मार्क्स ने अपनी शिक्षा कहाँ से पूरी की थी जहाँ वे कानून और दर्शन के छात्र थे?", o: ["पेरिस", "बॉन और बर्लिन विश्वविद्यालय (Bonn & Berlin Universities)", "लंदन", "मॉस्को"], a: 1 },
+            { q: "मार्क्स के अनुसार 'मूल्य का श्रम सिद्धांत' क्या है?", o: ["किसी वस्तु का मूल्य उसकी सुंदरता से तय होता है", "किसी वस्तु का वास्तविक मूल्य उस पर किए गए मानवीय श्रम (Labor) के आधार पर निर्धारित होता है", "मूल्य का कोई नियम नहीं होता", "यह मांग पर निर्भर है"], a: 1 },
+            { q: "रूस में जार निकोलस द्वितीय की पत्नी 'जारिना' (Alexandra) पर किस ढोंगी और भ्रष्ट पादरी का अत्यधिक प्रभाव था जिसने शासन को बदनाम किया?", o: ["लेनिन", "रासपुतिन (Rasputin)", "ट्रॉटस्की", "स्टालिन"], a: 1 },
+            { q: "प्रथम विश्व युद्ध (1914-1918) में रूस की भागीदारी का रूसी अर्थव्यवस्था पर क्या तात्कालिक प्रभाव पड़ा?", o: ["रूस अमीर हो गया", "अनाज की भारी कमी, भुखमरी, लाखों सैनिकों की मौत और आर्थिक रूप से पूरी तरह तबाही", "फैक्ट्रियां दोगुनी हो गईं", "कोई प्रभाव नहीं पड़ा"], a: 1 },
+            { q: "लेनिन की अप्रैल थीसिस का मुख्य नारा क्या था जो जनता की बुनियादी माँगों को दर्शाता था?", o: ["युद्ध जारी रखो", "सभी सत्ता सोवियतों को! भूमि, शांति और रोटी! (Land, Peace & Bread)", "राजा अमर रहे", "टैक्स बढ़ाओ"], a: 1 },
+            { q: "बोल्शेविकों ने केरेन्सकी सरकार का तख्तापलट किस प्रसिद्ध भवन पर अधिकार करके किया था?", o: ["क्रेमलिन", "विंटर पैलेस या शीत महल (Winter Palace)", "लाल चौक", "ड्यूमा भवन"], a: 1 },
+            { q: "1917 की रूसी क्रांति के तुरंत बाद देश में बोल्शेविकों (लाल सेना) और जार समर्थकों/पूंजीपतियों (श्वेत सेना) के बीच क्या शुरू हो गया था?", o: ["विदेशी व्यापार", "भयानक गृहयुद्ध (Civil War)", "शांति समझौता", "क्रिकेट मैच"], a: 1 },
+            { q: "लियोन ट्रॉटस्की की हत्या स्टालिन के शासनकाल के दौरान 1940 में किस देश में करा दी गई थी जहाँ वे निर्वासित जीवन जी रहे थे?", o: ["फ्रांस", "मेक्सिको (Mexico)", "इंग्लैंड", "अमेरिका"], a: 1 },
+            { q: "सोवियत संघ में स्टालिन द्वारा शुरू की गई 'पंचवर्षीय योजनाओं' (Five-Year Plans) का मुख्य उद्देश्य क्या था?", o: ["खेती बंद करना", "देश का तीव्र औद्योगिक और आर्थिक विकास करना (Rapid Industrialization)", "विदेशी सामान खरीदना", "टैक्स कम करना"], a: 1 },
+            { q: "रूस की क्रांति से प्रेरणा लेकर भारत के किस महान क्रांतिकारी और देशभक्त ने समाजवाद को अपनाने की वकालत की थी?", o: ["भगत सिंह (Bhagat Singh)", "महात्मा गांधी", "सुभाष चंद्र बोस", "चंद्रशेखर आजाद"], a: 0 },
+            { q: "समाजवाद एवं साम्यवाद के विकास में 1848 का वर्ष क्यों महत्वपूर्ण माना जाता है?", o: ["इस वर्ष कार्ल मार्क्स की मृत्यु हुई थी", "इस वर्ष 'कम्युनिस्ट मेनिफेस्टो' का प्रकाशन हुआ जिसने सर्वहारा वर्ग को एक नई वैज्ञानिक दिशा दी", "इस वर्ष जार का पतन हुआ", "इस वर्ष प्रथम विश्व युद्ध शुरू हुआ"], a: 1 },
+            { q: "मार्क्सवाद के अनुसार, समाजवादी राज्य की स्थापना के बाद अंततः समाज किस रूप में बदल जाएगा जहाँ कोई वर्ग नहीं होगा?", o: ["वर्गहीन और राज्यहीन साम्यवाद (Classless & Stateless society)", "पूंजीवाद", "सामंतवाद", "सैनिक तानाशाही"], a: 0 },
+            { q: "रूस में 'सोवियत' का गठन सबसे पहले किस वर्ग के लोगों ने अपनी माँगें रखने के लिए स्वतः स्फूर्त रूप से किया था?", o: ["जमींदारों ने", "श्रमिकों और सैनिकों ने (Workers and Soldiers)", "पादड़ियों ने", "विदेशी व्यापारियों ने"], a: 1 },
+            { q: "केरेन्सकी सरकार की सबसे बड़ी भूल क्या थी जिसने बोल्शेविकों को सत्ता हथियाने का मौका दिया?", o: ["जनता की माँगों की अनदेखी करना और युद्ध में बने रहना", "लेनिन को जेल में डालना", "ड्यूमा को भंग करना", "सब सही है"], a: 0 },
+            { q: "लेनिन ने ब्रेस्ट-लिटोवस्क की संधि के तहत अपने कुछ कीमती भूभाग (जैसे यूक्रेन, पोलैंड के हिस्से) जर्मनी को क्यों सौंप दिए?", o: ["वह जर्मनी से डरता था", "रूस की आंतरिक स्थिति को स्थिर करने और क्रांति को सुरक्षित रखने के लिए शांति स्थापित करना अनिवार्य था", "वह जमीन बेचना चाहता था", "सब गलत"], a: 1 },
+            { q: "रूसी इतिहास में 'कोल्खोज़' (Kolkhoz) क्या था जो स्टालिन के समय अनिवार्य बनाया गया?", o: ["गुप्त पुलिस", "सामूहिक खेत (Collective Farm)", "टैक्स का नाम", "हथियार का नाम"], a: 1 },
+            { q: "कार्ल मार्क्स ने अपने सिद्धांतों में 'इतिहास की भौतिकवादी व्याख्या' के तहत समाज के विकास के कितने चरण बताए हैं?", o: ["दो", "छह चरण (आदिम, दास, सामंती, पूंजीवादी, समाजवादी, साम्यवाद)", "चार", "दस"], a: 1 },
+            { q: "मार्क्स के अनुसार, पूंजीवादी व्यवस्था में मजदूर अपनी मेहनत की तुलना में बहुत कम मजदूरी पाता है, जिससे अमीर और अमीर होता जाता है। इस प्रक्रिया को क्या कहते हैं?", o: ["परोपकार", "श्रमिक शोषण और अतिरिक्त मूल्य का हड़पा जाना", "मदद करना", "बाजार का नियम"], a: 1 },
+            { q: "1917 की रूसी क्रांति के समय पेट्रोग्राद (सेंट पीटर्सबर्ग) की महिलाओं ने रोटी के लिए सड़कों पर उतरकर नारा दिया था, वह कौन सा दिन था?", o: ["मजदूर दिवस", "अंतर्राष्ट्रीय महिला दिवस (8 मार्च / 23 फरवरी रूसी कैलेंडर)", "क्रिसमस", "स्वतंत्रता दिवस"], a: 1 },
+            { q: "जार निकोलस द्वितीय ने किस तिथि को विवश होकर अपना सिंहासन (गद्दी) पूरी तरह छोड़ दिया था?", o: ["15 मार्च 1917 ई. को", "25 अक्टूबर 1917 ई.", "7 नवंबर 1917 ई.", "1 मई 1905 ई."], a: 0 },
+            { q: "लेनिन की आर्थिक नीति 'NEP' को कब तक लागू रखा गया, जिसे बाद में स्टालिन ने समाप्त कर दिया?", o: ["1921 से 1928 तक (1928 में पंचवर्षीय योजना आने तक)", "1940 तक", "1917 तक", "कभी समाप्त नहीं किया"], a: 0 },
+            { q: "रूस में साम्यवादी क्रांति की सफलता ने एशिया के किस बड़े पड़ोसी देश में राष्ट्रवाद और साम्यवादी क्रांति (1949) का आधार तैयार किया?", o: ["भारत", "चीन (China)", "जापान", "ईरान"], a: 1 },
+            { q: "क्या कार्ल मार्क्स कभी रूस गए थे जहाँ उन्होंने क्रांति का नेतृत्व किया था?", o: ["हाँ", "नहीं (मार्क्स ने मुख्य रूप से जर्मनी, फ्रांस और इंग्लैंड में जीवन बिताया, उनकी मृत्यु के बाद रूस में उनके विचारों पर क्रांति हुई)", "कह नहीं सकते", "वे रूस के राजा थे"], a: 1 },
+            { q: "मजदूरों के अधिकारों की सुरक्षा के लिए अंतर्राष्ट्रीय स्तर पर 'ILO' (International Labour Organization) की स्थापना किस वर्ष हुई थी?", o: ["1905 ई. में", "1919 ई. में (वर्साय की संधि के तहत)", "1945 ई. में", "1924 ई. में"], a: 1 },
+            { q: "साम्यवादी विचारधारा का अंतिम चरम लक्ष्य क्या है?", o: ["पूंजीपतियों का राज", "एक ऐसा समाज जहाँ कोई वर्ग न हो, कोई शोषण न हो और उत्पादन पर पूरे समाज का हक हो (Classless, exploitation-free society)", "सैनिक शासन", "विदेशी भूमि जीतना"], a: 1 },
+            { q: "रूस की क्रांति के दौरान 'लाल' रंग (Red Color) क्रांति का प्रतीक क्यों बना?", o: ["यह राजा का प्रिय रंग था", "यह सर्वहारा वर्ग, क्रांति और समाजवाद के वैश्विक संघर्ष व लहू (रक्त) का प्रतीक था", "यह केवल सुंदर था", "सब गलत"], a: 1 },
+            { q: "रूसी इतिहास में 'मुज़िक' (Muzhik) शब्द का प्रयोग किसके लिए किया जाता था?", o: ["धनी व्यापारी", "रूसी गरीब किसान (Russian Peasant)", "पादरी", "सैनिक अधिकारी"], a: 1 },
+            { q: "कार्ल मार्क्स ने अपनी किस अमर कृति में पूंजीवाद की कमियों को पूरी तरह उजागर किया और समाजवाद का वैज्ञानिक आधार दिया?", o: ["अप्रैल थीसिस", "दास कैपिटल एवं कम्युनिस्ट मेनिफेस्टो (Das Kapital & Communist Manifesto)", "वार एंड पीस", "द मदर"], a: 1 },
+            { q: "लेनिन ने रूस की अशिक्षा को दूर करने के लिए बड़े पैमाने पर कौन सा अभियान चलाया था?", o: ["खेती अभियान", "साक्षरता और अनिवार्य प्राथमिक शिक्षा अभियान (Mass Literacy Campaign)", "सैन्य अभियान", "निजीकरण"], a: 1 },
+            { q: "1917 की रूसी क्रांति के समय किस वैश्विक महायुद्ध की विभीषिका चल रही थी जिसने क्रांति को तीव्र किया?", o: ["द्वितीय विश्व युद्ध", "प्रथम विश्व युद्ध (First World War)", "क्रीमिया का युद्ध", "शीत युद्ध"], a: 1 },
+            { q: "रूस में 'सोवियत' व्यवस्था की स्थापना ने दुनिया भर के गुलाम और औपनिवेशिक देशों (जैसे भारत) के स्वतंत्रता सेनानियों को क्या संदेश दिया?", o: ["गुलामी स्वीकार करो", "साम्राज्यवाद और शोषक सत्ताओं के खिलाफ आम जनता और मजदूर एकजुट होकर क्रांति कर सकते हैं और अपनी सत्ता बना सकते हैं", "राजा का समर्थन करो", "सब गलत"], a: 1 },
+            { q: "समाजवाद एवं साम्यवाद (Socialism and Communism) के इस संपूर्ण अध्याय का मूल ऐतिहासिक निष्कर्ष क्या है?", o: ["पूंजीवाद हमेशा अपरिवर्तित रहता है", "19वीं और 20वीं सदी में समाजवाद और साम्यवाद शोषित सर्वहारा वर्ग की एक ऐसी वैज्ञानिक और क्रांतिकारी आवाज बनकर उभरे जिसने रूस में जारशाही का अंत किया और पूरी दुनिया में आर्थिक समानता व लोक-कल्याणकारी राज्य की स्थापना का मार्ग पूरी तरह प्रशस्त किया", "रूस की क्रांति पूरी तरह असफल रही", "स्टालिन ने रूस का विकास रोक दिया"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #fee2e2; color: #dc2626; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">समाजवाद एवं साम्यवाद (Socialism & Communism)</h1>
+                    <p style="color: #475569; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">बिहार बोर्ड (BSEB) कक्षा 10वीं - इतिहास (अध्याय 2)</p>
+                    <p style="color: #64748b; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">कार्ल मार्क्स, दास कैपिटल, यूटोपियन विचारक, रूसी क्रांति (1905 व 1917), बोल्शेविक दल, लेनिन की नीतियां और स्टालिन के युग से जुड़े 100 शीर्ष स्तरीय वस्तुनिष्ठ प्रश्नों का महा-क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #dc2626; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #475569; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #0f172a;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1e293b;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #f87171;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #dc2626;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! समाजवाद एवं साम्यवाद अध्याय पर आपका पूरा नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! मार्क्सवादी दर्शन और सोवियत इतिहास पर आपकी गहरी पकड़ है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! वैचारिक समझ को बेहतर करने के लिए फिर से प्रयास करें।"; emoji = "👍"; }
+            else { message = "कोई बात नहीं! एक बार अध्याय को दोहराएं और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #94a3b8;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #dc2626; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #475569; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

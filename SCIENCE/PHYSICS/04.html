@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>भौतिक विज्ञान क्विज़ - विद्युत (Electricity)</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(2, 132, 199, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0284c7;
+            background-color: #f0f9ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #38bdf8, #0284c7); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #0284c7, #0369a1); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(2, 132, 199, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #1e293b; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #475569; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #38bdf8, #0284c7); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-slate-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "विद्युत आवेश (Electric Charge) का एस.आई. (SI) मात्रक निम्नलिखित में से क्या होता है?", o: ["ऐम्पियर", "वोल्ट", "कूलॉम (Coulomb)", "ओम"], a: 2 },
+            { q: "एक इलेक्ट्रॉन पर कितना ऋणात्मक विद्युत आवेश उपस्थित होता है?", o: ["1.6 × 10¹⁹ C", "1.6 × 10⁻¹⁹ C", "9.1 × 10⁻³¹ C", "1.6 × 10⁻⁶ C"], a: 1 },
+            { q: "1 कूलॉम आवेश की रचना करने के लिए लगभग कितने इलेक्ट्रॉनों की आवश्यकता होती है?", o: ["6 × 10¹⁸ इलेक्ट्रॉन", "6.25 × 10¹⁸ इलेक्ट्रॉन", "1.6 × 10¹⁹ इलेक्ट्रॉन", "6 × 10¹⁵ इलेक्ट्रॉन"], a: 1 },
+            { q: "विद्युत धारा (Electric Current) को भौतिक विज्ञान में किस रूप में परिभाषित किया जाता है?", o: ["आवेश के बहने की दर (Rate of flow of charge)", "कार्य करने की दर", "विभवांतर और प्रतिरोध का गुणनफल", "ऊर्जा का ह्रास"], a: 0 },
+            { q: "विद्युत धारा का एस.आई. (SI) मात्रक निम्नलिखित में से कौन सा है?", o: ["वोल्ट", "ओम", "ऐम्पियर (Ampere)", "वाट"], a: 2 },
+            { q: "विद्युत परिपथ में विद्युत धारा को मापने के लिए किस यंत्र का उपयोग श्रेणीक्रम में किया जाता है?", o: ["वोल्टमीटर", "ऐमीटर (Ammeter)", "गैल्वेनोमीटर", "ओडोमीटर"], a: 1 },
+            { q: "किसी चालक तार में विद्युत धारा की वास्तविक दिशा इलेक्ट्रॉनों के बहने की दिशा के कहाँ मानी जाती है?", o: ["इलेक्ट्रॉनों के बहने की दिशा में ही", "इलेक्ट्रॉनों के बहने की विपरीत दिशा में (Opposite to electron flow)", "लम्बवत्", "किसी भी दिशा में"], a: 1 },
+            { q: "एकांक धनावेश को एक बिंदु से दूसरे बिंदु तक ले जाने में किए गए कार्य को क्या कहते हैं?", o: ["विद्युत धारा", "विद्युत विभवांतर (Potential Difference)", "विद्युत शक्ति", "प्रतिरोध"], a: 1 },
+            { q: "विद्युत विभवांतर या विभव का एस.आई. (SI) मात्रक क्या होता है?", o: ["ऐम्पियर", "ओम", "वोल्ट (Volt)", "जूल"], a: 2 },
+            { q: "परिपथ में किन्हीं दो बिंदुओं के बीच विभवांतर मापने के लिए वोल्टमीटर को हमेशा किस क्रम में जोड़ा जाता है?", o: ["श्रेणीक्रम में", "पार्श्वक्रम या समांतर क्रम में (Parallel)", "मिश्रित क्रम में", "कहीं भी जोड़ सकते हैं"], a: 1 },
+            { q: "एक आदर्श ऐमीटर (Ammeter) का आंतरिक प्रतिरोध कितना होना चाहिए?", o: ["अत्यंत उच्च", "शून्य (Zero)", "100 ओम", "अनंत"], a: 1 },
+            { q: "एक आदर्श वोल्टमीटर (Voltmeter) का आंतरिक प्रतिरोध कितना होना चाहिए ताकि वह धारा न ले?", o: ["शून्य", "बहुत कम", "अनंत (Infinite)", "10 ओम"], a: 2 },
+            { q: "नियत ताप पर किसी चालक के सिरों का विभवांतर उसमें बहने वाली धारा के समानुपाती होता है, यह किसका नियम है?", o: ["जूल का नियम", "ओम का नियम (Ohm's Law)", "फैराडे का नियम", "एम्पियर का नियम"], a: 1 },
+            { q: "ओम के नियम का गणितीय रूप निम्नलिखित में से कौन सा सही है?", o: ["V = I / R", "V = I × R", "I = V × R", "R = I / V"], a: 1 },
+            { q: "चालक का वह गुण जो उसमें प्रवाहित होने वाली धारा (आवेश के प्रवाह) का विरोध करता है, क्या कहलाता है?", o: ["विभव", "विद्युत चालकता", "प्रतिरोध (Resistance)", "शक्ति"], a: 2 },
+            { q: "विद्युत प्रतिरोध (Resistance) का एस.आई. (SI) मात्रक क्या होता है?", o: ["वोल्ट", "ऐम्पियर", "ओम (Ohm)", "वाट"], a: 2 },
+            { q: "1 ओम (Ω) का मान निम्नलिखित में से किसके बराबर माना जाता है?", o: ["1 वोल्ट / 1 ऐम्पियर", "1 ऐम्पियर / 1 वोल्ट", "1 वोल्ट × 1 ऐम्पियर", "1 जूल / 1 कूलॉम"], a: 0 },
+            { q: "किसी चालक तार का प्रतिरोध उसकी लंबाई (Length) के साथ किस प्रकार बदलता है?", o: ["लंबाई के व्युत्क्रमानुपाती होता है", "लंबाई के सीधे समानुपाती होता है (Directly proportional)", "लंबाई पर निर्भर नहीं करता", "लंबाई के वर्ग के व्युत्क्रमानुपाती होता है"], a: 1 },
+            { q: "चालक तार का प्रतिरोध उसके अनुप्रस्थ काट के क्षेत्रफल (Area of cross-section) के क्या होता है?", o: ["सीधे समानुपाती", "व्युत्क्रमानुपाती होता है (Inversely proportional)", "समान रहता है", "आधा होता है"], a: 1 },
+            { q: "किसी पदार्थ के 1 मीटर लंबे और 1 वर्ग मीटर अनुप्रस्थ काट वाले टुकड़े के प्रतिरोध को क्या कहते हैं?", o: ["कुल प्रतिरोध", "विद्युत चालकता", "प्रतिरोधकता या विशिष्ट प्रतिरोध (Resistivity)", "सामर्थ्य"], a: 2 },
+            { q: "विद्युत प्रतिरोधकता (Resistivity) का एस.आई. (SI) मात्रक क्या होता है?", o: ["ओम", "ओम-मीटर (Ω·m)", "ओम / मीटर", "वोल्ट-मीटर"], a: 1 },
+            { q: "क्या किसी धातु के तार की लंबाई दोगुनी कर देने पर उसकी 'प्रतिरोधकता' (Resistivity) बदल जाएगी?", o: ["हाँ, दोगुनी हो जाएगी", "नहीं, प्रतिरोधकता अपरिवर्तित रहेगी (क्योंकि यह केवल पदार्थ की प्रकृति और ताप पर निर्भर करती है)", "हाँ, आधी हो जाएगी", "हाँ, चार गुनी हो जाएगी"], a: 1 },
+            { q: "विद्युत परिपथ में धारा के मान को नियंत्रित या बदलने के लिए प्रयुक्त होने वाले उपकरण को क्या कहते हैं?", o: ["वोल्टमीटर", "धारा नियंत्रक या परिवर्ती प्रतिरोध (Rheostat)", "गैल्वेनोमीटर", "कुंजी"], a: 1 },
+            { q: "धातुओं और धातुओं की मिश्रधातुओं की प्रतिरोधकता का परास (Range) आमतौर पर कितना होता है?", o: ["10⁻⁸ Ωm से 10⁻⁶ Ωm", "10⁸ Ωm से 10¹² Ωm", "10 ओम", "शून्य"], a: 0 },
+            { q: "काँच, रबर और प्लास्टिक जैसे विद्युत रोधी (Insulators) पदार्थों की प्रतिरोधकता का परास कितना होता है?", o: ["10⁻⁸ से 10⁻⁶ Ωm", "10¹² से 10¹⁷ Ωm", "0 से 10 Ωm", "ऋणात्मक"], a: 1 },
+            { q: "विद्युत टोस्टरों और विद्युत इस्तरियों (Iron) के तापन अवयव शुद्ध धातु के न बनाकर मिश्रधातु के क्यों बनाए जाते हैं?", o: ["मिश्रधातुएं सस्ती होती हैं", "मिश्रधातुओं की प्रतिरोधकता उच्च होती है और इनका उच्च ताप पर दहन (ऑक्सीकरण) आसानी से नहीं होता", "वे पिघल जाती हैं", "उनमें जंग जल्दी लगता है"], a: 1 },
+            { q: "विद्युत बल्बों के तंतुओं (Filaments) के निर्माण के लिए किस एकमात्र धातु का उपयोग किया जाता है जिसका गलनांक अत्यंत उच्च (3380°C) है?", o: ["तांबा", "नाइक्रोम", "टंगस्टन (Tungsten)", "एल्युमिनियम"], a: 2 },
+            { q: "घरेलू विद्युत तारों में संचरण के लिए मुख्य रूप से किन दो धातुओं के तारों का उपयोग किया जाता है क्योंकि इनकी प्रतिरोधकता बहुत कम है?", o: ["लोहा और टिन", "तांबा और एल्युमिनियम (Copper & Aluminium)", "टंगस्टन और निकेल", "सीसा और जस्ता"], a: 1 },
+            { q: "जब दो या दो से अधिक प्रतिरोधों को इस प्रकार जोड़ा जाए कि प्रत्येक में समान विद्युत धारा बहे, तो इस संयोजन को क्या कहते हैं?", o: ["समांतर क्रम संयोजन", "श्रेणीक्रम संयोजन (Series Connection)", "मिश्रित संयोजन", "खुला परिपथ"], a: 1 },
+            { q: "श्रेणीक्रम में जुड़े तीन प्रतिरोधों R₁, R₂ और R₃ का कुल तुल्य प्रतिरोध (Equivalent Resistance) क्या होगा?", o: ["R = R₁ + R₂ + R₃", "1/R = 1/R₁ + 1/R₂ + 1/R₃", "R = R₁ × R₂ × R₃", "R = (R₁ + R₂)/R₃"], a: 0 },
+            { q: "जब दो या दो से अधिक प्रतिरोधों के सिरों को एक साथ जोड़कर विभवांतर समान रखा जाए, तो इस संयोजन को क्या कहते हैं?", o: ["श्रेणीक्रम", "पार्श्वक्रम या समांतर क्रम संयोजन (Parallel Connection)", "जटिल क्रम", "बंद परिपथ"], a: 1 },
+            { q: "समांतर क्रम (पार्श्वक्रम) में जुड़े तीन प्रतिरोधों का कुल तुल्य प्रतिरोध ज्ञात करने का सही सूत्र क्या है?", o: ["R = R₁ + R₂ + R₃", "1/R = 1/R₁ + 1/R₂ + 1/R₃", "R = R₁ × R₂ / R₃", "R = (R₁ + R₂ + R₃)/3"], a: 1 },
+            { q: "यदि 2 ओम और 4 ओम के दो प्रतिरोधों को श्रेणीक्रम में जोड़ा जाए, तो तुल्य प्रतिरोध कितना होगा?", o: ["2 ओम", "6 ओम (2 + 4)", "1.33 ओम", "0.5 ओम"], a: 1 },
+            { q: "यदि 3 ओम और 6 ओम के दो प्रतिरोधों को समांतर क्रम में जोड़ा जाए, तो तुल्य प्रतिरोध कितना प्राप्त होगा?", o: ["9 ओम", "2 ओम [1/R = 1/3 + 1/6]", "4.5 ओम", "18 ओम"], a: 1 },
+            { q: "घरेलू विद्युत परिपथों में सभी उपकरणों (बल्ब, पंखा, फ्रिज) को हमेशा किस क्रम में जोड़ा जाता है?", o: ["श्रेणीक्रम में", "समांतर या पार्श्वक्रम में (Parallel - ताकि सबको समान वोल्टेज मिले और एक खराब होने पर बाकी चलते रहें)", "किसी भी क्रम में", "मिश्रित क्रम में"], a: 1 },
+            { q: "घरेलू परिपथ में उपकरणों को श्रेणीक्रम में क्यों नहीं जोड़ा जाता?", o: ["श्रेणीक्रम में जोड़ने पर सबका वोल्टेज बट जाता है और एक उपकरण बंद होने पर पूरा परिपथ टूट जाता है", "यह बहुत महंगा है", "तार अधिक लगते हैं", "शॉर्ट सर्किट होता है"], a: 0 },
+            { q: "किसी विद्युत परिपथ में विद्युत ऊर्जा के उपभोक्ता होने की दर (कार्य करने की दर) को क्या कहते हैं?", o: ["विद्युत विभवांतर", "विद्युत शक्ति (Electric Power)", "विद्युत धारा", "ऊष्मा"], a: 1 },
+            { q: "विद्युत शक्ति (Power) का एस.आई. (SI) मात्रक निम्नलिखित में से क्या होता है?", o: ["जूल", "वोल्ट", "वाट (Watt)", "ओम"], a: 2 },
+            { q: "विद्युत शक्ति ज्ञात करने का सही सूत्र कौन सा है?", o: ["P = V × I", "P = I² × R", "P = V² / R", "उपर्युक्त सभी (All of these)"], a: 3 },
+            { q: "1 वाट (W) शक्ति किसके बराबर मानी जाती है जब परिपथ में 1 वोल्ट विभवांतर पर 1 ऐम्पियर धारा बहे?", o: ["1 वोल्ट × 1 ऐम्पियर", "1 जूल / 1 सेकंड", "दोनों सही हैं", "कोई सही नहीं है"], a: 2 },
+            { q: "विद्युत ऊर्जा का व्यापारिक या व्यावसायिक मात्रक (Commercial Unit) क्या होता है जिसे हम बोलचाल में 'यूनिट' कहते हैं?", o: ["वाट", "जूल", "किलोवाट-घंटा (kWh)", "ऐम्पियर-घंटा"], a: 2 },
+            { q: "1 किलोवाट-घंटा (1 kWh) या 1 यूनिट विद्युत ऊर्जा का मान कितने जूल के बराबर होता है?", o: ["3.6 × 10⁵ J", "3.6 × 10⁶ J", "1.6 × 10⁻¹⁹ J", "1000 J"], a: 1 },
+            { q: "किसी चालक में धारा प्रवाहित करने पर उत्पन्न ऊष्मा (H) का मान धारा के वर्ग, प्रतिरोध और समय के गुणनफल के बराबर होता है, यह किसका नियम है?", o: ["ओम का नियम", "जूल का तापन नियम (Joule's Law of Heating)", "फैराडे का नियम", "कूलॉम का नियम"], a: 1 },
+            { q: "जूल के तापन नियम का सही गणितीय सूत्र क्या है?", o: ["H = V / I", "H = I²Rt", "H = I × R × t", "H = V²Rt"], a: 1 },
+            { q: "विद्युत हीटर, विद्युत केतली और गीजर के हीटिंग एलिमेंट (तापन अवयव) बनाने के लिए किस मिश्रधातु का उपयोग होता है?", o: ["पीतल", "नाइक्रोम (Nichrome)", "कांसा", "स्टेनलेस स्टील"], a: 1 },
+            { q: "विद्युत परिपथों और उपकरणों की सुरक्षा के लिए प्रयुक्त होने वाला 'फ्यूज तार' (Fuse Wire) हमेशा किस क्रम में जोड़ा जाता है?", o: ["विद्युतन्मय तार (Live wire) के साथ श्रेणीक्रम में (Series)", "उदासीन तार के साथ समांतर क्रम में", "अर्थ तार के साथ", "कहीं भी"], a: 0 },
+            { q: "सुरक्षा उपकरण 'फ्यूज' (Fuse) के तार की मुख्य विशेषता क्या होनी चाहिए?", o: ["उच्च गलनांक और उच्च प्रतिरोध", "निम्न गलनांक और उच्च विशिष्ट प्रतिरोध (Low melting point)", "उच्च गलनांक और निम्न प्रतिरोध", "शून्य प्रतिरोध"], a: 1 },
+            { q: "विद्युत बल्ब के अंदर तंतु को जलने से बचाने के लिए उसमें कौन सी अक्रिय गैसें भरी जाती हैं?", o: ["ऑक्सीजन और हाइड्रोजन", "नाइट्रोजन और आर्गन (Nitrogen & Argon)", "क्लोरीन और फ्लोरीन", "हीलियम और कार्बन डाइऑक्साइड"], a: 1 },
+            { q: "विद्युत धारा के सतत और बंद पथ (Continuous and closed path) को क्या कहा जाता है?", o: ["विद्युत विभव", "विद्युत परिपथ (Electric Circuit)", "विद्युत क्षेत्र", "प्रतिरोधकता"], a: 1 },
+            { q: "यदि किसी चालक तार की मोटाई (अनुप्रस्थ काट का क्षेत्रफल) बढ़ा दी जाए, तो उसके प्रतिरोध पर क्या प्रभाव पड़ेगा?", o: ["प्रतिरोध बढ़ जाएगा", "प्रतिरोध घट जाएगा (Decreases)", "प्रतिरोध समान रहेगा", "शून्य हो जाएगा"], a: 1 },
+            { q: "तापमान बढ़ाने पर अधिकांश शुद्ध धातुओं के विद्युत प्रतिरोध पर क्या प्रभाव पड़ता है?", o: ["प्रतिरोध घटता है", "प्रतिरोध बढ़ता है (Increases)", "समान रहता है", "शून्य हो जाता है"], a: 1 },
+            { q: "अर्धचालकों (Semiconductors जैसे सिलिकॉन, जर्मेनियम) का तापमान बढ़ाने पर उनके प्रतिरोध पर क्या प्रभाव पड़ता है?", o: ["प्रतिरोध बढ़ता है", "प्रतिरोध घटता है (Decreases)", "अपरिवर्तित रहता है", "अनंत हो जाता है"], a: 1 },
+            { q: "विद्युत विभवांतर को परिपथ में बनाए रखने के लिए प्रयुक्त होने वाली सबसे सरल युक्ति कौन सी है?", o: ["ऐमीटर", "सेल या बैटरी (Cell or Battery)", "प्रतिरोधक", "कुंजी"], a: 1 },
+            { q: "एक ऐम्पियर (1 A) धारा का अर्थ है प्रति सेकंड कितने आवेश का प्रवाहित होना?", o: ["1 कूलॉम (1 C/s)", "10 कूलॉम", "1.6 कूलॉम", "शून्य"], a: 0 },
+            { q: "मिलीऐम्पियर (mA) और माइक्रोऐम्पियर (μA) विद्युत धारा के छोटे मात्रक हैं, 1 mA का मान कितना होता है?", o: ["10⁻³ A", "10⁻⁶ A", "10³ A", "10⁶ A"], a: 0 },
+            { q: "1 माइक्रोऐम्पियर (1 μA) का मान कितने ऐम्पियर के तुल्य होता है?", o: ["10⁻³ A", "10⁻⁶ A", "10⁶ A", "1 A"], a: 1 },
+            { q: "यदि किसी परिपथ में 2 ऐम्पियर की धारा 5 सेकंड तक बहती है, तो कुल प्रवाहित आवेश (Q = I × T) कितना होगा?", o: ["10 कूलॉम (10 C)", "2.5 कूलॉम", "0.4 कूलॉम", "20 कूलॉम"], a: 0 },
+            { q: "यदि किसी चालक तार के सिरों पर 12 वोल्ट का विभवांतर लगाने पर 3 ऐम्पियर की धारा बहती है, तो तार का प्रतिरोध (R = V/I) क्या होगा?", o: ["36 ओम", "4 ओम (4 Ω)", "0.25 ओम", "12 ओम"], a: 1 },
+            { q: "ओम के नियम के अनुसार विभवांतर (V) और धारा (I) के बीच खींचा गया ग्राफ (V-I Graph) कैसा प्राप्त होता है?", o: ["एक वक्र रेखा", "एक सीधी सरल रेखा जो मूल बिंदु से गुजरती है (Straight Line)", "एक वृत्त", "क्षैतिज रेखा"], a: 1 },
+            { q: "V-I ग्राफ की ढाल (Slope) निम्नलिखित में से किस भौतिक राशि को प्रदर्शित करती है?", o: ["विद्युत धारा", "विद्युत विभव", "प्रतिरोध (Resistance)", "शक्ति"], a: 2 },
+            { q: "अतिचालकता (Superconductivity) वह स्थिति है जिसमें बहुत कम तापमान पर किसी पदार्थ का विद्युत प्रतिरोध कितना हो जाता है?", o: ["अत्यंत उच्च", "अनंत", "पूर्णतः शून्य (Zero Resistance)", "समान"], a: 2 },
+            { q: "मिश्रधातु 'नाइक्रोम' (Nichrome) मुख्य रूप से किन तत्वों का मिश्रण होती है?", o: ["तांबा और जस्ता", "निकेल, क्रोमियम, मैंगनीज और लोहा (Ni, Cr, Mn, Fe)", "सीसा और टिन", "एल्युमिनियम और मैग्नीशियम"], a: 1 },
+            { q: "यदि 'n' समान प्रतिरोधक जिनमें प्रत्येक का मान 'R' है, श्रेणीक्रम में जोड़े जाएं, तो कुल प्रतिरोध क्या होगा?", o: ["R / n", "n × R", "R + n", "R / n²"], a: 1 },
+            { q: "यदि 'n' समान प्रतिरोधक जिनमें प्रत्येक का मान 'R' है, समांतर क्रम में जोड़े जाएं, तो तुल्य प्रतिरोध कितना होगा?", o: ["n × R", "R / n", "n² / R", "R + n"], a: 1 },
+            { q: "प्रतिरोधों के समांतर क्रम संयोजन में सभी प्रतिरोधों के सिरों पर कौन सी राशि हमेशा समान (नियत) रहती है?", o: ["विद्युत धारा", "विभवांतर (Voltage)", "ऊष्मा", "शक्ति"], a: 1 },
+            { q: "प्रतिरोधों के श्रेणीक्रम संयोजन में सभी प्रतिरोधकों में कौन सी राशि का मान हमेशा समान रहता है?", o: ["विभवांतर", "विद्युत धारा (Current)", "प्रतिरोध", "ऊर्जा"], a: 1 },
+            { q: "किसी परिपथ में शॉर्ट सर्किट (लघुपथन) होने पर परिपथ में विद्युत धारा के मान पर क्या प्रभाव पड़ता है?", o: ["धारा शून्य हो जाती है", "धारा का मान अत्यधिक बहुत अधिक बढ़ जाता है (Increases heavily)", "धारा धीरे-धीरे घटती है", "धारा अपरिवर्तित रहती है"], a: 1 },
+            { q: "शॉर्ट सर्किट या ओवरलोडिंग के समय अत्यधिक धारा बहने पर घरेलू उपकरणों को जलने से बचाने के लिए आजकल फ्यूज की जगह किसका उपयोग होता है?", o: ["MCB (Miniature Circuit Breaker)", "ऐमीटर", "वोल्टमीटर", "रियोस्टेट"], a: 0 },
+            { q: "विद्युत ऊर्जा (H) का मात्रक जूल होता है, कैलोरी में बदलने के लिए जूल के मान को किससे भाग दिया जाता है?", o: ["9.8", "4.18 (1 कैलोरी = 4.18 जूल)", "3.6", "1000"], a: 1 },
+            { q: "1 हॉर्स पावर (1 HP) जो शक्ति का एक अन्य मात्रक है, कितने वाट के बराबर होता है?", o: ["1000 वाट", "746 वाट (746 W)", "500 वाट", "60 वाट"], a: 1 },
+            { q: "यदि किसी विद्युत बल्ब पर 220V और 100W लिखा है, तो इसका क्या अर्थ है?", o: ["यह 220 वोल्ट पर चलाने पर 100 वाट शक्ति का उपभोग करेगा", "यह 100 वोल्ट पर चलेगा", "यह धारा नहीं लेगा", "कोई नहीं"], a: 0 },
+            { q: "तनु धातुओं की तुलना में मिश्रधातुओं का गलनांक और प्रतिरोधकता आमतौर पर कैसी होती है?", o: ["बहुत कम", "उच्च (High)", "शून्य", "समान"], a: 1 },
+            { q: "एक कूलॉम आवेश में कुल कितने इलेक्ट्रॉन शामिल होते हैं, इसका सटीक वैज्ञानिक संकेतन क्या है?", o: ["1.6 × 10⁻¹⁹", "6.25 × 10¹⁸", "6.25 × 10¹⁵", "1.6 × 10¹⁹"], a: 1 },
+            { q: "विद्युत हीटर का हीटिंग एलिमेंट लाल तप्त होकर चमकता है जबकि उसे जोड़ने वाला तांबे का तार नहीं चमकता, क्यों?", o: ["तांबे का तार मोटा है", "नाइक्रोम के हीटिंग एलिमेंट का प्रतिरोध तांबे के तार की तुलना में बहुत अधिक होता है जिससे उसमें अधिक ऊष्मा उत्पन्न होती है", "हीटर जादुई है", "सब गलत"], a: 1 },
+            { q: "आवेश के प्रवाह की दिशा को कौन निर्धारित करता है जिसे हम विद्युत तल कहते हैं?", o: ["विद्युत विभव (Electric Potential)", "विद्युत धारा", "प्रतिरोध", "द्रव्यमान"], a: 0 },
+            { q: "पृथ्वी का विद्युत विभव (Potential of Earth) मानक के रूप में कितना माना जाता है?", o: ["अनंत", "100 वोल्ट", "शून्य (Zero)", "ऋणात्मक"], a: 2 },
+            { q: "विद्युत धारा के तापीय प्रभाव पर आधारित उपकरण निम्नलिखित में से कौन सा नहीं है?", o: ["विद्युत इस्तरी", "विद्युत हीटर", "विद्युत पंखा (Electric Fan - यह चुंबकीय प्रभाव/यांत्रिक गति पर आधारित है)", "विद्युत फ्यूज"], a: 2 },
+            { q: "एक किलोवाट (1 kW) में कुल कितने वाट होते हैं?", o: ["10 वाट", "100 वाट", "1000 वाट", "10000 वाट"], a: 2 },
+            { q: "एक मेगावाट (1 MW) में कुल कितने वाट होते हैं जो बड़ी विद्युत परियोजनाओं में प्रयुक्त होता है?", o: ["10³ वाट", "10⁶ वाट (10⁶ W)", "10⁹ वाट", "1000 वाट"], a: 1 },
+            { q: "यदि 100 वाट का एक बल्ब प्रतिदिन 10 घंटे जलता है, तो एक दिन में कुल कितनी यूनिट (kWh) विद्युत ऊर्जा खर्च होगी?", o: ["10 यूनिट", "1 यूनिट [100W × 10h = 1000 Wh = 1 kWh]", "100 यूनिट", "0.5 यूनिट"], a: 1 },
+            { q: "विद्युत शक्ति P, विभवांतर V और प्रतिरोध R में सही संबंध क्या है?", o: ["P = V / R", "P = V² / R", "P = R / V²", "P = V × R²"], a: 1 },
+            { q: "विद्युत शक्ति P, धारा I और प्रतिरोध R में सही संबंध कौन सा है?", o: ["P = I × R", "P = I² × R", "P = I / R²", "P = R / I"], a: 1 },
+            { q: "किसी परिपथ में सुरक्षा के लिए प्रयुक्त 'अर्थ तार' (Earth Wire) का रंग आमतौर पर कैसा होता है?", o: ["लाल", "काला", "हरा (Green)", "नीला"], a: 2 },
+            { q: "घरेलू परिपथ में मुख्य 'विद्युतन्मय तार' یا 'फेज तार' (Live Wire) का रंग कैसा होता है जो मुख्य धारा लाता है?", o: ["काला", "हरा", "लाल (Red)", "सफेद"], a: 2 },
+            { q: "घरेलू परिपथ में प्रयुक्त होने वाले 'उदासीन तार' या 'न्यूट्रल तार' (Neutral Wire) का रंग कैसा होता है?", o: ["लाल", "हरा", "काला (Black)", "पीला"], a: 2 },
+            { q: "विद्युत परिपथ में किसी भी स्थान पर बहुत सूक्ष्म धारा की उपस्थिति या दिशा जांचने के लिए किस यंत्र का उपयोग होता है?", o: ["ऐमीटर", "वोल्टमीटर", "गैल्वेनोमीटर (Galvanometer)", "बैरोमीटर"], a: 2 },
+            { q: "यदि दो प्रतिरोध R₁ और R₂ समांतर क्रम में जुड़े हैं, तो उनके तुल्य प्रतिरोध का सीधा शॉर्टकट सूत्र क्या होगा?", o: ["R₁ + R₂", "(R₁ × R₂) / (R₁ + R₂)", "(R₁ + R₂) / (R₁ × R₂)", "R₁ × R₂"], a: 1 },
+            { q: "धातुओं की चालकता बहुत अधिक क्यों होती है क्योंकि उनके पास प्रचुर मात्रा में क्या होते हैं?", o: ["मुक्त इलेक्ट्रॉन (Free Electrons)", "प्रोटॉन", "न्यूट्रॉन", "अणु"], a: 0 },
+            { q: "जब आकाश में बिजली चमकती है (तड़ित), तो उसमें किस प्रकार का विद्युत आवेश प्रवाहित होता है?", o: ["स्थिर विद्युत", "क्षण भर के लिए बहने वाली तीव्र विद्युत धारा (Electric Current)", "कोई आवेश नहीं होता", "रासायनिक द्रव"], a: 1 },
+            { q: "विद्युत सेल रासायनिक ऊर्जा को किस ऊर्जा में परिवर्तित करता है?", o: ["प्रकाश ऊर्जा", "विद्युत ऊर्जा (Electric Energy)", "ध्वनि ऊर्जा", "यांत्रिक ऊर्जा"], a: 1 },
+            { q: "किसी बंद और पूर्ण परिपथ में विद्युत धारा का प्रवाह हमेशा बैटरी के किस टर्मिनल से किस टर्मिनल की ओर होता है?", o: ["ऋण टर्मिनल से धन टर्मिनल", "धन (+) टर्मिनल से ऋण (-) टर्मिनल की ओर", "बीच में रुका रहता है", "किसी भी दिशा में"], a: 1 },
+            { q: "यदि किसी परिपथ में प्रतिरोध को स्थिर रखकर वोल्टेज (विभवांतर) दोगुना कर दिया जाए, तो धारा पर क्या प्रभाव पड़ेगा?", o: ["धारा आधी हो जाएगी", "धारा दोगुनी हो जाएगी (Doubles - ओम के नियम से)", "धारा चार गुनी हो जाएगी", "समान रहेगी"], a: 1 },
+            { q: "यदि किसी परिपथ में वोल्टेज को स्थिर रखकर प्रतिरोध को दोगुना कर दिया जाए, तो धारा पर क्या प्रभाव पड़ेगा?", o: ["धारा दोगुनी होगी", "धारा आधी रह जाएगी (Halved)", "धारा शून्य होगी", "धारा चार गुनी होगी"], a: 1 },
+            { q: "विद्युत स्त्री (Iron) और हीटर के आधार प्लेट को छूने पर बिजली का झटका न लगे, इसके लिए धात्विक आवरण को किससे जोड़ा जाता है?", o: ["लाइव तार से", "उदासीन तार से", "भू-संपर्क तार या अर्थिंग से (Earth connection)", "काँच से"], a: 2 },
+            { q: "किसी लंबी संचरण लाइन में बिजली का ट्रांसमिशन बहुत उच्च वोल्टेज पर क्यों किया जाता है?", o: ["सुंदरता के लिए", "ताकि लंबी दूरी में तारों में होने वाले ऊष्मीय ऊर्जा ह्रास (I²R loss) को न्यूनतम किया जा सके", "गाड़ियाँ चलाने के लिए", "सब गलत"], a: 1 },
+            { q: "विद्युत ऊर्जा को यांत्रिक ऊर्जा (Mechanical Energy) में बदलने वाले उपकरण का नाम क्या है?", o: ["विद्युत जनरेटर", "विद्युत मोटर (Electric Motor)", "हीटर", "फ्यूज"], a: 1 },
+            { q: "एक कूलॉम आवेश को अनंत से किसी बिंदु तक लाने में यदि 1 जूल कार्य करना पड़े, तो उस बिंदु का विद्युत विभव क्या होगा?", o: ["1 ऐम्पियर", "1 ओम", "1 वोल्ट (1 Volt)", "1 वाट"], a: 2 },
+            { q: "ओम का नियम निम्नलिखित में से किन पदार्थों पर पूरी तरह और कड़ाई से लागू होता है?", o: ["केवल अर्धचालकों पर", "केवल धात्विक चालकों पर (Metallic Conductors)", "विद्युत रोधी पदार्थों पर", "गैसों पर"], a: 1 },
+            { q: "विद्युत रोधी (Insulators) पदार्थों में विद्युत का चालन क्यों नहीं होता है?", o: ["वे बहुत भारी होते हैं", "उनमें मुक्त इलेक्ट्रॉनों (Free Electrons) की संख्या नगण्य या शून्य होती है", "वे ठोस होते हैं", "उनमें केन्द्रक नहीं होता"], a: 1 },
+            { q: "विद्युत (Electricity) के इस संपूर्ण अध्याय का मूल वैज्ञानिक व व्यावहारिक निष्कर्ष क्या है?", o: ["विद्युत को नियंत्रित नहीं किया जा सकता", "विद्युत आवेशों का गतिशील प्रवाह ही विद्युत धारा है, जो ओम के नियम के अनुसार विभवांतर और प्रतिरोध के संतुलन से नियंत्रित होती है तथा मानव जीवन को असीमित ऊर्जा व गतिशीलता प्रदान करती है", "प्रतिरोध हमेशा शून्य होना चाहिए", "श्रेणीक्रम संयोजन समांतर क्रम से हर मायने में बेहतर है"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #e0f2fe; color: #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">विद्युत (Electricity) महा-क्विज़</h1>
+                    <p style="color: #475569; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (भौतिक विज्ञान)</p>
+                    <p style="color: #64748b; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">ओम का नियम, विशिष्ट प्रतिरोध, श्रेणी-समांतर क्रम और जूल के तापन नियम के 100 प्रामाणिक प्रश्नों का संग्रह। अभ्यास शुरू करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #0284c7; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #475569; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #0f172a;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1e293b;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #38bdf8;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #0284c7;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! विद्युत अध्याय पर आपका शत-प्रतिशत नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! न्यूमेरिकल और कॉन्सेप्ट्स पर आपकी पकड़ बेहद मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! फॉर्मूलों को पक्का करने के लिए एक बार पुनः रिवीजन करें।"; emoji = "👍"; }
+            else { message = "घबराएं नहीं! ओम के नियम और सूत्रों को दोबारा समझें और फिर प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #94a3b8;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #64748b; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #475569; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>आधुनिक रसायन विज्ञान क्विज़ - अम्ल, क्षारक एवं लवण</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdfa;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0ea5e9;
+            background-color: #f0f9ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #2dd4bf, #0ea5e9); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #14b8a6, #06b6d4); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "अम्ल (Acid) शब्द की उत्पत्ति लैटिन शब्द 'Acidus' से हुई है, इसका वास्तविक अर्थ क्या होता है?", o: ["मीठा", "खट्टा", "कड़वा", "नमकीन"], a: 1 },
+            { q: "आरहेनियस (Arrhenius) सिद्धांत के अनुसार, अम्ल वे पदार्थ हैं जो जलीय विलयन में कौन से आयन मुक्त करते हैं?", o: ["OH⁻ आयन", "H⁺ (या H₃O⁺) आयन", "Cl⁻ आयन", "Na⁺ आयन"], a: 1 },
+            { q: "ब्रोंस्टेड-लोरी (Brønsted-Lowry) सिद्धांत के अनुसार, अम्ल को किस रूप में परिभाषित किया जाता है?", o: ["प्रोटॉन दाता (Proton Donor)", "प्रोटॉन ग्राही (Proton Acceptor)", "इलेक्ट्रॉन युग्म दाता", "इलेक्ट्रॉन युग्म ग्राही"], a: 0 },
+            { q: "लुईस (Lewis) अम्ल-क्षारक सिद्धांत के अनुसार, एक अम्ल की सही विशेषता क्या है?", o: ["यह प्रोटॉन त्यागता है", "यह इलेक्ट्रॉन युग्म ग्रहण करता है (Electron Pair Acceptor)", "यह OH⁻ आयन प्रदान करता है", "यह इलेक्ट्रॉन युग्म दान करता है"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा एक खनिज अम्ल (Mineral Acid) या अकार्बनिक अम्ल का उदाहरण है?", o: ["एसिटिक अम्ल", "साइट्रिक अम्ल", "हाइड्रोक्लोरिक अम्ल (HCl)", "टार्टरिक अम्ल"], a: 2 },
+            { q: "टमाटर में मुख्य रूप से कौन सा कार्बनिक अम्ल प्रचुर मात्रा में पाया जाता है?", o: ["एसिटिक अम्ल", "ऑक्सालिक अम्ल", "सिट्रिक अम्ल", "लैक्टिक अम्ल"], a: 1 },
+            { q: "सिरके (Vinegar) में निम्नलिखित में से कौन सा अम्ल उपस्थित होता है?", o: ["फॉर्मिक अम्ल", "मैलिक अम्ल", "एसिटिक अम्ल (एथेनॉइक अम्ल)", "सल्फ्यूरिक अम्ल"], a: 2 },
+            { q: "सेब (Apple) में निम्नलिखित में से कौन सा अम्ल मुख्य घटक के रूप में पाया जाता है?", o: ["मैलिक अम्ल", "टार्टरिक अम्ल", "ऑक्सालिक अम्ल", "लैक्टिक अम्ल"], a: 0 },
+            { q: "चींटी या मधुमक्खी के डंक में कौन सा तीखा अम्ल होता है जो त्वचा पर जलन पैदा करता है?", o: ["एसिटिक अम्ल", "मेथेनॉइक अम्ल (फॉर्मिक अम्ल)", "लैक्टिक अम्ल", "साइट्रिक अम्ल"], a: 1 },
+            { q: "खट्टे दूध या दही (Curd) में कौन सा अम्ल पाया जाता है?", o: ["लैक्टिक अम्ल", "साइट्रिक अम्ल", "टार्टरिक अम्ल", "ऑक्सालिक अम्ल"], a: 0 },
+            { q: "नींबू और संतरे जैसे खट्टे फलों में मुख्य रूप से कौन सा अम्ल विद्यमान होता है?", o: ["लैक्टिक अम्ल", "साइट्रिक अम्ल", "एसिटिक अम्ल", "टार्टरिक अम्ल"], a: 1 },
+            { q: "इमली (Tamarind) और अंगूर में कौन सा कार्बनिक अम्ल मुख्य रूप से उपस्थित होता है?", o: ["टार्टरिक अम्ल", "ऑक्सालिक अम्ल", "मैलिक अम्ल", "मेथेनॉइक अम्ल"], a: 0 },
+            { q: "मानव आमाशय (Gastric Juice) में भोजन पचाने के लिए कौन सा अम्ल प्राकृतिक रूप से स्रावित होता है?", o: ["HNO₃", "H₂SO₄", "HCl", "CH₃COOH"], a: 2 },
+            { q: "रसायनों का राजा (King of Chemicals) किस अम्ल को कहा जाता है जिसका उपयोग उद्योगों में सर्वाधिक होता है?", o: ["नाइट्रिक अम्ल", "हाइड्रोक्लोरिक अम्ल", "सल्फ्यूरिक अम्ल (H₂SO₄)", "फास्फोरिक अम्ल"], a: 2 },
+            { q: "सोने और प्लैटिनम जैसी नोबल धातुओं को घोलने के लिए प्रयुक्त 'एक्वा रेजिया' (Aqua Regia) किसका मिश्रण है?", o: ["सांद्र HCl और सांद्र HNO₃ (3:1)", "सांद्र HCl और सांद्र H₂SO₄ (3:1)", "सांद्र HNO₃ और सांद्र H₂SO₄ (1:3)", "सांद्र HCl और सांद्र HNO₃ (1:3)"], a: 0 },
+            { q: "यदि किसी विलयन का pH मान 7 से कम है, तो वह विलयन कैसा होगा?", o: ["क्षारीय", "उदासीन", "अम्लीय", "उभयधर्मी"], a: 2 },
+            { q: "यदि किसी विलयन का pH मान ठीक 7 है, तो वह किस प्रकार की प्रकृति प्रदर्शित करता है?", o: ["प्रबल अम्लीय", "उदासीन", "दुर्बल क्षारीय", "प्रबल क्षारीय"], a: 1 },
+            { q: "सोरेन्सन द्वारा प्रतिपादित pH स्केल में 'p' शब्द जर्मन शब्द 'Potenz' से लिया गया है, इसका क्या अर्थ है?", o: ["शुद्धता", "सांद्रता", "शक्ति (Power)", "आयतन"], a: 2 },
+            { q: "एक शुद्ध उदासीन जल का pH मान 25°C तापमान पर कितना मापा जाता है?", o: ["0", "7", "14", "1.2"], a: 1 },
+            { q: "मानव रक्त (Human Blood) का औसत pH मान कितना होता है, जो इसे हल्का क्षारीय बनाता है?", o: ["6.4", "7.0", "7.4", "8.2"], a: 2 },
+            { q: "अम्लीय वर्षा (Acid Rain) तब कहलाती है जब वर्षा के जल का pH मान कितने से कम हो जाता है?", o: ["7.0", "6.5", "5.6", "4.0"], a: 2 },
+            { q: "दांतों का क्षय (Tooth Decay) तब प्रारंभ होता है जब मुख के भीतर का pH मान कितने से कम हो जाता है?", o: ["5.5", "6.5", "7.2", "8.0"], a: 0 },
+            { q: "हमारे शरीर का सामान्य शरीर क्रियात्मक pH परास (Range) किसके बीच कार्य करता है?", o: ["5.0 से 6.0", "6.0 से 7.0", "7.0 से 7.8", "8.0 से 9.0"], a: 2 },
+            { q: "मिल्क ऑफ मैग्नीशिया [Mg(OH)₂] का उपयोग किस रूप में किया जाता है और इसका pH कितना होता है?", o: ["एंटासिड (Antacid), pH ≈ 10", "अम्ल, pH ≈ 2", "कीटनाशक, pH ≈ 7", "रंजक, pH ≈ 14"], a: 0 },
+            { q: "निम्नलिखित में से कौन सा एक प्रबल अम्ल (Strong Acid) का उदाहरण है जो जल में पूर्णतः आयनीकृत होता है?", o: ["CH₃COOH", "H₂CO₃", "HNO₃", "HCN"], a: 2 },
+            { q: "कार्बनिक अम्ल (H₂CO₃) या सोडा वाटर में उपस्थित अम्ल किस श्रेणी के अंतर्गत आता है?", o: ["प्रबल खनिज अम्ल", "दुर्बल अम्ल (Weak Acid)", "प्रबल क्षार", "सांद्र अम्ल"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी में अधातुओं (Non-metals) के ऑक्साइड्स की सामान्य प्रकृति कैसी होती है?", o: ["क्षारीय", "अम्लीय", "उदासीन", "उभयधर्मी"], a: 0 },
+            { q: "धातुओं (Metals) के ऑक्साइड्स जैसे CaO या MgO की सामान्य रासायनिक प्रकृति क्या होती है?", o: ["अम्लीय", "क्षारीय", "उदासीन", "उभयधर्मी"], a: 1 },
+            { q: "Al₂O₃ (एल्युमिनियम ऑक्साइड) और ZnO (जिंक ऑक्साइड) जैसे ऑक्साइड्स को क्या कहा जाता है?", o: ["अम्लीय ऑक्साइड", "क्षारीय ऑक्साइड", "उभयधर्मी ऑक्साइड (Amphoteric)", "उदासीन ऑक्साइड"], a: 2 },
+            { q: "अम्ल और क्षारक की आपसी अभिक्रिया के फलस्वरूप लवण और जल बनने की प्रक्रिया को क्या कहते हैं?", o: ["वियोजन अभिक्रिया", "संयोजन अभिक्रिया", "उदासीनीकरण अभिक्रिया (Neutralization)", "विस्थापन अभिक्रिया"], a: 2 },
+            { q: "जब कोई अम्ल किसी सक्रिय धातु के साथ क्रिया करता है, तो मुख्य रूप से कौन सी गैस उत्सर्जित होती है?", o: ["ऑक्सीजन (O₂)", "हाइड्रोजन (H₂)", "कार्बन डाइऑक्साइड (CO₂)", "नाइट्रोजन (N₂)"], a: 1 },
+            { q: "धातु कार्बोनेट या धातु हाइड्रोजनकार्बोनेट अम्ल से अभिक्रिया कर कौन सी गैस उत्पन्न करते हैं जो चूने के पानी को दुधिया कर देती है?", o: ["H₂", "CO₂", "SO₂", "NO₂"], a: 1 },
+            { q: "चूने के पानी (Limewater) का रासायनिक नाम क्या है, जिसका सूत्र Ca(OH)₂ है?", o: ["कैल्शियम कार्बोनेट", "कैल्शियम हाइड्रॉक्साइड", "कैल्शियम ऑक्साइड", "कैल्शियम क्लोराइड"], a: 1 },
+            { q: "बिना बुझे हुए चूने (Quick Lime) का सही रासायनिक सूत्र क्या है?", o: ["Ca(OH)₂", "CaCO₃", "CaO", "CaCl₂"], a: 2 },
+            { q: "लिटमस विलयन जो एक प्राकृतिक सूचक है, किस पौधे (वनस्पति) से निष्कर्षित किया जाता है?", o: ["लाइकेन (Lichen)", "कवक (Fungi)", "फर्न", "अमरबेल"], a: 0 },
+            { q: "लिटमस पत्र या विलयन का प्राकृतिक (उदासीन माध्यम में) रंग कैसा होता है?", o: ["लाल", "नीला", "बैंगनी (Purple)", "पीला"], a: 2 },
+            { q: "जब नीले लिटमस पत्र को किसी अम्लीय विलयन में डुबोया जाता है, तो उसका रंग बदलकर कैसा हो जाता है?", o: ["हरा", "पीला", "लाल", "रंगहीन"], a: 2 },
+            { q: "जब लाल लिटमस पत्र को किसी क्षारीय विलयन के संपर्क में लाया जाता है, तो वह किस रंग में परिवर्तित हो जाता है?", o: ["नीला", "पीला", "गुलाबी", "काला"], a: 0 },
+            { q: "कृत्रिम सूचक मिथाइल ऑरेंज (Methyl Orange) अम्लीय माध्यम में कैसा रंग प्रदर्शित करता है?", o: ["पीला", "गुलाबी/लाल", "रंगहीन", "नीला"], a: 1 },
+            { q: "कृत्रिम सूचक मिथाइल ऑरेंज क्षारीय माध्यम में कौन सा रंग दर्शाता है?", o: ["लाल", "नीला", "पीला", "बैंगनी"], a: 2 },
+            { q: "फेनोलफ्थलीन (Phenolphthalein) सूचक अम्लीय विलयन में कैसा रंग देता है?", o: ["गुलाबी", "रंगहीन", "लाल", "पीला"], a: 1 },
+            { q: "फेनोलफ्थलीन सूचक क्षारीय विलयन में डालने पर किस तीव्र रंग में बदल जाता है?", o: ["रंगहीन", "गहरा गुलाबी (Pink)", "पीला", "नीला"], a: 1 },
+            { q: "वैसे सूचक जिनकी गंध अम्लीय या क्षारीय माध्यम में बदल जाती है, उन्हें क्या कहा जाता है?", o: ["प्राकृतिक सूचक", "कृत्रिम सूचक", "गंधीय सूचक (Olfactory Indicators)", "सार्वत्रिक सूचक"], a: 2 },
+            { q: "लौंग का तेल (Clove oil) या प्याज का रस किस प्रकार के सूचक का उदाहरण हैं?", o: ["गंधीय सूचक", "कृत्रिम सूचक", "उदासीन सूचक", "कोई नहीं"], a: 0 },
+            { q: "साधारण नमक (Common Salt) का रासायनिक नाम और सूत्र क्या है?", o: ["सोडियम कार्बोनेट, Na₂CO₃", "सोडियम क्लोराइड, NaCl", "सोडियम बाइकार्बोनेट, NaHCO₃", "सोडियम हाइड्रॉक्साइड, NaOH"], a: 1 },
+            { q: "सोडियम हाइड्रॉक्साइड (NaOH) का औद्योगिक या सामान्य नाम क्या है?", o: ["कॉस्टिक सोडा (Caustic Soda)", "बेकिंग सोडा", "धावन सोडा", "विरंजक चूर्ण"], a: 0 },
+            { q: "क्लोरो-क्षार प्रक्रिया (Chlor-Alkali Process) में एनोड पर कौन सी गैस मुक्त होती है?", o: ["हाइड्रोजन गैस", "क्लोरीन गैस", "ऑक्सीजन गैस", "नाइट्रोजन गैस"], a: 1 },
+            { q: "क्लोरो-क्षार प्रक्रिया में कैथोड पर कौन सी गैस एकत्रित होती है?", o: ["क्लोरीन गैस", "ऑक्सीजन गैस", "हाइड्रोजन गैस", "कार्बन डाइऑक्साइड"], a: 2 },
+            { q: "विरंजक चूर्ण (Bleaching Powder) का सही रासायनिक सूत्र क्या है?", o: ["CaCO₃", "CaOCl₂", "Ca(OH)₂", "CaCl₂"], a: 1 },
+            { q: "विरंजक चूर्ण का निर्माण शुष्क बुझे हुए चूने पर किस गैस की क्रिया कराकर किया जाता है?", o: ["CO₂", "Cl₂", "H₂", "O₂"], a: 1 },
+            { q: "बेकिंग सोडा (Baking Soda) का सही रासायनिक नाम क्या है?", o: ["सोडियम कार्बोनेट", "सोडियम हाइड्रोजनकार्बोनेट (सोडियम बाइकार्बोनेट)", "कैल्शियम कार्बोनेट", "सोडियम क्लोराइड"], a: 1 },
+            { q: "बेकिंग सोडा का सही रासायनिक सूत्र निम्नलिखित में से कौन सा है?", o: ["Na₂CO₃", "NaHCO₃", "NaOH", "Na₂CO₃·10H₂O"], a: 1 },
+            { q: "पाकशाला में खस्ता पकोड़े बनाने या केक फुलाने के लिए बेकिंग पाउडर में बेकिंग सोडा के साथ क्या मिलाया जाता है?", o: ["सल्फ्यूरिक अम्ल", "टार्टरिक अम्ल जैसे मंद खाद्य अम्ल", "हाइड्रोक्लोरिक अम्ल", "एसिटिक अम्ल"], a: 1 },
+            { q: "धावन सोडा या धोने का सोडा (Washing Soda) का सही रासायनिक सूत्र क्या है?", o: ["NaHCO₃", "Na₂CO₃·10H₂O", "Na₂CO₃·H₂O", "NaOH"], a: 1 },
+            { q: "धावन सोडा के एक सूत्र इकाई में क्रिस्टलन के जल (Water of Crystallization) के कितने अणु होते हैं?", o: ["2", "5", "7", "10"], a: 3 },
+            { q: "प्लास्टर ऑफ पेरिस (POP) का सही रासायनिक सूत्र क्या है?", o: ["CaSO₄·2H₂O", "CaSO₄·½H₂O", "CaSO₄·5H₂O", "CaCO₃"], a: 1 },
+            { q: "जिप्सम (Gypsum) को किस तापमान पर गर्म करने पर वह प्लास्टर ऑफ पेरिस में बदल जाता है?", o: ["100°C (373 K)", "0°C", "200°C", "500°C"], a: 0 },
+            { q: "जिप्सम का सही रासायनिक सूत्र क्या है?", o: ["CaSO₄·½H₂O", "CaSO₄·2H₂O", "CuSO₄·5H₂O", "FeSO₄·7H₂O"], a: 1 },
+            { q: "कॉपर सल्फेट के क्रिस्टल (नीला थोथा) का रंग नीला होता है, इसमें क्रिस्टलन के जल के कितने अणु होते हैं?", o: ["2", "5", "7", "10"], a: 1 },
+            { q: "हरा कसीस या फेरस सल्फेट क्रिस्टल (FeSO₄·7H₂O) का रंग कैसा होता है?", o: ["नीला", "सफेद", "हरा", "भूरा"], a: 2 },
+            { q: "प्लास्टर ऑफ पेरिस को जल के साथ मिलाने पर वह पुनः किस कठोर पदार्थ में बदल जाता है?", o: ["चूना पत्थर", "जिप्सम", "बुझा हुआ चूना", "विरंजक चूर्ण"], a: 1 },
+            { q: "अग्निशामक यंत्रों (Fire Extinguishers) में सोडा-अम्ल के रूप में किस लवण का उपयोग किया जाता है?", o: ["Na₂CO₃", "NaHCO₃", "NaCl", "NaOH"], a: 1 },
+            { q: "कांच, साबुन एवं कागज उद्योगों में निम्नलिखित में से किसका व्यापक उपयोग किया जाता है?", o: ["बेकिंग सोडा", "धोने का सोडा (Na₂CO₃)", "विरंजक चूर्ण", "प्लास्टर ऑफ पेरिस"], a: 1 },
+            { q: "पेयजल को जीवाणुओं से मुक्त (रोगाणुनाशक) करने के लिए किसका उपयोग किया जाता है?", o: ["बेकिंग सोडा", "धोने का सोडा", "विरंजक चूर्ण (Bleaching Powder)", "जिप्सम"], a: 2 },
+            { q: "जब अम्ल को जल में मिलाया जाता है, तो यह अत्यधिक ऊष्मा उत्पन्न करता है। इस प्रक्रिया को क्या कहते हैं?", o: ["ऊष्माशोषी व तनुकरण", "ऊष्माक्षेपी व तनुकरण (Exothermic & Dilution)", "उदासीनीकरण", "वाष्पीकरण"], a: 1 },
+            { q: "अम्ल को तनु करते समय हमेशा क्या करना चाहिए?", o: ["अम्ल में तेजी से जल मिलाना चाहिए", "जल में धीरे-धीरे हिलाते हुए अम्ल मिलाना चाहिए", "दोनों को बराबर मात्रा में एक साथ मिलाना चाहिए", "पानी को खौलाना चाहिए"], a: 1 },
+            { q: "जल में घुलनशील क्षारकों (Bases) को विशेष रूप से क्या कहा जाता है?", o: ["लवण", "अम्ल", "क्षार (Alkali)", "खनिज"], a: 2 },
+            { q: "निम्नलिखित में से कौन सा एक दुर्बल क्षारक (Weak Base) का उदाहरण है?", o: ["NaOH", "KOH", "NH₄OH (अमोनियम हाइड्रॉक्साइड)", "Ba(OH)₂"], a: 2 },
+            { q: "एक अम्लीय लवण (Acidic Salt) का निर्माण किनके बीच अभिक्रिया से होता है?", o: ["प्रबल अम्ल और प्रबल क्षार", "प्रबल अम्ल और दुर्बल क्षार", "दुर्बल अम्ल और प्रबल क्षार", "दुर्बल अम्ल और दुर्बल क्षार"], a: 1 },
+            { q: "CH₃COONa (सोडियम एसिटेट) किस प्रकार के लवण का उदाहरण है?", o: ["अम्लीय लवण", "क्षारीय लवण (Basic Salt)", "उदासीन लवण", "मिश्रित लवण"], a: 1 },
+            { q: "K₂SO₄·Al₂(SO₄)₃·24H₂O (फिटकरी या पोटाश एलम) किस श्रेणी का लवण है?", o: ["सरल लवण", "द्विक लवण (Double Salt)", "जटिल लवण", "अम्लीय लवण"], a: 1 },
+            { q: "उदासीनीकरण ऊष्मा (Heat of Neutralization) का मान एक प्रबल अम्ल और प्रबल क्षार के लिए हमेशा कितना स्थिर होता है?", o: ["57.1 kJ/mol", "13.7 kJ/mol", "100 kJ/mol", "0 kJ/mol"], a: 0 },
+            { q: "तनुकरण (Dilution) करने पर प्रति इकाई आयतन में H₃O⁺ या OH⁻ आयनों की सांद्रता में क्या परिवर्तन होता है?", o: ["सांद्रता बढ़ती है", "सांद्रता घटती है (Decreases)", "कोई परिवर्तन नहीं होता", "शून्य हो जाती है"], a: 1 },
+            { q: "सार्वत्रिक सूचक (Universal Indicator) क्या होता है?", o: ["केवल एक रंग देने वाला रसायन", "अनेक सूचकों का मिश्रण जो विभिन्न pH पर अलग रंग दिखाता है", "लिटमस का दूसरा नाम", "एक खनिज"], a: 1 },
+            { q: "उदासीन यौगिकों या लवणों जैसे NaCl का जलीय विलयन विद्युत का क्या होता है?", o: ["कुचालक", "सुचालक (Conductor)", "अर्धचालक", "विद्युतरोधी"], a: 1 },
+            { q: "ग्लूकोज और अल्कोहल के जलीय विलयन में विद्युत का चालन क्यों नहीं होता है?", o: ["वे लवण हैं", "वे जलीय विलयन में आयनीकृत होकर H⁺ आयन नहीं बनाते", "उनमें कार्बन होता है", "वे वाष्पशील हैं"], a: 1 },
+            { q: "शुष्क हाइड्रोक्लोरिक गैस (Dry HCl gas) शुष्क नीले लिटमस पत्र का रंग लाल क्यों नहीं करती?", o: ["यह बहुत ठंडी होती है", "जल की अनुपस्थिति में H⁺ आयन अलग नहीं हो पाते", "यह एक क्षार है", "यह लिटमस को नष्ट कर देती है"], a: 1 },
+            { q: "कॉपर सल्फेट के शुष्क दिखने वाले क्रिस्टल को गर्म करने पर उसका नीला रंग गायब होकर सफेद क्यों हो जाता है?", o: ["उसका ऑक्सीकरण हो जाता है", "क्रिस्टलन का जल बाहर निकल जाता है", "वह तांबे में बदल जाता है", "वह पिघल जाता"], a: 1 },
+            { q: "मशीनों या बर्तनों से लवण की परत (Scale) हटाने के लिए किस प्रकार के रसायनों का उपयोग होता है?", o: ["अम्लीय अवरोधक", "अपमार्जक", "उदासीन लवण", "कोई नहीं"], a: 0 },
+            { q: "सोडियम कार्बोनेट (Na₂CO₃) का जलीय विलयन फेनोलफ्थलीन को कैसा कर देगा?", o: ["रंगहीन", "गुलाबी", "पीला", "नीला"], a: 1 },
+            { q: "जब जिंक धातु की क्रिया सोडियम हाइड्रॉक्साइड (NaOH) के साथ कराई जाती है, तो कौन सा लवण बनता है?", o: ["जिंक हाइड्रॉक्साइड", "सोडियम जिंकेट (Na₂ZnO₂)", "सोडियम ऑक्साइड", "जिंक क्लोराइड"], a: 1 },
+            { q: "यदि मिट्टी अत्यधिक अम्लीय हो, तो किसान उसे उपचारित करने के लिए उसमें क्या मिलाते हैं?", o: ["जिप्सम", "बुझा हुआ चूना (Ca(OH)₂) या बिना बुझा चूना", "सल्फ्यूरिक अम्ल", "कंपोस्ट खाद"], a: 1 },
+            { q: "मधुमक्खी के डंक मारने पर बेकिंग सोडा का लेप लगाने से राहत क्यों मिलती है?", o: ["यह डंक को ठंडा करता है", "यह डंक के मेथेनॉइक अम्ल को उदासीनीकृत कर देता है", "यह एक प्रबल अम्ल है", "यह त्वचा को सुन्न करता है"], a: 1 },
+            { q: "नेटल (Nettle) पौधे के पत्तों के डंक वाले बालों से कौन सा अम्ल शरीर में प्रवेश करता है?", o: ["सिट्रिक अम्ल", "मेथेनॉइक अम्ल", "एसिटिक अम्ल", "ऑक्सालिक अम्ल"], a: 1 },
+            { q: "नेटल पौधे के पास ही उगने वाले किस पारंपरिक पौधे की पत्ती रगड़कर डंक का इलाज किया जाता है?", o: ["डॉक (Dock) का पौधा", "तुलसी", "नीम", "एलोवेरा"], a: 0 },
+            { q: "निम्नलिखित में से कौन सा लवण श्वेत-श्याम फोटोग्राफी (Black and White Photography) में प्रयुक्त होता है?", o: ["NaCl", "AgBr (सिल्वर ब्रोमाइड) या AgCl", "CaCO₃", "Na₂CO₃"], a: 1 },
+            { q: "विरंजक चूर्ण को वायु में खुला छोड़ने पर कौन सी तीखी गंध वाली गैस धीरे-धीरे बाहर निकलती है?", o: ["O₂", "Cl₂", "CO₂", "H₂"], a: 1 },
+            { q: "प्लास्टर ऑफ पेरिस को आर्द्रता-रोधी (Moisture-proof) बर्तनों में क्यों रखा जाना चाहिए?", o: ["यह उड़ जाता है", "यह नमी सोखकर कठोर जिप्सम में बदल जाता है", "यह रंग बदलता है", "यह जहरीला हो जाता है"], a: 1 },
+            { q: "संगमरमर (Marble), खड़िया (Chalk) और चूना पत्थर किस यौगिक के विभिन्न रूप हैं?", o: ["CaO", "Ca(OH)₂", "CaCO₃ (कैल्शियम कार्बोनेट)", "CaCl₂"], a: 2 },
+            { q: "अपच (Indigestion) के उपचार के लिए निम्नलिखित में से किस प्रकार की औषधि का उपयोग किया जाता है?", o: ["एंटीबायोटिक", "एनाल्जेसिक", "एंटासिड (Antacid)", "एंटीसेप्टिक"], a: 2 },
+            { q: "एक जलीय विलयन लाल लिटमस को नीला कर देता है, इसका संभावित pH मान क्या हो सकता है?", o: ["1", "4", "5", "10"], a: 3 },
+            { q: "कोई विलयन अंडे के पिसे हुए कवच से अभिक्रिया करके एक गैस उत्पन्न करता है जो चूने के पानी को दुधिया कर देती है। इस विलयन में क्या है?", o: ["NaCl", "HCl", "LiCl", "KCl"], a: 1 },
+            { q: "NaOH का 10 mL विलयन, HCl के 8 mL विलयन से पूर्णतः उदासीन होता है। यदि NaOH का 20 mL लें तो उदासीन करने के लिए HCl की कितनी मात्रा चाहिए?", o: ["4 mL", "8 mL", "12 mL", "16 mL"], a: 3 },
+            { q: "बेकिंग पाउडर को गर्म करने पर मुख्य रूप से कौन सी गैस निकलती है जो ब्रेड को स्पंजी बनाती है?", o: ["H₂", "O₂", "CO₂", "N₂"], a: 2 },
+            { q: "तनु हाइड्रोक्लोरिक अम्ल की अभिक्रिया जब लोहे के छीलन से होती है, तो क्या बनता है?", o: ["फेरस क्लोराइड और हाइड्रोजन गैस", "फेरिक हाइड्रॉक्साइड", "क्लोरीन गैस", "कोई अभिक्रिया नहीं"], a: 0 },
+            { q: "अम्ल एवं क्षारकों की शक्ति किस पर निर्भर करती है?", o: ["विलयन के कुल आयतन पर", "क्रमशः H⁺ आयनों और OH⁻ आयनों की उत्पत्ति की संख्या पर", "यौगिक के आणविक द्रव्यमान पर", "तापमान पर"], a: 1 },
+            { q: "लवणों के जलीय विलयन विद्युत का चालन करते हैं क्योंकि वे जल में मुक्त क्या उत्पन्न करते हैं?", o: ["अणु", "परमाणु", "आयन (Ions)", "इलेक्ट्रॉन"], a: 2 },
+            { q: "सोडियम हाइड्रोजनकार्बोनेट को गर्म करने पर प्राप्त होने वाला ठोस उत्पाद क्या होता है?", o: ["NaOH", "Na₂CO₃", "Na₂O", "NaCl"], a: 1 },
+            { q: "शुद्ध क्रिस्टलीय ठोस अवस्था में लवणों का रंग और ज्यामिति निश्चित करने वाले जल को क्या कहते हैं?", o: ["सोखने का जल", "क्रिस्टलन का जल (Water of Crystallization)", "उदासीन जल", "भारी जल"], a: 1 },
+            { q: "अम्ल, क्षारक एवं लवणों के इस संपूर्ण अध्याय का मूल निष्कर्ष क्या है?", o: ["वे सभी समान रासायनिक गुण रखते हैं", "H⁺ और OH⁻ आयनों का संतुलन ही उनकी अम्लीयता और क्षारीयता का निर्धारण करता है", "लवण हमेशा अम्लीय होते हैं", "क्षारक हमेशा जल में अघुलनशील होते हैं"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #ccfbf1; color: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H15M10 9H14M3 21H21M7 21V7A2 2 0 0 1 9 5H15A2 2 0 0 1 17 7V21M12 21V13M7 17H17"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">अम्ल, क्षारक एवं लवण (Acid, Base & Salt)</h1>
+                    <p style="color: #4a5568; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर</p>
+                    <p style="color: #6b7280; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">शीर्ष 100 उच्च-स्तरीय प्रश्नों का संपूर्ण संकलन। आधुनिक ग्लासमोर्फिज्म इंटरफ़ेस और लाइव प्रोग्रेस ट्रैकिंग के साथ अपनी तैयारी जांचें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #0d9488; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Profile Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1a202c;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #2d3748;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #3b82f6;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #0d9488;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अविश्वसनीय! आपने रसायन विज्ञान में 100% अंक प्राप्त किए!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! आपकी तैयारी शानदार है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! थोड़ा और अभ्यास करें।"; emoji = "👍"; }
+            else { message = "निराश न हों! फिर से अध्ययन करें और प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

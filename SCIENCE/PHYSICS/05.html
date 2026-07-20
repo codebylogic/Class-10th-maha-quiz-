@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>भौतिक विज्ञान क्विज़ - विद्युत धारा के चुंबकीय प्रभाव</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #faf5ff;
+            color: #1e1b4b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(109, 40, 217, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #6d28d9;
+            background-color: #f3e8ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #c084fc, #6d28d9); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #6d28d9, #5b21b6); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(109, 40, 217, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #1e1b4b; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #475569; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #c084fc, #6d28d9); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "किसी चुंबक के चारों ओर का वह क्षेत्र जिसमें उसके बल का पता लगाया जा सकता है, क्या कहलाता है?", o: ["विद्युत क्षेत्र", "चुंबकीय क्षेत्र (Magnetic Field)", "गुरुत्वीय क्षेत्र", "उदासीन क्षेत्र"], a: 1 },
+            { q: "चुंबकीय क्षेत्र (Magnetic Field Strength) की तीव्रता का मात्रक निम्नलिखित में से क्या होता है?", o: ["ओम", "वोल्ट", "टेस्ला (Tesla)", "ऐम्पियर"], a: 2 },
+            { q: "किसी छड़ चुंबक (Bar Magnet) के बाहर चुंबकीय क्षेत्र रेखाओं की दिशा किधर से किधर होती है?", o: ["दक्षिणी ध्रुव से उत्तरी ध्रुव", "उत्तरी ध्रुव से दक्षिणी ध्रुव (North to South)", "पूर्व से पश्चिम", "पश्चिम से पूर्व"], a: 1 },
+            { q: "किसी छड़ चुंबक के भीतर (Inside the magnet) चुंबकीय क्षेत्र रेखाओं की दिशा क्या होती है?", o: ["उत्तरी ध्रुव से दक्षिणी ध्रुव", "दक्षिणी ध्रुव से उत्तरी ध्रुव (South to North)", "कोई दिशा नहीं होती", "लम्बवत्"], a: 1 },
+            { q: "दो चुंबकीय क्षेत्र रेखाएं आपस में एक-दूसरे को कभी क्यों नहीं काटती हैं?", o: ["वे समानांतर होती हैं", "यदि वे काटेंगी, तो कटान बिंदु पर दिक्-सूची सुई दो दिशाएं दिखाएगी, जो असंभव है", "वे कमजोर होती हैं", "चुंबक टूट जाएगा"], a: 1 },
+            { q: "चुंबकीय क्षेत्र रेखाओं की सघनता (घनत्व) किसी स्थान पर क्या प्रदर्शित करती है?", o: ["चुंबक का तापमान", "चुंबकीय क्षेत्र की प्रबलता (Strength of Magnetic Field)", "विद्युत धारा का मान", "चुंबक का भार"], a: 1 },
+            { q: "1820 में किस वैज्ञानिक ने सबसे पहले यह खोजा था कि किसी चालक तार में धारा प्रवाहित करने पर चुंबकीय क्षेत्र उत्पन्न होता है?", o: ["माइकल फैराडे", "हंस क्रिश्चियन ऑर्स्टेड (H.C. Oersted)", "अलेक्जेंड्रो वोल्टा", "आंद्रे मैरी एम्पियर"], a: 1 },
+            { q: "सीधे विद्युत धारावाही चालक तार के चारों ओर चुंबकीय क्षेत्र रेखाओं का प्रतिरूप कैसा होता है?", o: ["सरल रेखीय", "सकेंद्री वृत्तों के रूप में (Concentric Circles)", "परवलयाकार", "दीर्घवृत्तीय"], a: 1 },
+            { q: "विद्युत धारावाही सीधे चालक तार के चारों ओर चुंबकीय क्षेत्र की दिशा ज्ञात करने के लिए किस नियम का उपयोग किया जाता है?", o: ["फ्लेमिंग का वामहस्त नियम", "दक्षिणावर्त अंगूष्ठ नियम या मैक्सवेल का स्क्रू नियम (Right-hand Thumb Rule)", "फ्लेमिंग का दक्षिणहस्त नियम", "ओम का नियम"], a: 1 },
+            { q: "दाहिने हाथ के अंगूठे के नियम के अनुसार, यदि अंगूठा धारा की दिशा दिखाता है, तो मुड़ी हुई उंगलियां क्या दिखाएंगी?", o: ["विद्युत विभवांतर", "चुंबकीय क्षेत्र की दिशा (Direction of Magnetic Field)", "गति की दिशा", "बल की दिशा"], a: 1 },
+            { q: "पास-पास लिपटे विद्युतरोधी तांबे के तार की बेलन की आकृति की अनेक फेरों वाली कुंडली को क्या कहते हैं?", o: ["प्रतिरोधक", "परिनालिका (Solenoid)", "गैल्वेनोमीटर", "आर्मेचर"], a: 1 },
+            { q: "धारावाही परिनालिका (Solenoid) के भीतर चुंबकीय क्षेत्र रेखाओं की प्रकृति कैसी होती है?", o: ["शून्य होती है", "समानांतर सीधी रेखाएं (यह दर्शाती है कि भीतर सभी बिंदुओं पर चुंबकीय क्षेत्र समान या समरूप है)", "वृत्ताकार", "अनियमित"], a: 1 },
+            { q: "परिनालिका के भीतर तीव्र चुंबकीय क्षेत्र का उपयोग करके उसके अंदर रखे नरम लोहे के टुकड़े को चुंबक बनाने को क्या कहते हैं?", o: ["स्थायी चुंबक", "विद्युत चुंबक (Electromagnet)", "प्राकृतिक चुंबक", "उदासीन धातु"], a: 1 },
+            { q: "विद्युत चुंबक (Electromagnet) की क्रोड (Core) बनाने के लिए सबसे उपयुक्त सामग्री कौन सी है?", o: ["इस्पात (Steel)", "नरम लोहा (Soft Iron)", "तांबा", "एल्युमिनियम"], a: 1 },
+            { q: "एक विद्युत चुंबक की चुंबकीय शक्ति को कैसे बढ़ाया जा सकता है?", o: ["धारा का मान बढ़ाकर", "फेरों की संख्या (Number of turns) बढ़ाकर", "दोनों विधियों द्वारा (Both A and B)", "इनमें से किसी से नहीं"], a: 2 },
+            { q: "विद्युत चुंबक और स्थायी चुंबक में मुख्य अंतर क्या है?", o: ["विद्युत चुंबक का चुंबकत्व अस्थायी होता है और धारा बंद करते ही समाप्त हो जाता है", "स्थायी चुंबक मजबूत होता है", "विद्युत चुंबक का ध्रुव बदला नहीं जा सकता", "कोई अंतर नहीं है"], a: 0 },
+            { q: "जब किसी चुंबकीय क्षेत्र में एक धारावाही चालक को रखा जाता है, तो उस पर एक यांत्रिक बल लगता है, यह सबसे पहले किसने बताया?", o: ["ऑर्स्टेड", "आंद्रे मैरी एम्पियर (Andre-Marie Ampere)", "फैराडे", "मैक्सवेल"], a: 1 },
+            { q: "चुंबकीय क्षेत्र में रखे धारावाही चालक पर लगने वाले बल की दिशा किस नियम से ज्ञात की जाती है?", o: ["मैक्सवेल का नियम", "फ्लेमिंग का वामहस्त नियम (Fleming's Left-hand Rule)", "फ्लेमिंग का दक्षिणहस्त नियम", "राइट हैंड थंब रूल"], a: 1 },
+            { q: "फ्लेमिंग के वामहस्त (बाएं हाथ) के नियम के अनुसार, तर्जनी (Forefinger) उंगली किसकी दिशा को प्रदर्शित करती है?", o: ["विद्युत धारा", "चुंबकीय क्षेत्र (Magnetic Field)", "चालक पर लगने वाले बल की दिशा", "विभव"], a: 1 },
+            { q: "फ्लेमिंग के बाएं हाथ के नियम के अनुसार, मध्यमा (Middle finger) उंगली किसकी दिशा को दर्शाती है?", o: ["चुंबकीय क्षेत्र", "विद्युत धारा (Electric Current)", "बल की दिशा", "त्वरण"], a: 1 },
+            { q: "फ्लेमिंग के वामहस्त नियम में अंगूठा (Thumb) किसकी दिशा को निरूपित करता है?", o: ["विद्युत धारा", "चुंबकीय क्षेत्र", "चालक की गति या उस पर लगने वाले बल की दिशा (Force / Motion)", "प्रतिरोध"], a: 2 },
+            { q: "चुंबकीय क्षेत्र में धारावाही चालक पर लगने वाला बल अधिकतम (Maximum) कब होता है?", o: ["जब धारा और चुंबकीय क्षेत्र के बीच का कोण 0° हो", "जब धारा और चुंबकीय क्षेत्र परस्पर लम्बवत् (90°) हों", "जब कोण 180° हो", "बल हमेशा समान रहता है"], a: 1 },
+            { q: "विद्युत ऊर्जा को यांत्रिक ऊर्जा (Mechanical Energy) में बदलने वाली घूमने वाली घूर्णन युक्ति क्या कहलाती है?", o: ["विद्युत जनरेटर", "विद्युत मोटर (Electric Motor)", "परिनालिका", "ट्रांसफार्मर"], a: 1 },
+            { q: "विद्युत मोटर में धारा की दिशा को बदलने वाले (उलट देने वाले) अवयव को क्या कहा जाता है?", o: ["आर्मेचर", "विभक्त वलय या दिक्परिवर्तक (Commutator)", "ब्रश", "धुरी"], a: 1 },
+            { q: "व्यावसायिक मोटरों में स्थायी चुंबक के स्थान पर किसका उपयोग किया जाता है ताकि वे शक्तिशाली कार्य कर सकें?", o: ["प्राकृतिक चुंबक", "विद्युत चुंबक (Electromagnet)", "प्लास्टिक", "काँच"], a: 1 },
+            { q: "वह प्रक्रम जिसके द्वारा किसी बदलते हुए चुंबकीय क्षेत्र के कारण अन्य चालक में विद्युत धारा प्रेरित होती है, क्या कहलाता है?", o: ["विद्युत अपघटन", "विद्युत चुंबकीय प्रेरण (Electromagnetic Induction - EMI)", "तापीय प्रभाव", "चुंबकन"], a: 1 },
+            { q: "विद्युत चुंबकीय प्रेरण (EMI) की खोज 1831 में किस महान वैज्ञानिक ने की थी?", o: ["ऑर्स्टेड", "माइकल फैराडे (Michael Faraday)", "एम्पियर", "हेनरी मोसले"], a: 1     },
+            { q: "प्रेरित विद्युत धारा (Induced Current) की दिशा ज्ञात करने के लिए किस नियम का उपयोग किया जाता है?", o: ["फ्लेमिंग का वामहस्त नियम", "फ्लेमिंग का दक्षिणहस्त नियम (Fleming's Right-hand Rule)", "मैक्सवेल का नियम", "थंब रूल"], a: 1 },
+            { q: "फ्लेमिंग के दक्षिणहस्त (दाएं हाथ) के नियम में तर्जनी (Forefinger) उंगली क्या दर्शाती है?", o: ["प्रेरित धारा", "चुंबकीय क्षेत्र की दिशा (Magnetic Field)", "चालक की गति की दिशा", "बल"], a: 1 },
+            { q: "फ्लेमिंग के दाएं हाथ के नियम में मध्यमा (Middle finger) उंगली किसकी दिशा को इंगित करती है?", o: ["चालक की गति", "चुंबकीय क्षेत्र", "प्रेरित विद्युत धारा की दिशा (Induced Current)", "विभव"], a: 2 },
+            { q: "यांत्रिक ऊर्जा को विद्युत ऊर्जा (Electric Energy) में बदलने वाले उपकरण को क्या कहा जाता है?", o: ["विद्युत मोटर", "विद्युत जनरेटर या डायनेमो (Electric Generator)", "फ्यूज", "हीटर"], a: 1 },
+            { q: "वह विद्युत धारा जो समान समय अंतरालों के बाद अपनी दिशा बदल लेती है (उलट जाती है), क्या कहलाती है?", o: ["दिष्ट धारा (DC)", "प्रत्यावर्ती धारा (Alternating Current - AC)", "स्थिर धारा", "प्रेरित विभव"], a: 1 },
+            { q: "वह विद्युत धारा जो हमेशा एक ही दिशा में प्रवाहित होती है और अपनी ध्रुवीयता नहीं बदलती, क्या कहलाती है?", o: ["प्रत्यावर्ती धारा", "दिष्ट धारा (Direct Current - DC)", "प्रेरित धारा", "अस्थायी धारा"], a: 1 },
+            { q: "बैटरी, सेल और सौर सेल से हमें मुख्य रूप से किस प्रकार की धारा प्राप्त होती है?", o: ["प्रत्यावर्ती धारा", "दिष्ट धारा (DC)", "दोनों", "कोई नहीं"], a: 1 },
+            { q: "भारत में घरों में आपूर्ति की जाने वाली प्रत्यावर्ती धारा (AC) की आवृत्ति (Frequency) कितनी होती है?", o: ["50 हर्ट्ज (50 Hz)", "60 हर्ट्ज", "100 हर्ट्ज", "0 हर्ट्ज"], a: 0 },
+            { q: "भारत में घरेलू उपयोग के लिए उपलब्ध AC वोल्टेज का मान सामान्यतः कितना होता है?", o: ["110 वोल्ट", "220 वोल्ट (220 V)", "440 वोल्ट", "15 वोल्ट"], a: 1     },
+            { q: "AC (प्रत्यावर्ती धारा) का DC की तुलना में सबसे बड़ा महत्वपूर्ण लाभ क्या है?", o: ["यह सस्ती है", "इसे बिना अधिक ऊर्जा ह्रास के बहुत लंबी दूरियों तक संप्रेषित किया जा सकता है", "यह खतरनाक नहीं है", "यह आसानी से बनती है"], a: 1 },
+            { q: "घरेलू विद्युत परिपथ में मुख्य रूप से कितने प्रकार के तार खंभे या केबल से घर के अंदर आते हैं?", o: ["एक", "दो", "तीन (विद्युतन्मय, उदासीन, भू-संपर्क)", "चार"], a: 2 },
+            { q: "वह तार जो लाल रंग के विद्युतरोधी आवरण का होता है और मुख्य उच्च वोल्टेज धारा लाता है, क्या कहलाता है?", o: ["उदासीन तार", "भू-संपर्क तार", "विद्युतन्मय तार या फेज तार (Live Wire)", "अर्थ वायर"], a: 2 },
+            { q: "वह तार जो काले रंग के विद्युतरोधी आवरण का होता है और परिपथ को पूरा करता है, क्या कहलाता है?", o: ["लाइव तार", "उदासीन तार या न्यूट्रल तार (Neutral Wire)", "अर्थ तार", "फेज तार"], a: 1     },
+            { q: "भारत में विद्युतन्मय (Live) तार और उदासीन (Neutral) तार के बीच का विभवांतर (Potential Difference) कितना होता है?", o: ["0 वोल्ट", "110 वोल्ट", "220 वोल्ट (220 V)", "440 वोल्ट"], a: 2 },
+            { q: "वह सुरक्षा तार जो हरे रंग के विद्युतरोधी आवरण का होता है और घर के पास भूमि में गहरी दबी तांबे की प्लेट से जुड़ा होता है?", o: ["लाइव तार", "उदासीन तार", "भू-संपर्क तार या अर्थ तार (Earth Wire)", "शॉर्ट तार"], a: 2 },
+            { q: "विद्युत इस्तरी, टोस्टर, मेज का पंखा और रेफ्रिजरेटर जैसे धात्विक आवरण वाले उपकरणों को भू-संपर्कित करना क्यों आवश्यक है?", o: ["ताकि वे तेज चलें", "धातु के आवरण में विद्युत रिसाव होने पर यूजर को तीव्र बिजली का झटका (Shock) न लगे", "सजावट के लिए", "बिजली बिल कम करने के लिए"], a: 1 },
+            { q: "जब लाइव तार (विद्युतन्मय) और उदासीन तार सीधे एक-दूसरे के संपर्क में आ जाते हैं (इंसुलेशन खराब होने से), तो इस स्थिति को क्या कहते हैं?", o: ["ओवरलोडिंग", "लघुपथन या शॉर्ट सर्किट (Short Circuit)", "तनुकरण", "अर्थिंग"], a: 1 },
+            { q: "शॉर्ट सर्किट (Short Circuit) होने पर परिपथ के कुल प्रतिरोध और धारा के मान पर क्या प्रभाव पड़ता है?", o: ["प्रतिरोध बढ़ता है, धारा घटती है", "प्रतिरोध शून्य के करीब हो जाता है और धारा अत्यधिक बहुत अधिक बढ़ जाती है", "दोनों शून्य हो जाते हैं", "कोई प्रभाव नहीं पड़ता"], a: 1 },
+            { q: "एक ही समय पर एक ही सॉकेट से बहुत सारे उच्च शक्ति के उपकरणों को जोड़ देने से उत्पन्न होने वाले दोष को क्या कहते हैं?", o: ["शॉर्ट सर्किट", "अतिभारण या ओवरलोडिंग (Overloading)", "लो वोल्टेज", "ओपन सर्किट"], a: 1 },
+            { q: "घरेलू परिपथों में शॉर्ट सर्किट या ओवरलोडिंग के कारण होने वाले नुकसान या आग से बचाने के लिए प्रयुक्त सबसे महत्वपूर्ण सुरक्षा युक्ति?", o: ["ऐमीटर", "विद्युत फ्यूज या एमसीबी (Fuse / MCB)", "वोल्टमीटर", "रियोस्टेट"], a: 1 },
+            { q: "फ्यूज का तार हमेशा लाइव तार के साथ किस क्रम में लगाया जाता है?", o: ["समांतर क्रम में", "श्रेणीक्रम में (Series)", "मिश्रित क्रम में", "किसी भी तार के साथ समांतर में"], a: 1 },
+            { q: "चुंबकीय क्षेत्र एक ऐसी भौतिक राशि है जिसमें होते हैं:", o: ["केवल परिमाण", "केवल दिशा", "परिमाण और दिशा दोनों (Vector Quantity)", "दोनों में से कोई नहीं"], a: 2 },
+            { q: "दिक्-सूची (Compass) की सुई वास्तव में क्या होती है जो चुंबकीय क्षेत्र में विक्षेपित होती है?", o: ["एक साधारण लोहे की सुई", "एक छोटा छड़ चुंबक (Small Bar Magnet)", "एक एल्युमिनियम का टुकड़ा", "प्लास्टिक सुई"], a: 1 },
+            { q: "चुंबकीय क्षेत्र रेखाएं चुंबक के ध्रुवों के पास कैसी होती हैं जहाँ क्षेत्र सबसे प्रबल होता है?", o: ["दूर-दूर", "अत्यंत निकट या सघन (Crowded near poles)", "सीधी रेखाएं", "गायब हो जाती हैं"], a: 1 },
+            { q: "यदि किसी सीधे तार में धारा ऊपर की ओर जा रही है, तो मैक्सवेल के नियम के अनुसार चुंबकीय क्षेत्र की दिशा कैसी होगी?", o: ["दक्षिणावर्त (Clockwise)", "वामावर्त (Anti-clockwise)", "नीचे की ओर", "सीधी"], a: 1 },
+            { q: "यदि किसी वृत्ताकार कुंडली (Circular Loop) में फेरों की संख्या बढ़ा दी जाए, तो उत्पन्न चुंबकीय क्षेत्र के मान पर क्या प्रभाव पड़ेगा?", o: ["घटेगा", "फेरों की संख्या के अनुपात में बढ़ेगा (क्योंकि प्रत्येक फेरे का क्षेत्र जुड़ जाता है)", "समान रहेगा", "शून्य हो जाएगा"], a: 1 },
+            { q: "परिनालिका के भीतर चुंबकीय क्षेत्र की समरूपता (Uniformity) हमें क्या बताती है?", o: ["क्षेत्र लगातार बदल रहा है", "भीतर सभी बिंदुओं पर चुंबकीय क्षेत्र का मान एक समान है", "भीतर क्षेत्र शून्य है", "कोई निष्कर्ष नहीं है"], a: 1 },
+            { q: "यदि एक गतिमान इलेक्ट्रॉन चुंबकीय क्षेत्र के लम्बवत् प्रवेश करता है, तो उस पर लगने वाले बल की दिशा किस नियम से ज्ञात होगी?", o: ["राइट हैंड रूल", "फ्लेमिंग का वामहस्त नियम (Fleming's Left Hand Rule)", "मैक्सवेल नियम", "ओम का नियम"], a: 1 },
+            { q: "विद्युत जनरेटर (Generator) किस मूल वैज्ञानिक सिद्धांत पर कार्य करता है?", o: ["धारा का तापीय प्रभाव", "विद्युत चुंबकीय प्रेरण (Electromagnetic Induction)", "धारा का रासायनिक प्रभाव", "ओम का नियम"], a: 1 },
+            { q: "डायनेमो (Dynamo) या जनरेटर में घूमने वाली कुंडली को क्या कहा जाता है जिसमें प्रेरित धारा बनती है?", o: ["दिक्परिवर्तक", "आर्मेचर (Armature)", "ब्रश", "क्रोड"], a: 1 },
+            { q: "विद्युत जनरेटर दो प्रकार के होते हैं, AC जनरेटर और DC जनरेटर। DC जनरेटर में किस प्रकार के वलय का उपयोग होता है?", o: ["पूर्ण गोल वलय", "विभक्त वलय प्रकार का दिक्परिवर्तक (Split-ring Commutator)", "कोई वलय नहीं होता", "प्लास्टिक वलय"], a: 1 },
+            { q: "AC जनरेटर में कुंडली से धारा को बाहरी परिपथ में ले जाने के लिए किस प्रकार के वलयों का उपयोग किया जाता है?", o: ["विभक्त वलय", "सर्पी वलय (Slip Rings - पूर्ण गोल छल्ले)", "कोई वलय नहीं", "तांबे के सीधे तार"], a: 1 },
+            { q: "एक गतिमान चुंबकीय क्षेत्र के कारण कुंडली में उत्पन्न होने वाले विभवांतर को क्या कहते हैं?", o: ["विद्युत वाहक बल", "प्रेरित विभवांतर (Induced Potential)", "तापीय विभव", "ओम विभव"], a: 1 },
+            { q: "गैल्वेनोमीटर (Galvanometer) सुई का शून्य चिह्न पैमाने पर कहाँ स्थित होता है जिससे दोनों ओर का विक्षेप पता चल सके?", o: ["बाईं ओर", "दाईं ओर", "ठीक मध्य में (At the center)", "पैमाने पर नहीं होता"], a: 2 },
+            { q: "यदि किसी कुंडली के पास एक चुंबक को स्थिर (रोका) रखा जाए, तो गैल्वेनोमीटर में कितना विक्षेप दिखाई देगा?", o: ["अत्यधिक विक्षेप", "शून्य विक्षेप (No deflection - क्योंकि चुंबकीय क्षेत्र बदल नहीं रहा है)", "लगातार बदलता विक्षेप", "सुई टूट जाएगी"], a: 1 },
+            { q: "जब किसी प्राथमिक कुंडली में धारा के मान को बदला जाता है, तो पास रखी द्वितीयक कुंडली में धारा प्रेरित होने की घटना क्या कहलाती है?", o: ["स्व-प्रेरण", "अन्योन्य प्रेरण (Mutual Induction)", "भर्जन", "अपघटन"], a: 1 },
+            { q: "फ्लेमिंग के दक्षिणहस्त नियम में अंगूठा किसकी दिशा में रखा जाता है?", o: ["चुंबकीय क्षेत्र", "चालक की गति की दिशा (Direction of motion of conductor)", "प्रेरित धारा", "शक्ति"], a: 1 },
+            { q: "चिकित्सा विज्ञान में मानव शरीर के आंतरिक अंगों का चित्र लेने के लिए प्रयुक्त तकनीक 'MRI' का पूरा नाम क्या है?", o: ["मेटल रेजोनेंस इमेजिंग", "मैग्नेटिक रेजोनेंस इमेजिंग (Magnetic Resonance Imaging)", "मेडिकल रिसर्च इंडेक्स", "मस्कुलर रिकवरी टेस्ट"], a: 1 },
+            { q: "मानव शरीर के वे दो मुख्य अंग कौन से हैं जिनमें दुर्बल चुंबकीय क्षेत्र प्राकृतिक रूप से उत्पन्न होता है और महत्वपूर्ण है?", o: ["हाथ और पैर", "हृदय और मस्तिष्क (Heart and Brain)", "फेफड़े और वृक्क", "आँख और कान"], a: 1 },
+            { q: "क्या कोई स्थायी चुंबक समय के साथ अपना चुंबकत्व पूरी तरह खो सकता है?", o: ["नहीं, कभी नहीं", "हाँ, अत्यधिक गर्म करने पर, पीटने पर या ऊंचाई से गिराने पर", "केवल पानी में डालने पर", "कह नहीं सकते"], a: 1 },
+            { q: "घरेलू परिपथ में प्रयुक्त फ्यूज तार को यदि बहुत मोटा और तांबे का बना दिया जाए, तो क्या होगा?", o: ["परिपथ बहुत सुरक्षित हो जाएगा", "शॉर्ट सर्किट होने पर भी वह नहीं पिघलेगा जिससे उपकरण जल जाएंगे और सुरक्षा समाप्त हो जाएगी", "बिजली बिल कम आएगा", "कोई प्रभाव नहीं पड़ेगा"], a: 1 },
+            { q: "घरेलू वायरिंग में सभी लाइटें और सॉकेट समांतर क्रम में जुड़े होते हैं। यदि मुख्य स्विच बंद कर दिया जाए, तो क्या होगा?", o: ["केवल पंखे बंद होंगे", "पूरे घर की बिजली एक साथ बंद हो जाएगी (क्योंकि मुख्य स्विच श्रेणीक्रम में होता है)", "शॉर्ट सर्किट हो जाएगा", "कोई प्रभाव नहीं पड़ेगा"], a: 1 },
+            { q: "यदि एक सीधे तार में धारा पूर्व से पश्चिम की ओर बह रही है, तो उसके ठीक नीचे चुंबकीय क्षेत्र की दिशा क्या होगी?", o: ["उत्तर से दक्षिण", "दक्षिण से उत्तर", "पूर्व से पश्चिम", "पश्चिम से पूर्व"], a: 1 },
+            { q: "चुंबकीय क्षेत्र रेखाओं की ज्यामिति छड़ चुंबक के दोनों ध्रुवों पर कैसी दिखाई देती है?", o: ["खुले लूप", "ध्रुवों से निकलती और समाती हुई वक्राकार बंद लूप (Closed continuous loops)", "समानांतर सीधी रेखाएं", "त्रिभुजाकार"], a: 1 },
+            { q: "लघुपथन (Short Circuit) के समय आग लगने का मुख्य कारण क्या होता है?", o: ["तारों का ठंडा होना", "अत्यधिक उच्च धारा के कारण उत्पन्न जूल ऊष्मा (I²Rt) से तारों का पिघलना और सुलगना", "ऑक्सीजन का बढ़ना", "पानी का सूखना"], a: 1 },
+            { q: "परिनालिका (Solenoid) के दोनों सिरों की ध्रुवीयता (North/South) को कैसे बदला जा सकता है?", o: ["परिनालिका को पलटकर", "उसमें प्रवाहित होने वाली विद्युत धारा की दिशा को उलटकर (By reversing current direction)", "फेरे बढ़ाकर", "लोहा निकालकर"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा उपकरण चुंबकीय क्षेत्र की उपस्थिति जांचने के लिए सबसे सरल है?", o: ["थर्मामीटर", "दिक्-सूची सुई या चुंबकीय सुई (Magnetic Compass)", "ऐमीटर", "वोल्टमीटर"], a: 1 },
+            { q: "क्या चुंबकीय क्षेत्र रेखाएं एक-दूसरे को कभी काट सकती हैं?", o: ["हाँ, विशेष परिस्थितियों में", "नहीं, कभी नहीं (Never)", "केवल ध्रुवों पर", "कह नहीं सकते"], a: 1 },
+            { q: "एक समान चुंबकीय क्षेत्र (Uniform Magnetic Field) को रेखाओं द्वारा कैसे प्रदर्शित किया जाता है?", o: ["आड़े-तिरछे वक्रों द्वारा", "परस्पर समानांतर और समान दूरी पर स्थित सीधी रेखाओं द्वारा (Parallel straight lines)", "सकेंद्री वृत्तों द्वारा", "बिंदुओं द्वारा"], a: 1 },
+            { q: "विद्युत जनरेटर या डायनेमो यांत्रिक ऊर्जा को किस ऊर्जा में बदलता है?", o: ["तापीय ऊर्जा", "विद्युत ऊर्जा (Electric Energy)", "प्रकाश ऊर्जा", "रासायनिक ऊर्जा"], a: 1 },
+            { q: "विद्युत मोटर यांत्रिक कार्य करने के लिए किस ऊर्जा का उपभोग करती है?", o: ["सौर ऊर्जा", "विद्युत ऊर्जा (Electric Energy)", "पवन ऊर्जा", "परमाणु ऊर्जा"], a: 1 },
+            { q: "घरेलू परिपथ में 'शून्य वर्ग' या उदासीन तार का विभव (Potential) मानक रूप से कितना माना जाता है?", o: ["220 वोल्ट", "110 वोल्ट", "0 वोल्ट (0 V)", "अनंत"], a: 2 },
+            { q: "विद्युत फ्यूज का सिद्धांत धारा के किस प्रभाव पर पूरी तरह आधारित है?", o: ["चुंबकीय प्रभाव", "तापीय प्रभाव (Heating Effect of Current)", "रासायनिक प्रभाव", "प्रेरण प्रभाव"], a: 1 },
+            { q: "विद्युत मोटर का सिद्धांत धारा के किस प्रभाव पर आधारित है?", o: ["धारा के चुंबकीय प्रभाव के कारण चुंबकीय क्षेत्र में चालक पर लगने वाले बल पर", "तापीय प्रभाव पर", "रासायनिक प्रभाव पर", "प्रेरण पर"], a: 0 },
+            { q: "यदि किसी कुंडली के अंदर एक शक्तिशाली छड़ चुंबक को बहुत तेजी से अंदर-बाहर किया जाए, तो प्रेरित धारा का मान:", o: ["शून्य होगा", "तेजी से बढ़ेगा और गैल्वेनोमीटर की सुई दोनों ओर तेजी से हिलेगी", "स्थिर रहेगा", "घटेगा"], a: 1 },
+            { q: "चुंबकीय ध्रुव (Magnetic Poles) हमेशा किस रूप में पाए जाते हैं, प्रकृति में इनका एकल अस्तित्व असंभव है?", o: ["अकेले (Monopole)", "हमेशा जोड़े में (North और South ध्रुव साथ-साथ - Dipole)", "तीन के समूह में", "शून्य रूप में"], a: 1 },
+            { q: "किसी चुंबक के समान ध्रुवों (जैसे North और North) के बीच आपस में क्या होता है?", o: ["आकर्षण", "प्रतिकर्षण (Repulsion)", "कोई क्रिया नहीं", "विस्फोट"], a: 1 },
+            { q: "किसी चुंबक के असमान ध्रुवों (जैसे North और South) के बीच आपस में क्या प्रतिक्रिया होती है?", o: ["प्रतिकर्षण", "आकर्षण (Attraction)", "उदासीनीकरण", "कुछ नहीं"], a: 1     },
+            { q: "यदि एक सीधे तार में धारा दक्षिण से उत्तर की ओर जा रही है, तो उसके ऊपर चुंबकीय क्षेत्र की दिशा क्या होगी?", o: ["उत्तर से दक्षिण", "पूर्व से पश्चिम", "पश्चिम से पूर्व", "दक्षिण से उत्तर"], a: 1 },
+            { q: "मैक्सवेल का दक्षिणावर्त पेंच नियम (Screw Rule) स्क्रू को आगे बढ़ाने की दिशा को किसकी दिशा मानता है?", o: ["चुंबकीय क्षेत्र", "विद्युत धारा की दिशा (Direction of Current)", "बल की दिशा", "शक्ति"], a: 1 },
+            { q: "नरम लोहे की क्रोड पर लिपटी आर्मेचर कुंडली और चुंबकीय क्षेत्र के संयोजन को व्यावसायिक रूप से क्या कहते हैं?", o: ["परिनालिका", "विद्युत मोटर का आर्मेचर/इंजन तंत्र", "दिक्परिवर्तक", "फ्यूज"], a: 1 },
+            { q: "विद्युत परिपथों में प्रयुक्त होने वाली सुरक्षा युक्ति 'फ्यूज' किस मिश्रधातु की बनी होती है जिसका गलनांक कम होता है?", o: ["नाइक्रोम", "सीसा और टिन की मिश्रधातु (Lead-Tin Alloy)", "पीतल", "स्टेनलेस स्टील"], a: 1 },
+            { q: "अतिभारण (Overloading) तब होता है जब परिपथ में कुल उपकरणों की शक्ति:", o: ["शून्य हो", "स्वीकृत सीमा या घरेलू क्षमता से बहुत अधिक हो जाती है", "कम हो जाती है", "स्थिर रहती है"], a: 1 },
+            { q: "घरेलू परिपथों में बिजली के झटके से बचने के लिए अर्थिंग (भू-संपर्क) का तार मुख्य रूप से किससे जोड़ा जाता है?", o: ["उपकरण के धात्विक आवरण या बॉडी से (Metallic body)", "लाइव तार से", "उदासीन तार से", "काँच की सतह से"], a: 0 },
+            { q: "प्रेरित धारा का मान अधिकतम कब होता है जब कुंडली की गति की दिशा चुंबकीय क्षेत्र के कैसी हो?", o: ["समानांतर हो", "परस्पर लम्बवत् (90° या Perpendicular) हो", "180° पर हो", "शून्य हो"], a: 1 },
+            { q: "दिष्ट धारा (DC) जनरेटर में किस प्रकार के छल्ले (Rings) होते हैं जो धारा को एक ही दिशा में रखते हैं?", o: ["पूर्ण छल्ले", "कम्यूटेटर या विभक्त वलय (Split Rings)", "कोई छल्ले नहीं", "प्लास्टिक छल्ले"], a: 1 },
+            { q: "AC धारा का मुख्य स्रोत निम्नलिखित में से कौन सा बड़ा यंत्र है?", o: ["सूखा सेल", "पावर स्टेशनों के बड़े अल्टरनेटर या AC जनरेटर", "बैटरी", "सौर प्लेट"], a: 1 },
+            { q: "चुंबकीय सुई का उत्तरी ध्रुव हमेशा पृथ्वी के किस भौगोलिक ध्रुव की ओर संकेत करता है?", o: ["भौगोलिक दक्षिणी ध्रुव", "भौगोलिक उत्तरी ध्रुव (Geographical North - लगभग)", "पूर्व", "पश्चिम"], a: 1 },
+            { q: "क्या चुंबकीय क्षेत्र रेखाएं वास्तविक रेखाएं होती हैं या केवल एक गणितीय कल्पना हैं?", o: ["वास्तविक लोहे की तारें हैं", "काल्पनिक रेखाएं हैं जो चुंबकीय क्षेत्र के विजुअल रूप को प्रदर्शित करती हैं (Imaginary Lines)", "गैसीय रेखाएं हैं", "दिखाई देने वाली प्रकाश किरणें हैं"], a: 1 },
+            { q: "फ्लेमिंग के नियमों का मुख्य उद्देश्य तंत्रिका तंत्र की तरह विद्युत, चुंबक और बल के बीच कितने घटकों का आपसी संबंध स्थापित करना है?", o: ["दो", "तीन परस्पर लम्बवत् घटक (Three perpendicular vectors)", "चार", "पांच"], a: 1     },
+            { q: "घरेलू परिपथ में प्रयुक्त विद्युत फ्यूज का तार अत्यधिक धारा बहने पर क्या होता है जिससे आग नहीं लगती?", o: ["वह ठंडा हो जाता है", "वह तुरंत गर्म होकर पिघल जाता है और परिपथ को तोड़ देता है (Melts and breaks circuit)", "वह मजबूत हो जाता है", "वह चमकने लगता है"], a: 1 },
+            { q: "यदि किसी सीधे लंबे तार में धारा का मान लगातार बढ़ाया जाए, तो उसके पास के चुंबकीय क्षेत्र की तीव्रता:", o: ["घटेगी", "धारा के अनुपात में बढ़ेगी (Increases with current)", "शून्य होगी", "समान रहेगी"], a: 1 },
+            { q: "विद्युत धारा के चुंबकीय प्रभाव (Magnetic Effects of Current) के इस संपूर्ण पाठ्यक्रम का अंतिम वैज्ञानिक व तार्किक निष्कर्ष क्या है?", o: ["विद्युत और चुंबकत्व दो बिल्कुल अलग और स्वतंत्र बल हैं जिनका कोई संबंध नहीं है", "विद्युत धारा से चुंबकीय क्षेत्र का निर्माण (ऑर्स्टेड का नियम) तथा बदलते चुंबकीय क्षेत्र से प्रेरित विद्युत धारा का उत्पादन (फैराडे का नियम) ही आधुनिक विद्युत-यांत्रिक प्रणालियों, मोटरों और जनरेटरों का मूल वैज्ञानिक आधार है", "चुंबकीय क्षेत्र रेखाएं हमेशा एक दूसरे को काटती हैं", "घरेलू परिपथ में अर्थिंग तार का कोई महत्व नहीं होता है"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #f3e8ff; color: #6d28d9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">विद्युत धारा के चुंबकीय प्रभाव</h1>
+                    <p style="color: #475569; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (भौतिक विज्ञान)</p>
+                    <p style="color: #64748b; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">परिनालिका, फ्लेमिंग के नियम, विद्युत मोटर-जनरेटर और घरेलू परिपथ सुरक्षा पर आधारित 100 प्रामाणिक चुनिंदा प्रश्नों का अंतिम संकलन। अभ्यास शुरू करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #6d28d9; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #475569; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1e1b4b;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1e1b4b;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #c084fc;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #6d28d9;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! चुंबकीय प्रभाव अध्याय पर आपका शत-प्रतिशत नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! नियमों और मोटर-जनरेटर के सिद्धांतों पर आपकी समझ मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! नियमों को और पुख्ता करने के लिए एक बार पुनः रिवीजन करें।"; emoji = "👍"; }
+            else { message = "घबराएं नहीं! फ्लेमिंग के नियमों को दोबारा समझें और फिर प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #a78bfa;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #a78bfa; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #475569; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

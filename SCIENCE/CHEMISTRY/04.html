@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>रसायन विज्ञान क्विज़ - कार्बन एवं उसके यौगिक</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f3ff;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #8b5cf6;
+            background-color: #f5f3ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #a78bfa, #8b5cf6); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #8b5cf6, #6d28d9); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "कार्बन की परमाणु संख्या (Atomic Number) कितनी होती है?", o: ["4", "6", "8", "12"], a: 1 },
+            { q: "कार्बन के बाहरी कोश (Valence Shell) में कुल कितने इलेक्ट्रॉन होते हैं?", o: ["2", "4", "6", "8"], a: 1 },
+            { q: "कार्बन अन्य परमाणुओं के साथ किस प्रकार का रासायनिक बंध बनाता है?", o: ["आयनिक बंध", "सहसंयोजक बंध (Covalent Bond)", "उप-सहसंयोजक बंध", "धात्विक बंध"], a: 1 },
+            { q: "कार्बन की संयोजकता (Valency) कितनी होती है, जिसके कारण इसे 'चतुःसंयोजक' कहा जाता है?", o: ["2", "3", "4", "5"], a: 2 },
+            { q: "कार्बन परमाणुओं के बीच आपस में जुड़कर लंबी श्रृंखला बनाने के अनूठे गुण को क्या कहते हैं?", o: ["समावयवता", "श्रृंखलन (Catenation)", "अपररूपता", "बहुलीकरण"], a: 1 },
+            { q: "प्रकृति में पाया जाने वाला सबसे कठोर शुद्ध कार्बन का अपररूप (Allotrope) कौन सा है?", o: ["ग्रेफाइट", "फुलरीन", "हीरा (Diamond)", "कोयला"], a: 2 },
+            { q: "कार्बन का कौन सा अपररूप विद्युत का सुचालक (Good Conductor of Electricity) होता है?", o: ["हीरा", "ग्रेफाइट (Graphite)", "कोयला", "काजल"], a: 1 },
+            { q: "C₆₀ के रूप में पहचाने जाने वाले फुटबॉल के आकार के कार्बन अपररूप का नाम क्या है?", o: ["ग्रेफाइट", "बकमिंस्टर फुलरीन (Fullerene)", "हीरा", "ग्राफीन"], a: 1 },
+            { q: "केवल कार्बन और हाइड्रोजन से बने यौगिकों को क्या कहा जाता है?", o: ["अल्कोहल", "हाइड्रोकार्बन (Hydrocarbons)", "एल्डिहाइड", "कीटोन"], a: 1 },
+            { q: "वैसे हाइड्रोकार्बन जिनमें कार्बन परमाणुओं के बीच केवल एकल बंध (Single Bond) होता है, क्या कहलाते हैं?", o: ["संतृप्त हाइड्रोकार्बन (Saturated)", "असंतृप्त हाइड्रोकार्बन", "एल्कीन", "एल्काइन"], a: 0 },
+            { q: "द्वि-बंध (Double Bond) या त्रि-बंध (Triple Bond) वाले हाइड्रोकार्बन किस श्रेणी में आते हैं?", o: ["संतृप्त हाइड्रोकार्बन", "असंतृप्त हाइड्रोकार्बन (Unsaturated)", "एल्केन", "पैराफिन"], a: 1 },
+            { q: "एल्केन (Alkane) श्रेणी का सामान्य रासायनिक सूत्र निम्नलिखित में से कौन सा है?", o: ["CnH2n", "CnH2n+2", "CnH2n-2", "CnHn"], a: 1 },
+            { q: "एल्कीन (Alkene) श्रेणी के यौगिकों का सामान्य रासायनिक सूत्र क्या होता है?", o: ["CnH2n+2", "CnH2n", "CnH2n-2", "CnH2n+1"], a: 1 },
+            { q: "एल्काइन (Alkyne) श्रेणी के असंतृप्त हाइड्रोकार्बन का सामान्य सूत्र क्या है?", o: ["CnH2n", "CnH2n+2", "CnH2n-2", "CnH2n-1"], a: 2 },
+            { q: "सबसे सरलतम हाइड्रोकार्बन और एल्केन श्रेणी का प्रथम सदस्य कौन सा है?", o: ["एथेन", "मीथेन (CH₄)", "प्रोपेन", "ब्यूटेन"], a: 1 },
+            { q: "एल्कीन श्रेणी का प्रथम सदस्य कौन सा हाइड्रोकार्बन है?", o: ["मीथीन", "एथीन (C₂H₄)", "प्रोपीन", "ब्यूटीन"], a: 1 },
+            { q: "एल्काइन श्रेणी का सबसे सरलतम और पहला सदस्य कौन सा है जिसे एथाइन भी कहते हैं?", o: ["एसीटिलीन (C₂H₂)", "मीथाइन", "प्रोपाइन", "ब्यूटाइन"], a: 0 },
+            { q: "घरेलू गैस सिलेंडरों (LPG) का मुख्य घटक कौन सा हाइड्रोकार्बन होता है?", o: ["मीथेन", "एथेन", "ब्यूटेन (Butane)", "हेक्सेन"], a: 2 },
+            { q: "बायोगैस (Biogas) और सीएनजी (CNG) का मुख्य रूप से प्रमुख घटक कौन सा है?", o: ["मीथेन (Methane)", "ब्यूटेन", "प्रोपेन", "एथीन"], a: 0 },
+            { q: "समान आणविक सूत्र लेकिन भिन्न संरचनात्मक सूत्रों वाले यौगिकों को क्या कहा जाता है?", o: ["समस्थानिक", "समावयवी (Isomers)", "अपररूप", "समजात"], a: 1 },
+            { q: "ब्यूटेन (C₄H₁₀) के कुल कितने संरचनात्मक समावयवी (Structural Isomers) संभव हैं?", o: ["2 (n-ब्यूटेन और आइसो-ब्यूटेन)", "3", "4", "5"], a: 0 },
+            { q: "पेन्टेन (C₅H₁₂) के कुल कितने संरचनात्मक समावयवी पाए जाते हैं?", o: ["2", "3 (Normal, Iso, Neo)", "4", "5"], a: 1 },
+            { q: "बेंजीन (Benzene) का सही आणविक सूत्र और उसकी संरचनात्मक प्रकृति कैसी होती है?", o: ["C₆H₁₂, रेखीय", "C₆H₆, वलयाकार (Aromatic Ring)", "C₆H₁₀, शाखित", "C₅H₅, वलय"], a: 1 },
+            { q: "बेंजीन की वलयाकार संरचना में कितने एकल बंध और कितने द्वि-बंध एकांतर क्रम में होते हैं?", o: ["6 एकल और 6 द्वि-बंध", "9 एकल और 3 द्वि-बंध", "3 एकल और 3 द्वि-बंध", "12 एकल और 2 द्वि-बंध"], a: 1 },
+            { q: "यौगिकों की ऐसी श्रृंखला जिसमें समान प्रकार्यात्मक समूह होता है और दो निकटवर्ती सदस्यों में -CH₂- का अंतर होता है?", o: ["समस्थानिक श्रेणी", "समजात श्रेणी (Homologous Series)", "समावयवी श्रेणी", "अपररूप श्रेणी"], a: 1 },
+            { q: "समजात श्रेणी के दो क्रमागत सदस्यों के आणविक द्रव्यमान में कितने इकाई (u) का अंतर होता है?", o: ["12 u", "14 u", "16 u", "2 u"], a: 1 },
+            { q: "हाइड्रोकार्बन श्रृंखला में हाइड्रोजन को प्रतिस्थापित करने वाले तत्वों (जैसे Cl, Br, O, N) को क्या कहते हैं?", o: ["समजात तत्व", "विषम परमाणु (Heteroatoms)", "समावयवी", "उत्प्रेरक"], a: 1 },
+            { o: ["एल्डिहाइड", "अल्कोहल (-OH)", "कीटोन", "कार्बोक्सिलिक अम्ल"], q: "अल्कोहल प्रकार्यात्मक समूह का सही संकेत/संरचना क्या है?", a: 1 },
+            { q: "एल्डिहाइड प्रकार्यात्मक समूह का सही रासायनिक निरूपण कौन सा है?", o: ["-OH", "-CHO", "-CO-", "-COOH"], a: 1 },
+            { q: "कीटोन (Ketone) प्रकार्यात्मक समूह की सही पहचान क्या है?", o: ["-CHO", "-COOH", "-CO- (या >C=O)", "-OH"], a: 2 },
+            { q: "कार्बोक्सिलिक अम्ल प्रकार्यात्मक समूह का सही रासायनिक सूत्र क्या है?", o: ["-CHO", "-COOH", "-OH", "-O-"], a: 1 },
+            { q: "प्रोपेनोन (Propanone) का प्रकार्यात्मक समूह कौन सा है और यह किस श्रेणी का है?", o: ["अल्कोहल", "एल्डिहाइड", "कीटोन", "एस्टर"], a: 2 },
+            { q: "एथेनॉइक अम्ल (Ethanoic Acid) का सामान्य या वाणिज्यिक नाम क्या है?", o: ["फॉर्मिक अम्ल", "एसिटिक अम्ल (Acetic Acid)", "साइट्रिक अम्ल", "लैक्टिक अम्ल"], a: 1 },
+            { q: "3-4% एसिटिक अम्ल के जलीय विलयन को आमतौर पर किस नाम से जाना जाता है?", o: ["परिशुद्ध अल्कोहल", "सिरका (Vinegar)", "एस्टर", "टार्च"], a: 1 },
+            { q: "शुद्ध एथेनॉइक अम्ल का गलनांक 290 K होता है, ठंड में जम जाने के कारण इसे क्या कहा जाता है?", o: ["बर्फ़ीला अम्ल", "ग्लेशियर एसिटिक अम्ल (Glacial Acetic Acid)", "ठोस सिरका", "सिट्रिक रस"], a: 1 },
+            { q: "एथेनॉल (C₂H₅OH) का सामान्य प्रचलित नाम क्या है जिसका उपयोग पेय पदार्थों में होता है?", o: ["मेथिल अल्कोहल", "एथिल अल्कोहल (Ethyl Alcohol)", "एसिटिक लिक्विड", "फॉर्मेलिन"], a: 1 },
+            { q: "100% शुद्ध एथेनॉल को तकनीकी रूप से क्या कहा जाता है?", o: ["परिशुद्ध अल्कोहल (Absolute Alcohol)", "विकृत अल्कोहल", "रेक्टिफाइड स्पिरिट", "पावर अल्कोहल"], a: 0 },
+            { q: "औद्योगिक उपयोग के एथेनॉल का दुरुपयोग रोकने के लिए उसमें मेथेनॉल या रंग मिला देने पर उसे क्या कहते हैं?", o: ["शुद्ध अल्कोहल", "विकृत अल्कोहल (Denatured Alcohol)", "सॉफ्ट ड्रिंक", "टिंचर आयोडीन"], a: 1 },
+            { q: "अम्ल और अल्कोहल की आपसी क्रिया से मीठी गंध वाले यौगिक बनने की प्रक्रिया को क्या कहते हैं?", o: ["साबुनीकरण", "एस्टरीकरण (Esterification)", "बहुलीकरण", "हाइड्रोजनीकरण"], a: 1 },
+            { q: "एस्टर की क्रिया सोडियम हाइड्रॉक्साइड (NaOH) से कराने पर पुनः अल्कोहल और कार्बोक्सिलिक अम्ल का लवण बनना क्या कहलाता है?", o: ["एस्टरीकरण", "साबुनीकरण (Saponification)", "तनुकरण", "उदासीनीकरण"], a: 1 },
+            { q: "साबुन (Soap) रासायनिक रूप से क्या होते हैं?", o: ["उच्च वसा अम्लों के सोडियम या पोटेशियम लवण", "सल्फोनिक अम्लों के लवण", "अल्कोहल के मिश्रण", "ग्लिसरॉल के एस्टर"], a: 0 },
+            { q: "अपमार्जक (Detergents) आमतौर पर रासायनिक रूप से क्या होते हैं?", o: ["वसा अम्लों के सोडियम लवण", "लम्बी श्रृंखला वाले कार्बोक्सिलिक अम्लों के अमोनियम या सल्फोनिट लवण", "एस्टर के मिश्रण", "हाइड्रोकार्बन"], a: 1 },
+            { q: "साबुन कठोर जल (Hard Water) में झाग क्यों नहीं देता है?", o: ["कठोर जल में साबुन घुलता नहीं है", "यह कठोर जल के कैल्शियम और मैग्नीशियम आयनों के साथ अघुलनशील अवक्षेप (Scum) बनाता है", "कठोर जल अम्लीय होता है", "साबुन निष्क्रिय हो जाता है"], a: 1 },
+            { q: "कठोर जल में भी आसानी से झाग बनाने और सफाई करने वाले पदार्थ को क्या कहते हैं?", o: ["साधारण साबुन", "अपमार्जक (Detergent)", "वनस्पति तेल", "ग्लिसरीन"], a: 1 },
+            { q: "साबुन के अणु में जल को आकर्षित करने वाले भाग को क्या कहते हैं?", o: ["जलविरागी (Hydrophobic)", "जलरागी (Hydrophilic - आयनिक भाग)", "पूंछ", "अध्रुवीय भाग"], a: 1 },
+            { q: "साबुन के अणु का हाइड्रोकार्बन वाला भाग जो जल से दूर भागता है और तेल से जुड़ता है, क्या कहलाता है?", o: ["जलरागी", "जलविरागी (Hydrophobic)", "शीर्ष", "आयनिक सिरा"], a: 1 },
+            { q: "कपड़े धोने के दौरान गंदगी या तेल की बूंद को घेरकर साबुन के अणुओं द्वारा बनाई गई गोलाकार संरचना को क्या कहते हैं?", o: ["एस्टर", "मिशेल (Micelle)", "धातुमल", "अवक्षेप"], a: 1 },
+            { q: "वनस्पति तेलों (असंतृप्त वसा) को निकेल उत्प्रेरक की उपस्थिति में हाइड्रोजन जोड़कर संतृप्त वसा (घी) में बदलना क्या कहलाता है?", o: ["प्रतिस्थापन अभिक्रिया", "हाइड्रोजनीकरण (Hydrogenation)", "ऑक्सीकरण", "कमी"], a: 1 },
+            { q: "मीथेन का सूर्य के प्रकाश की उपस्थिति में क्लोरीन के साथ क्रिया करके क्लोरोमीथेन बनाना किस प्रकार की अभिक्रिया है?", o: ["योगज अभिक्रिया", "प्रतिस्थापन अभिक्रिया (Substitution)", "ऑक्सीकरण", "वियोजन"], a: 1 },
+            { q: "एथेनॉल को क्षारीय पोटेशियम परमैंगनेट (KMnO₃) के साथ गर्म करने पर वह एथेनॉइक अम्ल में बदल जाता है, यह कैसी अभिक्रिया है?", o: ["अपचयन", "ऑक्सीकरण (Oxidation)", "प्रतिस्थापन", "हाइड्रोजनीकरण"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा यौगिक ग्लैसिअल एसिटिक अम्ल के नाम से भी जाना जाता है?", o: ["मेथेनॉइक अम्ल", "एथेनॉइक अम्ल", "प्रोपेनॉइक अम्ल", "ब्यूटेनॉइक अम्ल"], a: 1 },
+            { q: "असंतृप्त हाइड्रोकार्बन वायु में जलने पर कैसी ज्वाला उत्पन्न करते हैं?", o: ["स्वच्छ नीली ज्वाला", "काले धुएँ वाली पीली ज्वाला (Sooty Flame)", "हरी ज्वाला", "बिना धुएँ की सफेद ज्वाला"], a: 1 },
+            { q: "संतृप्त हाइड्रोकार्बन (जैसे मीथेन) स्वच्छ वायु में जलने पर सामान्यतः कैसी ज्वाला देते हैं?", o: ["काले धुएँ वाली", "नीली और स्वच्छ ज्वाला", "चमकदार लाल ज्वाला", "पीली ज्वाला"], a: 1 },
+            { q: "वे पदार्थ जो स्वयं बदले बिना रासायनिक अभिक्रिया की दर को बढ़ा देते हैं, क्या कहलाते हैं?", o: ["अभिकारक", "उत्पाद", "उत्प्रेरक (Catalysts)", "समावयवी"], a: 2 },
+            { q: "वनस्पति तेल सेहत के लिए अच्छे होते हैं क्योंकि उनमें होते हैं:", o: ["संतृप्त वसा अम्ल", "असंतृप्त वसा अम्ल (Unsaturated Fatty Acids)", "विषाक्त पदार्थ", "खनिज लवण"], a: 1 },
+            { q: "डालडा या वनस्पति घी स्वास्थ्य के लिए हानिकारक माने जाते हैं क्योंकि उनमें प्रचुर मात्रा में होता है:", o: ["असंतृप्त वसा अम्ल", "संतृप्त वसा अम्ल (Saturated Fatty Acids)", "विटामिन", "पानी"], a: 1 },
+            { q: "एथेनॉल का रासायनिक सूत्र क्या है?", o: ["CH₃OH", "C₂H₅OH", "C₃H₇OH", "CH₃COOH"], a: 1 },
+            { q: "मेथेनॉल की कम मात्रा का सेवन भी अत्यंत घातक या अंधापन पैदा कर सकता है क्योंकि यह यकृत में ऑक्सीकृत होकर क्या बनाता है?", o: ["मेथेनैल (Formaldehyde)", "एथेनॉल", "एसिटिक अम्ल", "फॉर्मिक लवण"], a: 0 },
+            { q: "टिंचर आयोडीन, कफ सिरप और टॉनिक आदि औषधियों में विलायक के रूप में किसका व्यापक उपयोग होता है?", o: ["मेथेनॉल", "एथेनॉल (Ethanol)", "एथेनॉइक अम्ल", "एसीटोन"], a: 1 },
+            { q: "जब एथेनॉल की क्रिया तीव्र सांद्र सल्फ्यूरिक अम्ल (H₂SO₄) के साथ 443 K पर की जाती है, तो क्या बनता है?", o: ["एथेन", "एथीन (Ethene) और जल", "एथाइन", "डाइएथिल ईथर"], a: 1 },
+            { q: "एथेनॉल से जल को बाहर निकालने के लिए सांद्र H₂SO₄ किस रूप में कार्य करता है?", o: ["उत्प्रेरक", "निर्जलीकारक (Dehydrating Agent)", "ऑक्सीकारक", "अपचायक"], a: 1 },
+            { q: "जब एथेनॉल सोडियम धातु के साथ अभिक्रिया करता है, तो कौन सी गैस निकलती है और सोडियम एथॉक्साइड बनता है?", o: ["O₂", "CO₂", "H₂", "N₂"], a: 2 },
+            { q: "एथेनॉइक अम्ल सोडियम कार्बोनेट या सोडियम बाइकार्बोनेट से क्रिया करके तीव्र बुदबुदाहट के साथ कौन सी गैस छोड़ता है?", o: ["H₂", "O₂", "CO₂", "CO"], a: 2 },
+            { q: "एल्केन श्रृंखला के तीसरे सदस्य का नाम क्या है?", o: ["एथेन", "प्रोपेन (C₃H₈)", "ब्यूटेन", "पेन्टेन"], a: 1 },
+            { q: "एल्कीन श्रृंखला के तीसरे सदस्य का नाम क्या है?", o: ["एथीन", "प्रोपीन", "ब्यूटीन (C₄H₈)", "पेन्टीन"], a: 2 },
+            { q: "एसीटिलीन (एथाइन) में दो कार्बन परमाणुओं के बीच कितने सहसंयोजक बंध होते हैं?", o: ["एकल बंध", "द्वि-बंध", "त्रि-बंध (Triple Bond)", "चार बंध"], a: 2 },
+            { q: "एथीन (C₂H₄) में कुल कितने एकल सहसंयोजक बंध और कितने द्वि-बंध होते हैं?", o: ["4 एकल और 1 द्वि-बंध", "2 एकल और 2 द्वि-बंध", "6 एकल", "5 एकल"], a: 0 },
+            { q: "मीथेन (CH₄) अणु की ज्यामितीय संरचना कैसी होती है?", o: ["रेखीय", "त्रिकोणीय", "चतुष्फलकीय (Tetrahedral)", "वलयाकार"], a: 2 },
+            { q: "सहसंयोजक यौगिकों के गलनांक और क्वथनांक आयनिक यौगिकों की तुलना में कैसे होते हैं?", o: ["बहुत उच्च", "कम (Low)", "बराबर", "अनंत"], a: 1 },
+            { q: "सहसंयोजक यौगिक सामान्यतः विद्युत के क्या होते हैं?", o: ["सुचालक", "कुचालक (Poor Conductors)", "अर्धचालक", "अतिचालक"], a: 1 },
+            { q: "क्लोरोफॉर्म का सही रासायनिक सूत्र और नाम क्या है?", o: ["CH₃Cl, क्लोरोमीथेन", "CHCl₃, ट्राइक्लोरोमीथेन", "CH₂Cl₂, डाइक्लोरोमीथेन", "CCl₄"], a: 1 },
+            { q: "हीरे की संरचना में प्रत्येक कार्बन परमाणु कितने अन्य कार्बन परमाणुओं से बंधा होता है?", o: ["2", "3", "4", "5"], a: 2 },
+            { q: "ग्रेफाइट की परतीय संरचना में प्रत्येक कार्बन कितने अन्य कार्बन परमाणुओं से जुड़ा होता है?", o: ["2", "3", "4", "6"], a: 1 },
+            { q: "IUPAC प्रणाली के अनुसार CH₃-CH₂-CH₂-OH का सही नाम क्या है?", o: ["एथेनॉल", "प्रोपेनॉल (Propanol)", "ब्यूटेनॉल", "मेथेनॉल"], a: 1 },
+            { q: "IUPAC प्रणाली के अनुसार CH₃-COOH का नाम क्या है?", o: ["मेथेनॉइक अम्ल", "एथेनॉइक अम्ल (Ethanoic Acid)", "प्रोपेनॉइक अम्ल", "एसिटिक लिक्विड"], a: 1 },
+            { q: "CH₃-CH₂-CHO का IUPAC नाम क्या होगा?", o: ["एथेनैल", "प्रोपेनैल (Propanal)", "प्रोपेनॉल", "प्रोपेनोन"], a: 1 },
+            { q: "CH₃-CO-CH₃ का शुद्ध IUPAC नाम क्या है?", o: ["प्रोपेनैल", "प्रोपेनोन (Propanone)", "एथेनॉल", "ब्यूटेनोन"], a: 1 },
+            { q: "यदि किसी हाइड्रोकार्बन में कार्बन परमाणुओं की संख्या 6 है और वह एल्केन है, तो हाइड्रोजन की संख्या क्या होगी?", o: ["12", "14 (C₆H₁₄)", "10", "6"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा एक विषम परमाणु (Heteroatom) नहीं है?", o: ["ऑक्सीजन", "नाइट्रोजन", "सल्फर", "कार्बन स्वयं"], a: 3 },
+            { q: "एथिल एथेनोएट (एस्टर) का रासायनिक सूत्र क्या है?", o: ["CH₃COOH", "CH₃COOC₂H₅", "C₂H₅OH", "CH₃COCH₃"], a: 1 },
+            { q: "साबुन बनाने की प्रक्रिया में सह-उत्पाद (By-product) के रूप में क्या प्राप्त होता है?", o: ["एथेनॉल", "ग्लिसरॉल (Glycerol)", "सोडियम क्लोराइड", "एसिटिक अम्ल"], a: 1 },
+            { q: "साबुन का मिशेल किस भाग की मदद से तैलीय गंदगी को कपड़े से खींचकर पानी में लाता है?", o: ["जलरागी सिरा", "जलविरागी हाइड्रोकार्बन पूंछ", "पूरा अणु", "सोडियम आयन"], a: 1 },
+            { q: "सफाई की प्रक्रिया में मिशेल प्रकाश को फैला देते हैं, जिससे साबुन का घोल कैसा दिखाई देता है?", o: ["पारदर्शी", "धुंधला या बादल जैसा (Colloidal Solution)", "रंगीन", "काला"], a: 1 },
+            { q: "वेल्डिंग में ऑक्सीजन के साथ किस गैस का मिश्रण जलाया जाता है क्योंकि इसका तापमान बहुत अधिक होता है?", o: ["मीथेन", "एथाइन (एसीटिलीन)", "एथेन", "ब्यूटेन"], a: 1 },
+            { q: "कोयला और पेट्रोलियम में कार्बन के साथ अल्प मात्रा में और क्या उपस्थित होता है जो प्रदूषण फैलाता है?", o: ["केवल ऑक्सीजन", "नाइट्रोजन और सल्फर", "केवल हाइड्रोजन", "लोहा"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा यौगिक काले धुएं के बिना पूरी तरह स्वच्छ नीली ज्वाला के साथ जलता है?", o: ["कपूर", "नेफ्थलीन", "एथेनॉल (LPG/Alcohol)", "लकड़ी"], a: 2 },
+            { q: "साबुन उद्योग में लवण (NaCl) क्यों मिलाया जाता है?", o: ["झाग बढ़ाने के लिए", "साबुन को तेजी से अवक्षेपित (Precipitate) करके अलग करने के लिए", "सुगंध के लिए", "रंग बदलने के लिए"], a: 1 },
+            { q: "CH₃-CH=CH₂ हाइड्रोकार्बन का सही नाम क्या है?", o: ["प्रोपेन", "प्रोपीन (Propene)", "प्रोपाइन", "एथीन"], a: 1 },
+            { q: "चक्रीय हाइड्रोकार्बन 'साइक्लोहेक्सेन' का सही रासायनिक सूत्र क्या होता है?", o: ["C₆H₆", "C₆H₁₂", "C₆H₁₄", "C₅H₁₀"], a: 1 },
+            { q: "यदि कार्बन परमाणुओं के बीच त्रि-बंध (Triple Bond) हो, तो सफिक्स (Suffix) क्या लगाया जाता है?", o: ["-एन", "-इन", "-आइन (Alkyne Suffix)", "ऑल"], a: 2 },
+            { q: "यदि प्रकार्यात्मक समूह अल्कोहल हो, तो नाम के अंत में क्या जोड़ा जाता है?", o: ["-ऑल (ol)", "-अल", "-ओन", "-ओइक अम्ल"], a: 0 },
+            { q: "एल्डिहाइड के लिए IUPAC नामकरण में कौन सा अनुलग्न (Suffix) लगाया जाता है?", o: ["-ऑल", "-अल (al)", "-ओन", "-ईक"], a: 1 },
+            { q: "कीटोन के नामकरण के अंत में कौन सा सफिक्स जोड़ा जाता है?", o: ["-अल", "-ओन (one)", "-ऑल", "-एसिड"], a: 1 },
+            { q: "कार्बोक्सिलिक अम्ल के अंत में कौन सा अनुलग्न जोड़ा जाता है?", o: ["-ओन", "-ओइक अम्ल (oic acid)", "-अल", "-ऑल"], a: 1 },
+            { q: "हाइड्रोकार्बन श्रृंखला में क्लोरीन प्रतिस्थापित होने पर प्रीफिक्स (Prefix) क्या लगाया जाता है?", o: ["क्लोरो- (Chloro-)", "ब्रोमो-", "ऑल-", "एल्डिहाइड-"], a: 0 },
+            { q: "सहसंयोजक यौगिकों के जलीय घोल में आयनों की अनुपस्थिति के कारण वे विद्युत के क्या होते हैं?", o: ["अतिचालक", "कुचालक", "सुचालक", "अर्धचालक"], a: 1 },
+            { q: "कार्बन ब्रह्मांड और पृथ्वी पर प्रचुर यौगिक बनाता है, इसका मुख्य कारण क्या है?", o: ["केवल श्रृंखलन", "केवल चतुःसंयोजकता", "श्रृंखलन और चतुःसंयोजकता दोनों गुण", "इसकी उच्च परमाणु संख्या"], a: 2 },
+            { q: "हरे पौधों द्वारा प्रकाश संश्लेषण में कार्बन का कौन सा यौगिक प्रयुक्त होता है?", o: ["CO", "CO₂ (कार्बन डाइऑक्साइड)", "CH₄", "C₆H₁₂O₆"], a: 1 },
+            { q: "एथेन (C₂H₆) के एक अणु में कुल कितने सहसंयोजक बंध (Covalent Bonds) मौजूद होते हैं?", o: ["6", "7 (6 C-H और 1 C-C बंध)", "8", "4"], a: 1 },
+            { q: "कार्बन एवं उसके यौगिकों के इस संपूर्ण अध्याय का मूल रासायनिक निष्कर्ष क्या है?", o: ["कार्बन केवल सजीवों में पाया जाता है", "कार्बन की अद्वितीय श्रृंखलन क्षमता, चतुःसंयोजकता और सहसंयोजक बंध बनाने की प्रकृति ही इसके लाखों यौगिकों के अस्तित्व का मूल आधार है", "कार्बन यौगिक हमेशा आयनिक होते हैं", "असंतृप्त हाइड्रोकार्बन संतृप्त से अधिक स्थिर होते हैं"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #ede9fe; color: #7c3aed; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">कार्बन एवं उसके यौगिक (Carbon & its Compounds)</h1>
+                    <p style="color: #4a5568; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (अध्याय 4)</p>
+                    <p style="color: #6b7280; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">पूरे 100 चुनिंदा वैचारिक प्रश्नों का महा-संग्रह। आधुनिक ग्लासमोर्फिज्म इंटरफ़ेस, लाइव प्रोग्रेस बार और नेविगेशन ग्रिड के साथ परीक्षा की तैयारी पूरी करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #8b5cf6; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Profile Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1a202c;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #2d3748;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #a78bfa;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #8b5cf6;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने कार्बनिक रसायन में 100% अंक अर्जित किए हैं।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "अद्भुत प्रदर्शन! कार्बन एवं उसके यौगिकों पर आपकी गहरी पकड़ है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! वैचारिक समझ को बेहतर करने के लिए फिर से प्रयास करें।"; emoji = "👍"; }
+            else { message = "कोई बात नहीं! एक बार अध्याय को दोहराएं और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

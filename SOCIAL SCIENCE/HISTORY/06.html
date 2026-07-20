@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>इतिहास क्विज़ - शहरीकरण एवं शहरी जीवन</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdf4;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(22, 163, 74, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #16a34a;
+            background-color: #f0fdf4;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #4ade80, #16a34a); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #16a34a, #15803d); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(22, 163, 74, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #1e293b; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #475569; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .grid-container::-webkit-scrollbar { width: 6px; }
+        .grid-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #4ade80, #16a34a); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "किसी ग्रामीण क्षेत्र का कस्बा या बड़े शहर के रूप में विकसित होने की पूरी प्रक्रिया को क्या कहते हैं?", o: ["औद्योगीकरण", "शहरीकरण (Urbanization)", "सामंतवाद", "कृषि विकास"], a: 1 },
+            { q: "शहरों के उदय का मुख्य कारण निम्नलिखित में से क्या माना जाता है?", o: ["कृषि का विनाश", "व्यापार, उद्योगों का विकास और रोजगार के नए अवसरों का सृजन (Trade & Commerce)", "केवल मनोरंजन", "बाढ़ आना"], a: 1 },
+            { q: "प्राचीन काल में नगरों (शहरों) का विकास मुख्य रूप से किन क्षेत्रों के निकट होता था?", o: ["रेगिस्तानों के पास", "नदियों की घाटियों या व्यापारिक मार्गों के किनारे (River Valleys)", "घने जंगलों में", "पहाड़ियों की चोटियों पर"], a: 1 },
+            { q: "शहरी जीवन ने किस नई सामाजिक और वैचारिक भावना को सबसे अधिक बढ़ावा दिया?", o: ["सामुदायिक भावना", "व्यक्तिवाद की भावना (Individualism)", "जातिवाद", "रूढ़िवादिता"], a: 1 },
+            { q: "आधुनिक काल में विश्व का पहला सबसे बड़ा महानगर (Metropolis) कौन सा बना जहाँ आबादी तेजी से बढ़ी?", o: ["पेरिस", "लंदन (London)", "बंबई", "न्यूयार्क"], a: 1 },
+            { q: "18वीं शताब्दी के अंत तक लंदन मुख्य रूप से किस बड़ी ऐतिहासिक घटना के कारण ग्रामीण प्रवासियों का मुख्य केंद्र बन गया?", o: ["कृषि क्रांति", "औद्योगिक क्रांति (Industrial Revolution)", "फ्रांसीसी क्रांति", "रूसी क्रांति"], a: 1 },
+            { q: "1810 से 1880 के बीच लंदन की आबादी 10 लाख से बढ़कर लगभग कितनी हो गई थी?", o: ["20 लाख", "40 लाख (4 Million)", "50 लाख", "80 लाख"], a: 1 },
+            { q: "लंदन की फैक्ट्रियों और गोदियों में काम की तलाश में आने वाले गरीब प्रवासियों के रहने के लिए बनाए गए तंग और असुरक्षित बहुमंजिला मकान क्या कहलाते थे?", o: ["बंगले", "टेनमेंट्स या किराये के मकान (Tenements)", "महाल", "विला"], a: 1 },
+            { q: "टेनमेंट्स (किराये के मकानों) में रहने वाले गरीब श्रमिकों की सबसे बड़ी समस्या क्या थी?", o: ["पैसा अधिक होना", "अत्यधिक भीड़भाड़, सीलन, प्रकाश और हवा की कमी तथा अस्वच्छता", "कमरे बड़े होना", "कोई समस्या नहीं थी"], a: 1 },
+            { q: "लंदन के धनी वर्गों ने गरीब बस्तियों से फैलने वाली बीमारियों और दंगों के डर से शहरों को स्वच्छ बनाने के लिए कौन सा आंदोलन चलाया था?", o: ["शहरीकरण", "हरित पट्टी या 'लंदन ग्रीन बेल्ट' और पार्क निर्माण योजना (Green Lung Movements)", "स्लम विस्तार", "बाड़ाबंदी"], a: 1 },
+            { q: "लंदन के अधिकारियों ने श्रमिकों को स्वच्छ और कम भीड़भाड़ वाले मकान देने के लिए शहर के बाहर किस नई अवधारणा को जन्म दिया?", o: ["काले शहर", "उद्यान नगर या गार्डन सिटी (Garden City)", "स्लम सिटी", "औद्योगिक नगर"], a: 1 },
+            { q: "गार्डन सिटी (उद्यान नगर) की प्रसिद्ध वैचारिक योजना सबसे पहले किसने प्रस्तुत की थी?", o: ["बैरन हॉसमान", "एबेनेज़र हॉवर्ड (Ebenezer Howard)", "चार्ल्स बूथ", "हेनरी कोर्ट"], a: 1 },
+            { q: "लंदन में कामगारों की सामाजिक और आर्थिक स्थिति को समझने के लिए 1887 में किसने एक बड़ा वैज्ञानिक सर्वेक्षण किया था?", o: ["कार्ल मार्क्स", "चार्ल्स बूथ (Charles Booth)", "लॉर्ड रिपन", "जेम्स वाट"], a: 1 },
+            { q: "चार्ल्स बूथ के सर्वेक्षण के अनुसार लंदन की कुल आबादी का लगभग कितना प्रतिशत हिस्सा अत्यंत गरीबी और भुखमरी रेखा के नीचे जी रहा था?", o: ["5 प्रतिशत", "25 प्रतिशत", "30 प्रतिशत (30%)", "50 प्रतिशत"], a: 2 },
+            { q: "लंदन में प्रवासियों की भीड़ को नियंत्रित करने और परिवहन को सुगम बनाने के लिए विश्व की पहली 'भूमिगत रेलवे' (Underground Subway/Metro) कब शुरू हुई?", o: ["1853 ई.", "1863 ई. में (10 जनवरी)", "1881 ई.", "1900 ई."], a: 1 },
+            { q: "विश्व की पहली भूमिगत रेलवे (Underground Railway) लंदन में किन दो स्टेशनों के बीच चलाई गई थी?", o: ["लंदन से मैनचेस्टर", "पैडिंगटन से फरिंगडन स्ट्रीट के बीच (Paddington to Farringdon Street)", "लीवरपूल से लंदन", "बर्मिंघम से लंदन"], a: 1 },
+            { q: "शुरुआती दौर में लंदन की भूमिगत रेलवे की यात्रा को लोग नापसंद क्यों करते थे क्योंकि:", o: ["किराया बहुत महँगा था", "इंजनों से निकलने वाले कोयले के धुएँ और दमघोंटू गंध से डिब्बे भर जाते थे", "ट्रेन बहुत धीमी थी", "डिब्बे लकड़ी के थे"], a: 1 },
+            { q: "फ्रांस के सम्राट नेपोलियन तृतीय ने 1852 में पेरिस शहर को सुंदर, आधुनिक और सुरक्षित बनाने के लिए किसे पेरिस का पुनर्गठन (Rebuilding of Paris) का कार्य सौंपा था?", o: ["एबेनेज़र हॉवर्ड", "बैरन जॉर्ज यूजीन हॉसमान (Baron Haussmann)", "चार्ल्स बूथ", "लुई ब्लां"], a: 1 },
+            { q: "बैरन हॉसमान द्वारा पेरिस की तंग गलियों को तोड़कर बनाए गए चौड़े रास्तों, पार्कों और नए बुनियादी ढांचे की योजना को इतिहास में क्या कहते हैं?", o: ["हॉसमानकरण (Haussmannization of Paris)", "स्लम हटाओ योजना", "गार्डन सिटी", "पेरिस कोड"], a: 0 },
+            { q: "बैरन हॉसमान ने पेरिस में चौड़े रास्ते (Boulevards) क्यों बनवाए थे ताकि:", o: ["गाड़ियाँ तेज चल सकें", "विद्रोह के समय प्रदर्शनकारी सड़कों पर बैरिकेड न लगा सकें और सेना आसानी से आ-जा सके (Socio-political control)", "लोग टहल सकें", "घर सुंदर दिखें"], a: 1 },
+            { q: "ब्रिटिश भारत में औपनिवेशिक सत्ता और व्यापार का सबसे बड़ा और प्रमुख केंद्र (टाउन) पश्चिमी तट पर कौन सा विकसित हुआ?", o: ["कलकत्ता", "बंबई (Bombay)", "मद्रास", "सूरत"], a: 1 },
+            { q: "1661 ई. में इंग्लैंड के राजा चार्ल्स द्वितीय को पुर्तगाली राजकुमारी कैथरीन से विवाह के दहेज के रूप में कौन सा भारतीय द्वीप मिला था?", o: ["कलकत्ता", "बंबई (Bombay द्वीप समूह)", "मद्रास", "गोवा"], a: 1 },
+            { q: "राजा चार्ल्स द्वितीय ने बंबई द्वीप को केवल 10 पाउंड के वार्षिक किराये पर किस कंपनी को सौंप दिया था?", o: ["फ्रांसीसी कंपनी", "ईस्ट इंडिया कंपनी (East India Company)", "डच कंपनी", "पुर्तगाली कंपनी"], a: 1 },
+            { q: "शुरुआती दौर में बंबई कितने अलग-अलग छोटे द्वीपों का समूह था जिन्हें बाद में जोड़कर एक बड़ा शहर बनाया गया?", o: ["तीन", "पाँच", "सात द्वीप (Seven Islands of Bombay)", "दस"], a: 2 },
+            { q: "बंबई को एक बड़ा और एकीकृत शहर बनाने के लिए समुद्र को पाटकर (जमीन सुधारने) की जो विशाल योजनाएँ चलीं, उन्हें क्या कहते हैं?", o: ["बाड़ाबंदी योजना", "भूमि सुधार या रिक्लेमेशन योजनाएँ (Land Reclamation)", "हॉसमान योजना", "स्लम क्लियरेंस"], a: 1 },
+            { q: "बंबई में समुद्र को पाटकर बैक-बे (Back Bay) क्षेत्र विकसित करने के लिए 1864 में किस प्रसिद्ध कंपनी का गठन हुआ था?", o: ["टाटा कंपनी", "बॉम्बे रिक्लेमेशन कंपनी (Bombay Reclamation Company)", "ईस्ट इंडिया कॉर्पोरेशन", "मरीन ड्राइव सोसाइटी"], a: 1 },
+            { q: "बंबई के समुद्री तट के किनारे बनी वह प्रसिद्ध सड़क कौन सी है जो रिक्लेमेशन (समुद्र पाटने) की योजना के फलस्वरूप बनी और रात में हीरों के हार जैसी दिखती है?", o: ["कोलाबा कॉजवे", "मरीन ड्राइव (Marine Drive / Queen's Necklace)", "साइगॉन हाईवे", "नेपियर रोड"], a: 1 },
+            { q: "बंबई में कपड़ा मिलों के बढ़ने से मजदूरों के रहने के लिए बनाई गई बेहद घनी और बहुमंजिला इमारतों को क्या कहा जाता है?", o: ["टेनमेंट्स", "चाल (Chawls)", "महाल", "झोपड़ी"], a: 1 },
+            { q: "बंबई की 'चालों' (Chawls) की मुख्य विशेषता क्या थी जो आज भी गिरगाँव और धारावी जैसे क्षेत्रों में दिखती है?", o: ["प्रत्येक परिवार के पास बहुत बड़े कमरे थे", "एक मंजिला पर लंबी गैलरी होती थी और छोटे-छोटे कमरों के बीच साझा (Common) शौचालय होते थे", "वे लोहे की बनी थीं", "वे बहुत महँगी थीं"], a: 1 },
+            { q: "बंबई की चालों में रहने वाले मजदूर मनोरंजन और सामाजिक चेतना के लिए नाटक और गीतों का आयोजन कहाँ करते थे?", o: ["कमरों के अंदर", "चाल के बीच के खुले आहातों या आँगनों (Central Courtyards) में", "थिएटर में जाकर", "सड़कों पर"], a: 1 },
+            { q: "बंबई को औपनिवेशिक भारत की 'वाणिज्यिक राजधानी' या 'प्रवेश द्वार' (Gateway of India) बनाने में किस बड़े उद्योग का सबसे बड़ा योगदान था?", o: ["लोहा उद्योग", "सूती कपड़ा मिल उद्योग (Cotton Textile Mills)", "जूट उद्योग", "कोयला खनन"], a: 1 },
+            { q: "1860 के दशक में किस वैश्विक युद्ध के कारण बंबई को कपास के निर्यात से भारी मुनाफा हुआ और शहर का तेजी से विस्तार हुआ?", o: ["प्रथम विश्व युद्ध", "अमेरिकी गृहयुद्ध (American Civil War - जिसके कारण ब्रिटेन को भारत से कपास लेना पड़ा)", "फ्रांसीसी क्रांति", "क्रीमिया का युद्ध"], a: 1 },
+            { q: "बंबई को कलकत्ता की तरह बंगाल प्रांत से अलग एक स्वतंत्र 'प्रेसीडेंसी' नगर किस वर्ष घोषित किया गया था?", o: ["1818 ई. में (पेशावा की पराजय के बाद)", "1857 ई.", "1885 ई.", "1911 ई."], a: 0 },
+            { q: "बिहार की राजधानी पटना का प्राचीन ऐतिहासिक नाम निम्नलिखित में से क्या है जो मौर्य साम्राज्य की राजधानी था?", o: ["गया", "पाटलिपुत्र (Pataliputra)", "वैशाली", "राजगीर"], a: 1 },
+            { q: "प्राचीन काल में पाटलिपुत्र नगर की स्थापना गंगा और सोन नदी के संगम पर किस राजा (मगध शासक) ने की थी?", o: ["बिंबिसार", "उदयन (Udayin)", "अजातशत्रु", "अशोक"], a: 1     },
+            { q: "मौर्य वंश के किस महान सम्राट के समय पाटलिपुत्र विश्व के सबसे बड़े, समृद्ध और शक्तिशाली नगरों में से एक बन गया था?", o: ["चंद्रगुप्त मौर्य", "सम्राट अशोक (Emperor Ashoka)", "बिंदुसार", "पुष्यमित्र शुंग"], a: 1 },
+            { q: "चंद्रगुप्त मौर्य के दरबार में आए यूनानी राजदूत 'मेगास्थनीज' ने अपनी किस प्रसिद्ध पुस्तक में पाटलिपुत्र के वैभव का शानदार वर्णन किया है?", o: ["अर्थशास्त्र", "इंडिका (Indica)", "जियोग्राफिया", "मुद्राराक्षस"], a: 1 },
+            { q: "चीनी बौद्ध यात्री 'फाहियान' और 'ह्वेनसांग' किस प्राचीन भारतीय नगर के विश्वविद्यालय और गौरव को देखने बिहार आए थे?", o: ["सूरत", "पाटलिपुत्र और नालंदा (Patna / Nalanda)", "बंबई", "कलकत्ता"], a: 1 },
+            { q: "शेरशाह सूरी ने 1541 ई. में पाटलिपुत्र का पुनरुद्धार करके इसका नया नाम क्या रखा और दुर्ग बनवाया?", o: ["अजीमाबाद", "पटना (Patna)", "बिहारशरीफ", "सासाराम"], a: 1 },
+            { q: "मुगल सम्राट औरंगजेब के पौत्र शाहजादा अजीम ने 18वीं सदी की शुरुआत में पटना का नाम बदलकर क्या रखा था?", o: ["अकबरनगर", "अजीमाबाद (Azimabad)", "मुर्शिदाबाद", "इस्लामपुर"], a: 1 },
+            { q: "सिखों के दसवें और अंतिम गुरु, गुरु गोविंद सिंह जी का जन्म 1666 ई. में बिहार के किस ऐतिहासिक शहर में हुआ था?", o: ["गया", "पटना साहिब (Patna Sahib)", "वैशाली", "राजगीर"], a: 1 },
+            { q: "1786 ई. में ब्रिटिश कैप्टन जॉन गार्स्टिन द्वारा पटना में 'गोलघर' (Golghar) का निर्माण किस मुख्य उद्देश्य से करवाया गया था?", o: ["सैनिकों के रहने के लिए", "अनाज के सुरक्षित भंडारण के लिए (Granary - अकाल से निपटने हेतु)", "राजा के महल के रूप में", "जेल के रूप में"], a: 1 },
+            { q: "पटना गोलघर की स्थापत्य कला की सबसे बड़ी विशेषता क्या है जिसकी छत गुंबदाकार है?", o: ["यह बिना खंभों का एक विशाल ढांचा है (Pillarless structure)", "यह लकड़ी का बना है", "यह चौकोर है", "उसमें सीढ़ियाँ नहीं हैं"], a: 0 },
+            { q: "बिहार और उड़ीसा को बंगाल से अलग करने के बाद किस वर्ष 'पटना' को नए प्रांत की प्रांतीय राजधानी बनाया गया?", o: ["1905 ई.", "1912 ई. में (BSEB स्तर पर 1912)", "1936 ई.", "1947 ई."], a: 1 },
+            { q: "शहरीकरण के कारण गाँवों के संयुक्त परिवारों के टूटने और शहरों में छोटे परिवारों के बनने को क्या कहते हैं?", o: ["सामंतवादी परिवार", "एकाकी परिवार या एकल परिवार (Nuclear Family)", "संयुक्त परिवार", "कबीलाई परिवार"], a: 1 },
+            { q: "शहरी जीवन ने महिलाओं की स्थिति पर क्या प्रभाव डाला जो धीरे-धीरे घरेलू चारदीवारी से बाहर आईं?", o: ["उन पर पाबंदियाँ बढ़ गईं", "उन्हें सार्वजनिक जीवन, शिक्षा और रोजगार के नए अवसर मिले (Women's Public sphere entry)", "वे केवल घर में रहीं", "सब गलत"], a: 1 },
+            { q: "शहरों के उदय ने समाज में किस नए शिक्षित और कामकाजी वर्ग को जन्म दिया जो शासन और कला का आधार बना?", o: ["जमींदार वर्ग", "मध्यम वर्ग या बुद्धिजीवी वर्ग (Middle Class / Intelligentsia)", "सर्वहारा वर्ग", "कृषि दास"], a: 1     },
+            { q: "शहरीकरण के कारण शहरों में अमीर और गरीब के बीच की दूरी बढ़ने से उत्पन्न होने वाले आर्थिक असंतुलन को क्या कहते हैं?", o: ["समानता", "वर्ग विभाजन या सामाजिक असमानता (Class Divide)", "साम्यवाद", "उदारवाद"], a: 1 },
+            { q: "आधुनिक शहरों के पास बड़े पैमाने पर अस्वच्छ और घनी बस्तियों का बन जाना क्या कहलाता है?", o: ["महाल", "मलीन बस्तियाँ या स्लम (Slums / Ghettos)", "उद्यान नगर", "पॉश इलाका"], a: 1 },
+            { q: "एशिया की सबसे बड़ी मलीन बस्तियों (Slums) में से एक 'धारावी' (Dharavi) भारत के किस महानगर में स्थित है?", o: ["कलकत्ता", "बंबई या मुंबई (Mumbai)", "दिल्ली", "चेन्नई"], a: 1 },
+            { q: "शहरी जीवन के कारण लोगों में बढ़ती हुई उपभोक्तावादी संस्कृति और बाजार पर निर्भरता को क्या कहते हैं?", o: ["सामंतवाद", "महानगरीय संस्कृति या उपभोक्तावाद (Consumerism)", "कृषि संस्कृति", "अराजकता"], a: 1 },
+            { q: "शहरों को 'आर्थिक विकास का इंजन' क्यों कहा जाता है क्योंकि वहाँ केंद्रित होते हैं:", o: ["केवल पार्क", "देश के अधिकांश उद्योग, व्यापार, वित्तीय संस्थान और कर संकलन (Economic Hubs)", "केवल गाँव के लोग", "बाढ़ का पानी"], a: 1 },
+            { q: "बंबई पोर्ट ट्रस्ट (Bombay Port Trust) ने बंबई के बंदरगाह को आधुनिक बनाने और गोदियों का विस्तार करने के लिए किस वर्ष कार्य प्रारंभ किया?", o: ["1854 ई.", "1873 ई. में (Bombay Port Trust Act)", "1914 ई.", "1930 ई."], a: 1 },
+            { q: "बंबई की पहली नगर पालिका या बॉम्बे म्युनिसिपल कॉर्पोरेशन (BMC) की स्थापना किस वर्ष की गई थी?", o: ["1854 ई.", "1888 ई. में (BMC Act 1888)", "1920 ई.", "1947 ई."], a: 1 },
+            { q: "लंदन में 19वीं सदी के अंत में बनी विशाल जल निकासी (Sewerage System) प्रणाली का निर्माण किसने किया था जो आज भी कार्यरत है?", o: ["एबेनेज़र हॉवर्ड", "जोसफ बैजलगेट (Joseph Bazalgette)", "चार्ल्स बूथ", "मैटर्निक"], a: 1 },
+            { q: "पेरिस के हॉसमानकरण (Haussmannization) के दौरान लगभग कितने हजार गरीब लोगों को बेघर होना पड़ा था क्योंकि उनके मकान तोड़ दिए गए थे?", o: ["5 हजार", "50 हजार", "3.5 लाख से अधिक लोगों को (Massive displacement)", "10 लाख"], a: 2 },
+            { q: "पेरिस की जनता ने शुरुआत में बैरन हॉसमान की योजना का तीव्र विरोध क्यों किया था क्योंकि:", o: ["शहर गंदा हो रहा था", "ऐतिहासिक बस्तियाँ नष्ट हो गईं और शहर केवल अमीरों व सेना के अनुकूल क्रूर कंक्रीट का ढांचा लग रहा था", "रास्ते छोटे हो रहे थे", "सब गलत"], a: 1 },
+            { q: "बाद में पेरिस दुनिया का सबसे सुंदर और सांस्कृतिक शहर माना जाने लगा, इसका मुख्य कारण क्या था?", o: ["पुराने मकान", "हॉसमान द्वारा बनाए गए चौड़े रास्ते, भव्य इमारतें, सार्वजनिक पार्क और आधुनिक जल निकासी व्यवस्था (Grand Architecture)", "विदेशी हमला", "कोई नहीं"], a: 1 },
+            { q: "19वीं सदी के अंत में लंदन की फैक्ट्रियों में बच्चों के काम करने पर प्रतिबंध लगने के बाद बच्चों को कहाँ भेजना अनिवार्य किया गया?", o: ["खेतों में", "अनिवार्य प्राथमिक स्कूलों में (Compulsory Education Act)", "जंगलों में", "कोयला खदानों में"], a: 1 },
+            { q: "लंदन के टेनमेंट्स में बार-बार आग लगने और महामारियों (जैसे हैजा, प्लेग) के फैलने का मुख्य कारण क्या था?", o: ["कमरे बड़े होना", "अत्यधिक सघनता, लकड़ी के कच्चे ढांचे और जल निकासी व सफाई की पूर्ण अनुपस्थिति (Lack of sanitation)", "चूहों की कमी", "ठंड होना"], a: 1 },
+            { q: "बंबई में समुद्र को पाटकर (Reclamation) बनाई गई ज़मीन पर 20वीं सदी की शुरुआत में कौन सा प्रसिद्ध कमर्शियल और पॉश इलाका विकसित हुआ?", o: ["धारावी", "नरीमन पॉइंट और कफ परेड (Nariman Point)", "गिरगाँव", "साकची"], a: 1 },
+            { q: "बंबई इम्प्रूवमेंट ट्रस्ट (Bombay City Improvement Trust) की स्थापना 1898 में किस भयानक महामारी के फैलने के बाद शहर को साफ करने के लिए हुई थी?", o: ["हैजा", "प्लेग (Bubonic Plague महामारी के बाद)", "मलेरिया", "चेचक"], a: 1     },
+            { q: "प्राचीन काल के पाटलिपुत्र नगर के चारों ओर लकड़ी का एक विशाल परकोटा (दीवार) था जिसमें 570 बुर्ज और 64 द्वार थे, यह विवरण किसने दिया है?", o: ["फाहियान", "मेगास्थनीज (Indica में)", "ह्वेनसांग", "चाणक्य"], a: 1 },
+            { q: "गुप्त वंश के किस महान सम्राट के समय पाटलिपुत्र विद्या, कला और विज्ञान (जैसे आर्यभट्ट का कर्मक्षेत्र) का वैश्विक केंद्र था?", o: ["श्रीगुप्त", "चंद्रगुप्त द्वितीय या विक्रमादित्य (Gupta Golden Age)", "समुद्रगुप्त", "स्कंदगुप्त"], a: 1 },
+            { q: "पटना के प्रसिद्ध सूफी संत हज़रत मखदूम शाह शरीफ़ुद्दीन याहिया मनेरी का मज़ार कहाँ स्थित है जो पटना के ऐतिहासिक गौरव का हिस्सा है?", o: ["गोलघर", "मनेर शरीफ (Maner Sharif)", "फुलवारी शरीफ", "लाल चौक"], a: 1 },
+            { q: "17वीं शताब्दी में ब्रिटिश ईस्ट इंडिया कंपनी ने बिहार से किस कीमती कच्चे माल (बारूद बनाने के काम आने वाला रसायन) के व्यापार के लिए पटना में फैक्ट्री खोली थी?", o: ["नील", "शोरा (Saltpetre - पोटेशियम नाइट्रेट)", "अफीम", "सूती कपड़ा"], a: 1 },
+            { q: "18वीं और 19वीं शताब्दी में अंग्रेजों ने बिहार से चीन को अवैध रूप से निर्यात करने के लिए पटना में किस नशीले पदार्थ का बड़ा गोदाम बनाया था?", o: ["शोरा", "अफीम (Opium Warehouse)", "गांजा", "तंबाकू"], a: 1 },
+            { q: "पटना शहर के मध्य भाग में स्थित 'बांकीपुर मैदान' को आज किस ऐतिहासिक नाम से जाना जाता है जहाँ बड़ी राजनीतिक सभाएँ होती हैं?", o: ["गांधी मैदान (Gandhi Maidan)", "सदाकत आश्रम", "लाल चौक", "सुभाष पार्क"], a: 0 },
+            { q: "शहरीकरण के आर्थिक प्रभाव के रूप में किस नई प्रणाली का जन्म हुआ जहाँ बैंक, साख और मुद्रा का विनिमय तीव्र हो गया?", o: ["वस्तु विनिमय", "आधुनिक बैंकिंग और वित्तीय प्रणाली (Modern Financial System)", "सामंतवाद", "कृषि ऋण"], a: 1 },
+            { q: "शहरों में काम करने वाले सर्वहारा वर्ग (श्रमिकों) को अपने शोषण के खिलाफ आवाज उठाने के लिए किस अधिकार की आवश्यकता पड़ी जो यूनियनों का आधार बना?", o: ["हथियार रखने का अधिकार", "संगठन बनाने और हड़ताल करने का कानूनी अधिकार (Right to Form Unions)", "राजा बनने का अधिकार", "टैक्स न देने का अधिकार"], a: 1 },
+            { q: "लंदन की गोदियों (Docks) में काम करने वाले मजदूरों ने 1889 में ऐतिहासिक हड़ताल क्यों की थी?", o: ["काम बंद करने के लिए", "8 घंटे का कार्यदिवस और न्यूनतम मजदूरी निश्चित कराने के लिए (Great London Dock Strike)", "मशीनें तोड़ने के लिए", "सब गलत"], a: 1 },
+            { q: "19वीं सदी के मध्य तक लंदन को 'अपराधियों का शहर' कहा जाने लगा था, इसका मुख्य कारण क्या था?", o: ["वहाँ पुलिस नहीं थी", "फैक्ट्रियों में काम न मिलने से हजारों बेरोजगार युवा और गरीब आजीविका के लिए छोटी चोरियों और अपराधों में लग गए थे", "शहर बहुत बड़ा था", "सब सही है"], a: 1     },
+            { q: "लंदन के अधिकारियों ने अपराधों को नियंत्रित करने के लिए 1829 में सर रॉबर्ट पील के नेतृत्व में किस अनुशासित बल का गठन किया?", o: ["लाल सेना", "लंदन मेट्रोपॉलिटन पुलिस बल (Metropolitan Police / जिन्हें बॉबीज कहा गया)", "गुरिल्ला बल", "फौजी कोर्ट"], a: 1 },
+            { q: "शहरी जीवन ने पुरुषों और महिलाओं के बीच व्यक्तिगत स्वतंत्रता को तो बढ़ाया, लेकिन इसने पारंपरिक रूप से किसे कमजोर किया?", o: ["फैक्ट्रियों को", "संयुक्त परिवार व्यवस्था और सामाजिक बंधनों को (Weakened traditional family ties)", "व्यापार को", "मुद्रा को"], a: 1 },
+            { q: "शहरीकरण के कारण मध्यम वर्ग के अंतर्गत आने वाले क्लर्क और बुद्धिजीवी वर्ग में कौन सी नई संस्कृति (अवकाश संस्कृति) विकसित हुई?", o: ["केवल खेती करना", "मनोरंजन, पब, ओपेरा, सिनेमा और संगीत हॉलों में समय बिताना (Leisure Culture)", "युद्ध लड़ना", "घर में बंद रहना"], a: 1 },
+            { q: "बंबई की चालों (Chawls) में रहने वाले प्रवासियों को पानी की भारी किल्लत का सामना क्यों करना पड़ता था क्योंकि:", o: ["बंबई में समुद्र नहीं था", "नल बहुत कम थे और दिन में केवल कुछ घंटों के लिए ही पानी आता था जहाँ लंबी लाइनें लगती थीं", "पानी खट्टा था", "सब गलत"], a: 1 },
+            { q: "बंबई की चालों में मकान मालिक (Landlords) प्रवासियों का शोषण कैसे करते थे?", o: ["वे मुफ़्त कमरा देते थे", "अत्यंत छोटे कमरों का बहुत अधिक किराया वसूलते थे और विरोध करने पर निकाल देते थे", "वे खाना देते थे", "वे टैक्स देते थे"], a: 1 },
+            { q: "1803 ई. में बंबई के किस बड़े हिस्से में भयानक आग लग गई थी, जिसके बाद अंग्रेजों ने शहर के केंद्र (फोर्ट क्षेत्र) को खुला और व्यवस्थित बनाने की योजना बनाई?", o: ["गिरगाँव", "बॉम्बे फोर्ट क्षेत्र के बाहरी हिस्से (Fort Area Fire)", "कोलाबा", "धारावी"], a: 1 },
+            { q: "औपनिवेशिक बंबई शहर को तीन मुख्य भागों—फोर्ट (गोरे लोगों का क्षेत्र), नेटिव टाउन (भारतीयों का क्षेत्र) और मिल क्षेत्र में विभाजित करना क्या दर्शाता है?", o: ["समानता", "नस्लीय और सामाजिक भेदभाव (Racial & Class Segregation)", "सजावट", "धार्मिक एकता"], a: 1 },
+            { q: "बिहार का प्रसिद्ध 'तख्त श्री हरमंदिर जी' (Patna Sahib) किस धर्म के अनुयायियों का एक अत्यंत पवित्र और पूजनीय वैश्विक तीर्थ स्थल है?", o: ["बौद्ध धर्म", "सिख धर्म (Sikhism)", "जैन धर्म", "हिंदू धर्म"], a: 1 },
+            { q: "प्राचीन पाटलिपुत्र नगर का पतन 7वीं-8वीं शताब्दी के आसपास किस मुख्य कारण से हुआ माना जाता है?", o: ["भूकंप आने से", "व्यापारिक मार्गों का बदलना, हूणों के आक्रमण और गंगा में आने वाली विनाशकारी बाढ़", "पानी सूखने से", "कोई कारण नहीं था"], a: 1 },
+            { q: "1857 के प्रथम स्वतंत्रता संग्राम के समय पटना में अंग्रेजों के खिलाफ क्रांतिकारी विद्रोह का नेतृत्व किसने किया था जो एक पुस्तक विक्रेता थे?", o: ["कुंवर सिंह", "पीर अली (Peer Ali)", "मंगल पांडे", "मजहरुल हक"], a: 1 },
+            { q: "वीर शहीद पीर अली को पटना में अंग्रेजों द्वारा किस तिथि को फाँसी दे दी गई थी?", o: ["3 जुलाई 1857 ई. को (विद्रोह के बाद जुलाई में)", "15 अगस्त 1947", "26 जनवरी 1930", "10 मई 1857"], a: 0 },
+            { q: "पटना में गंगा नदी पर बना 'महात्मा गांधी सेतु' (Mahatma Gandhi Setu) उत्तर बिहार और दक्षिण बिहार को जोड़ता है, यह किस वर्ष चालू हुआ था?", o: ["1947 ई.", "1982 ई. में (1982)", "2000 ई.", "1950 ई."], a: 1 },
+            { q: "शहरीकरण के कारण कृषि भूमि पर क्या नकारात्मक प्रभाव पड़ता है?", o: ["भूमि उपजाऊ होती है", "शहरों के विस्तार से उपजाऊ कृषि भूमि कंक्रीट के मकानों और सड़कों में बदल जाती है (Loss of agricultural land)", "फसलें बढ़ती हैं", "कोई प्रभाव नहीं पड़ता"], a: 1 },
+            { q: "आधुनिक शहरों में अपशिष्ट और सीवेज प्रबंधन की कमी से नदियों और जल स्रोतों पर क्या प्रभाव पड़ा है?", o: ["वे साफ हो गए हैं", "भयानक जल प्रदूषण और जलीय पारिस्थितिक तंत्र का विनाश (Water Pollution)", "नदियाँ सूख गई हैं", "कोई प्रभाव नहीं पड़ा"], a: 1 },
+            { q: "लंदन में कोहरे और धुएँ के मिश्रण से बनने वाले किस जानलेवा वातावरण को 'स्मॉग' (Smog) कहा जाने लगा जो स्वास्थ्य के लिए घातक था?", o: ["साफ हवा", "मटर जैसी घनी धुंध या पीला कोहरा (Peasouper / Smog)", "ठंडी बर्फ", "गर्म हवा"], a: 1 },
+            { q: "19वीं सदी के अंत में किस देश ने सबसे पहले 'किरायेदारों के अधिकारों' की सुरक्षा के लिए किराया नियंत्रण कानून पास किया था?", o: ["भारत", "इंग्लैंड (Britain)", "फ्रांस", "अमेरिका"], a: 1 },
+            { q: "बंबई में सिनेमा उद्योग (Bollywood) के पैर जमाने का मुख्य कारण क्या था क्योंकि शहर में प्रचुर मात्रा में थे:", o: ["खेत", "प्रवासी मजदूर और वित्तीय पूंजीपति जो मनोरंजन और निवेश के लिए तैयार थे (Birth of Indian Cinema)", "जंगल", "स्टेडियम"], a: 1     },
+            { q: "भारत की पहली मूक (Silent) फीचर फिल्म 'राजा हरिश्चंद्र' 1913 में दादा साहब फाल्के द्वारा कहाँ बनाई और प्रदर्शित की गई थी?", o: ["कलकत्ता", "बंबई (Bombay)", "मद्रास", "दिल्ली"], a: 1 },
+            { q: "बंबई की अधिकांश कपड़ा मिलें 20वीं शताब्दी के उत्तरार्ध में बंद क्यों हो गईं क्योंकि:", o: ["मजदूरों की ऐतिहासिक लंबी हड़तालें और मिल मालिकों द्वारा घाटा दिखाकर रियल एस्टेट में जमीन बेचना", "रूई खत्म हो गई थी", "बिजली बंद हो गई थी", "सब गलत"], a: 0 },
+            { q: "प्राचीन पाटलिपुत्र की खुदाई में मौर्यकालीन लकड़ी के विशाल महलों के अवशेष पटना के किस स्थान से मिले हैं?", o: ["गोलघर", "कुम्रहार (Kumhrar)", "बांकीपुर", "मनेर"], a: 1 },
+            { q: "अजीमाबाद (पटना) 18वीं सदी में किस कला शैली का एक प्रमुख केंद्र बन गया था जो चित्रों के लिए प्रसिद्ध है?", o: ["मधुबनी कला", "पटना कलम शैली या कंपनी शैली (Patna Kalam Painting)", "मुगल कला", "गांधार कला"], a: 1 },
+            { q: "पटना म्युनिसिपल कॉर्पोरेशन (PMC) की स्थापना स्वतंत्र भारत में किस वर्ष की गई थी?", o: ["1947 ई.", "1952 ई. में (1952)", "1960 ई.", "1975 ई."], a: 1 },
+            { q: "लंदन के अमीर परोपकारी 'एंड्रयू मियरन्स' ने अपनी पुस्तक 'द बिटर क्राई ऑफ आउटकास्ट लंदन' में क्या चेतावनी दी थी?", o: ["शहर बहुत सुंदर है", "यदि गरीबों के लिए तुरंत स्वच्छ मकान नहीं बनाए गए तो वे विद्रोह करके अमीरों के महलों को नष्ट कर देंगे", "टैक्स कम करो", "सब सही है"], a: 1 },
+            { q: "आधुनिक शहरों का सामाजिक जीवन गाँवों की तुलना में कैसा होता है?", o: ["अधिक घनिष्ठ और पारिवारिक", "अधिक औपचारिक, अजनबीपन से भरा और यांत्रिक (Formal and Impersonal)", "पूरी तरह कबीलाई", "शून्य"], a: 1 },
+            { q: "शहरीकरण के कारण उत्पन्न होने वाले 'गैटो' (Ghetto) शब्द का ऐतिहासिक रूप से क्या अर्थ है?", o: ["बड़ा मॉल", "किसी एक विशेष धार्मिक, जातीय या सामाजिक समुदाय के लोगों का एक अत्यंत सघन और अलग क्षेत्र में रहना", "हवाई अड्डा", "पार्क का नाम"], a: 1 },
+            { q: "कक्षा 10वीं के इतिहास के मेंडल नियमों की तरह इस अध्याय का मूल निष्कर्ष क्या है?", o: ["शहर हमेशा केवल विनाश लाते हैं", "शहरीकरण आधुनिक सभ्यता का एक अनिवार्य आर्थिक परिणाम है जिसने मनुष्य को असीमित अवसर, तकनीक, मध्यम वर्ग का विकास और व्यक्तिगत स्वतंत्रता दी, वहीं दूसरी ओर इसने तीव्र प्रदूषण, वर्ग विभाजन और स्लम जैसी गंभीर चुनौतियाँ भी खड़ी कीं", "गाँव शहरों से हर मायने में पिछड़ गए हैं", "लंदन कभी विकसित शहर नहीं बन पाया था"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">शहरीकरण एवं शहरी जीवन</h1>
+                    <p style="color: #475569; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">बिहार बोर्ड (BSEB) कक्षा 10वीं - इतिहास (अध्याय 6)</p>
+                    <p style="color: #64748b; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">लंदन की किराये की बस्तियाँ, भूमिगत रेलवे, हॉसमान की पेरिस योजना, बंबई की चालें, रिक्लेमेशन प्रोजेक्ट तथा पटना (पाटलिपुत्र) के प्राचीन व आधुनिक गौरव पर आधारित 100 वस्तुनिष्ठ प्रश्नों का महा-क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #16a34a; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #475569; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #0f172a;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.innerHTML = '';
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1e293b;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #4ade80;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #16a34a;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! शहरीकरण एवं शहरी जीवन अध्याय पर आपका पूरा नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! शहरों के इतिहास और सामाजिक बदलावों पर आपकी गहरी पकड़ है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! वैचारिक समझ को बेहतर करने के लिए फिर से प्रयास करें।"; emoji = "👍"; }
+            else { message = "कोई बात नहीं! एक बार अध्याय को दोहराएं और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #94a3b8;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #16a34a; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #475569; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

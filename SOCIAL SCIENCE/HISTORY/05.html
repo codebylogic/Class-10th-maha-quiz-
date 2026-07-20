@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>इतिहास क्विज़ - अर्थव्यवस्था और आजीविका</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f9ff;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(14, 165, 233, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0ea5e9;
+            background-color: #f0f9ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #38bdf8, #0ea5e9); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #0ea5e9, #0284c7); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(14, 165, 233, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #1e293b; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #475569; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .grid-container::-webkit-scrollbar { width: 6px; }
+        .grid-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #38bdf8, #0ea5e9); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "मानव इतिहास में हाथ के श्रम के स्थान पर मशीनों द्वारा बड़े पैमाने पर उत्पादन की प्रक्रिया क्या कहलाती है?", o: ["सामंतवाद", "औद्योगिक क्रांति (Industrial Revolution)", "कृषि क्रांति", "वैश्वीकरण"], a: 1 },
+            { q: "विश्व में 'औद्योगिक क्रांति' की शुरुआत सबसे पहले किस देश में हुई थी?", o: ["फ्रांस", "जर्मनी", "इंग्लैंड (England)", "अमेरिका"], a: 2 },
+            { q: "इंग्लैंड में औद्योगिक क्रांति सबसे पहले किस मुख्य उद्योग से शुरू हुई थी?", o: ["लोहा उद्योग", "वस्त्र उद्योग या सूती कपड़ा उद्योग (Textile Industry)", "कोयला खनन", "जहाजरानी"], a: 1 },
+            { q: "1733 ई. में जॉन के (John Kay) ने किस मशीन का आविष्कार किया जिससे बुनकरों की कार्यक्षमता बढ़ गई?", o: ["स्पिनिंग जेनी", "फ्लाइंग शटल (Flying Shuttle)", "वाटर फ्रेम", "पावरलूम"], a: 1 },
+            { q: "1764 ई. में जेम्स हारग्रीव्स (James Hargreaves) ने किस सूत कातने वाली क्रांतिकारी मशीन का आविष्कार किया था?", o: ["स्पिनिंग जेनी (Spinning Jenny)", "फ्लाइंग शटल", "म्यूल", "पावरलूम"], a: 0 },
+            { q: "1769 ई. में रिचर्ड आर्कराइट ने पानी की शक्ति से चलने वाले किस फ्रेम का आविष्कार किया था?", o: ["स्पिनिंग जेनी", "वाटर फ्रेम (Water Frame)", "म्यूल", "स्टीम इंजन"], a: 1 },
+            { q: "1779 ई. में सैम्युअल क्रॉम्पटन ने स्पिनिंग जेनी और वाटर फ्रेम को मिलाकर किस बेहतर मशीन का निर्माण किया?", o: ["पावरलूम", "म्यूल (Mule)", "फ्लाइंग शटल", "स्टीम इंजन"], a: 1 },
+            { q: "1785 ई. में एडमंड कार्टराइट ने घोड़ों या भाप की शक्ति से चलने वाले किस करघे का आविष्कार किया?", o: ["वाटर फ्रेम", "पावरलूम (Powerloom)", "स्पिनिंग जेनी", "म्यूल"], a: 1 },
+            { q: "1769 ई. में किस महान वैज्ञानिक ने आधुनिक 'वाष्प इंजन' (Steam Engine) का पेटेंट कराया जो औद्योगिक क्रांति का इंजन बना?", o: ["जेम्स वाट (James Watt)", "न्यूकोमेन", "जॉर्ज स्टीफनसन", "हम्फ्री डेवी"], a: 0 },
+            { q: "1815 ई. में कोयला खदानों में काम करने वाले मजदूरों की सुरक्षा के लिए 'सेफ्टी लैंप' (Safety Lamp) का आविष्कार किसने किया?", o: ["जेम्स वाट", "हम्फ्री डेवी (Humphry Davy)", "जॉन के", "रिचर्ड आर्कराइट"], a: 1 },
+            { q: "औद्योगिक क्रांति के कारण उत्पादन बढ़ने पर कारखानों के मालिकों (पूंजीपतियों) का नया वर्ग क्या कहलाया?", o: ["सर्वहारा वर्ग", "बुर्जुआ वर्ग या उद्योगपति (Capitalist Class)", "सामंत वर्ग", "कृषि दास"], a: 1 },
+            { q: "कारखानों में काम करने वाले वे मजदूर जिनके पास केवल अपना श्रम बेचने का साधन था, किस वर्ग के अंतर्गत आए?", o: ["बुर्जुआ वर्ग", "सर्वहारा वर्ग या श्रमिक वर्ग (Working Class)", "सामंत वर्ग", "जमींदार"], a: 1 },
+            { q: "औद्योगीकरण के कारण कुटीर उद्योगों और बुनकरों के बर्बाद होने से मजदूरों की रहने वाली बस्तियों को क्या कहा गया?", o: ["महाल", "स्लम बस्तियाँ (Slums)", "उपनिवेश", "कस्बा"], a: 1 },
+            { q: "इंग्लैंड में कामगारों और मजदूरों ने अपने अधिकारों और वयस्क मताधिकार के लिए 1838 में कौन सा आंदोलन चलाया था?", o: ["असहयोग आंदोलन", "चार्टिस्ट आंदोलन (Chartist Movement)", "सफ़्रागेट आंदोलन", "बोल्शेविक आंदोलन"], a: 1 },
+            { q: "इंग्लैंड में सभी पुरुषों और महिलाओं को एक समान 'वयस्क मताधिकार' (Universal Suffrage) किस वर्ष प्राप्त हुआ?", o: ["1838 ई.", "1881 ई.", "1918 ई.", "1928 ई. में (Equal Franchise Act)"], a: 3 },
+            { q: "लंदन में कारखानों में बच्चों और महिलाओं के काम के घंटे निश्चित करने के लिए पहला 'फैक्ट्री एक्ट' (Factory Act) किस वर्ष पास हुआ?", o: ["1802 ई.", "1833 ई. में (Factory Act 1833)", "1848 ई.", "1881 ई."], a: 1 },
+            { q: "ब्रिटिश सरकार ने किस वर्ष 'ट्रेड यूनियन एक्ट' (Trade Union Act) पास करके मजदूर संघों को कानूनी मान्यता दी?", o: ["1824 ई.", "1871 ई. में (Trade Union Act 1871)", "1926 ई.", "1881 ई."], a: 1 },
+            { q: "भारत में औद्योगीकरण की शुरुआत मुख्य रूप से किस शताब्दी के मध्य से मानी जाती है?", o: ["18वीं शताब्दी", "19वीं शताब्दी (19th Century)", "20वीं शताब्दी", "17वीं शताब्दी"], a: 1 },
+            { q: "भारत में पहली सूती कपड़ा मिल (Cotton Mill) 1851 या 1854 में कावासजी नानाभाई दावर द्वारा कहाँ स्थापित की गई थी?", o: ["कलकत्ता", "बंबई (Bombay)", "सूरत", "अहमदाबाद"], a: 1 },
+            { q: "भारत में पहली जूट मिल (Jute Mill) 1855 ई. में जॉर्ज ऑकलैंड द्वारा बंगाल के किस स्थान पर स्थापित की गई थी?", o: ["हावड़ा", "रिशरा (Rishra)", "हुगली", "मुर्शिदाबाद"], a: 1 },
+            { q: "1907 ई. में जमशेदजी नुसरवानजी टाटा (J.N. Tata) ने बिहार (अब झारखंड) के साकची नामक स्थान पर किस महान उद्योग की स्थापना की?", o: ["टाटा आयरन एंड स्टील कंपनी - टिस्को (TISCO)", "टाटा नमक कारखाना", "टाटा जूट मिल", "टाटा वस्त्र उद्योग"], a: 0 },
+            { q: "जमशेदपुर (साकची) में स्थापित 'टिस्को' (TISCO) में इस्पात (Steel) का उत्पादन किस वर्ष प्रारंभ हुआ था?", o: ["1907 ई.", "1911 ई.", "1912 ई. में (Steel production started)", "1914 ई."], a: 2 },
+            { q: "जे.एन. टाटा ने 1910 ई. में जलशक्ति से प्रचुर बिजली बनाने के लिए किस बड़ी परियोजना की नींव रखी?", o: ["भाखड़ा नांगल", "टाटा हाइड्रो-इलेक्ट्रिक पावर स्टेशन (Tata Hydro-Electric)", "दामोदर घाटी", "रिहंद योजना"], a: 1 },
+            { q: "भारत में वस्त्र उद्योग का सबसे बड़ा और प्रमुख केंद्र 'पूर्व का बोस्टन' किसे कहा जाने लगा जहाँ कपड़ा मिलें बढ़ीं?", o: ["बंबई", "अहमदाबाद (Ahmedabad)", "कानपुर", "सूरत"], a: 1 },
+            { q: "प्रथम विश्व युद्ध (1914-1918) का भारतीय उद्योगों पर क्या सबसे सकारात्मक प्रभाव पड़ा?", o: ["विदेशी व्यापार बंद हो गया", "ब्रिटिश आयात कम होने से भारतीय मिलों को सेना के लिए बोरियाँ, कपड़े और जूते बनाने का विशाल घरेलू बाजार मिला (Boom time for Indian industries)", "उद्योग नष्ट हो गए", "सब गलत"], a: 1 },
+            { q: "भारत में मजदूरों के अधिकारों की रक्षा के लिए 1920 में स्थापित पहले केंद्रीय संगठन का नाम क्या है?", o: ["भारतीय मजदूर संघ", "अखिल भारतीय ट्रेड यूनियन कांग्रेस - एटक (AITUC)", "इंटक (INTUC)", "वामपंथी मोर्चा"], a: 1 },
+            { q: "1920 में स्थापित 'एटक' (AITUC) के पहले अधिवेशन के प्रथम अध्यक्ष कौन चुने गए थे जो एक महान राष्ट्रवादी नेता थे?", o: ["जवाहरलाल नेहरू", "लाला लाजपत राय (Lala Lajpat Rai)", "चित्तरंजन दास", "सुभाष चंद्र बोस"], a: 1 },
+            { q: "भारत सरकार द्वारा ब्रिटिश काल में भारत की मिलों में काम के घंटे तय करने के लिए पहला 'भारतीय फैक्ट्री एक्ट' किस वर्ष पास किया गया?", o: ["1854 ई.", "1881 ई. में (Indian Factory Act 1881)", "1911 ई.", "1922 ई."], a: 1 },
+            { q: "आजादी के बाद भारत सरकार ने मजदूरों के शोषण को रोकने और न्यूनतम मजदूरी तय करने के लिए किस वर्ष कानून बनाया?", o: ["1947 ई.", "1948 ई. में (न्यूनतम मजदूरी अधिनियम / Minimum Wages Act)", "1952 ई.", "1960 ई."], a: 1 },
+            { q: "भारत में योजनाबद्ध विकास के लिए योजना आयोग द्वारा किस वर्ष 'प्रथम पंचवर्षीय योजना' लागू की गई जिसमें कृषि और उद्योगों पर बल था?", o: ["1947 ई.", "1951 ई. में (First Five Year Plan)", "1956 ई.", "1962 ई."], a: 1 },
+            { q: "ईस्ट इंडिया कंपनी ने भारत के बुनकरों पर नियंत्रण रखने और कपड़ा इकट्ठा करने के लिए किन वेतनभोगी एजेंटों को नियुक्त किया था?", o: ["जमींदार", "गुमाश्ता (Gomasthas)", "सूबेदार", "सिपाही"], a: 1 },
+            { q: "औद्योगिकीकरण के कारण शहरों की आबादी बढ़ने और गाँवों से पलायन होने की प्रक्रिया को क्या कहते हैं?", o: ["कुटीर उद्योग", "शहरीकरण (Urbanization)", "उपनिवेशवाद", "वैश्वीकरण"], a: 1 },
+            { q: "ब्रिटेन की औद्योगिक नीति के कारण भारत के पारंपरिक हस्तशिल्प और हथकरघा उद्योगों के बर्बाद होने की प्रक्रिया क्या कहलाती है?", o: ["औद्योगीकरण", "वि-औद्योगीकरण (De-industrialization)", "पूंजीवाद", "विकास"], a: 1 },
+            { q: "लोहा गलाने के लिए 1709 ई. में चारकोल के स्थान पर कोक (Coke) का आविष्कार करने वाले अंग्रेज लोहा उत्पादक कौन थे?", o: ["अब्राहम डर्बी प्रथम (Abraham Darby)", "हम्फ्री डेवी", "जेम्स वाट", "हेनरी कोर्ट"], a: 0 },
+            { q: "1784 ई. में हेनरी कोर्ट ने पिघले हुए लोहे से अशुद्धियाँ हटाकर मजबूत 'पिटवां लोहा' बनाने की किस विधि का आविष्कार किया?", o: ["भर्जन विधि", "आलोडन प्रक्रम या पुडलिंग विधि (Puddling Process)", "बेसेमर विधि", "विद्युत अपघटन"], a: 1 },
+            { q: "1856 ई. में हेनरी बेसेमर ने किस नई तकनीक का आविष्कार किया जिससे बहुत कम समय में प्रचुर मात्रा में इस्पात (Steel) बनाना आसान हो गया?", o: ["पुडलिंग प्रोसेस", "बेसेमर प्रक्रम (Bessemer Process)", "स्टीम ब्लास्ट", "कोक विधि"], a: 1 },
+            { q: "1814 ई. में जॉर्ज स्टीफनसन ने भाप से चलने वाले पहले रेलवे इंजन का आविष्कार किया, उसका नाम क्या था?", o: ["रॉकेट (Rocket)", "फेयरी क्वीन", "सुल्तान", "पंजाब मेल"], a: 0 },
+            { q: "इंग्लैंड में पहली बार मालगाड़ी और पैसेंजर ट्रेन 1825 में किन दो शहरों के बीच चलाई गई थी?", o: ["लंदन और मैनचेस्टर", "स्टॉकटन और डार्लिंगटन (Stockton to穩 Darlington)", "लीवरपूल और लंदन", "मैनचेस्टर और बर्मिंघम"], a: 1 },
+            { q: "भारत में पहली बार पैसेंजर ट्रेन 16 अप्रैल 1853 को किन दो स्टेशनों के बीच चलाई गई थी जो 34 किलोमीटर लंबी थी?", o: ["हावड़ा से हुगली", "बोरीबंदर (बंबई) से ठाणे के बीच (Bombay to Thane)", "दिल्ली से मेरठ", "मद्रास से अरकोणम"], a: 1 },
+            { q: "लॉर्ड डलहौजी के समय भारत में रेलवे और टेलीग्राफ लाइनों के बिछाने का मुख्य ब्रिटिश उद्देश्य क्या था?", o: ["भारतीयों को घुमाना", "कच्चा माल बंदरगाहों तक तीव्रता से पहुँचाना और ब्रिटिश सेना की गतिशीलता बढ़ाना (Imperialistic interest)", "रोजगार देना", "सजावट करना"], a: 1 },
+            { q: "1914 में प्रथम विश्व युद्ध शुरू होने के समय भारत का सबसे बड़ा और तेजी से बढ़ता आधुनिक उद्योग कौन सा था?", o: ["लोहा उद्योग", "सूती वस्त्र उद्योग (Cotton Textile Industry)", "जूट उद्योग", "चाय उद्योग"], a: 1 },
+            { q: "भारत के बंगाल प्रांत में जूट या पटसन मिलों पर मुख्य रूप से किस देश के पूंजीपतियों और उद्योगपतियों का नियंत्रण था?", o: ["भारतीयों का", "ब्रिटिश या अंग्रेज पूंजीपतियों का (British Capitalists)", "मारवाड़ियों का", "फ्रांसीसियों का"], a: 1 },
+            { q: "अहमदाबाद को भारत के सूती वस्त्र उद्योग की प्रचुरता के कारण किस नाम से जाना जाता था?", o: ["भारत का मैनचेस्टर (Manchester of India)", "भारत का पिट्सबर्ग", "पूर्व का पेरिस", "सिल्क सिटी"], a: 0 },
+            { q: "कपास की खेती के लिए अत्यंत उपयुक्त काली मिट्टी भारत के किस क्षेत्र में पाई जाती है जहाँ कपड़ा उद्योग सबसे पहले बढ़ा?", o: ["गंगा का मैदान", "दक्कन का लावा क्षेत्र या महाराष्ट्र/गुजरात (Deccan Trap)", "असम की पहाड़ियाँ", "थार मरुस्थल"], a: 1 },
+            { q: "1929 की वैश्विक आर्थिक मंदी (Great Depression) का भारतीय उद्योगों और कृषि पर क्या प्रभाव पड़ा?", o: ["कीमतें बढ़ गईं", "निर्यात और कीमतें आधी रह गईं, जिससे कारखाने बंद हुए और मजदूर सड़कों पर आ गए", "व्यापार दोगुना हो गया", "कोई प्रभाव नहीं पड़ा"], a: 1 },
+            { q: "मजदूरों के काम के अधिकार, स्वास्थ्य और न्यूनतम वेतन की सुरक्षा को संयुक्त रूप से क्या कहा जाता है?", o: ["श्रमिक कल्याण (Labour Welfare) या श्रम कानून", "पूंजीवादी सुरक्षा", "सामंतवादी नियम", "जमींदारी अधिकार"], a: 0 },
+            { q: "1948 के भारतीय फैक्ट्री एक्ट के तहत कारखानों में एक वयस्क मजदूर के लिए प्रति सप्ताह काम के कितने घंटे तय किए गए?", o: ["40 घंटे", "48 घंटे (48 hours per week)", "60 घंटे", "72 घंटे"], a: 1 },
+            { q: "औद्योगिकीकरण ने कुटीर उद्योगों को भारी चोट पहुँचाई, इसके समर्थन में महात्मा गांधी का क्या मुख्य विचार था?", o: ["वे मशीनों के अंधे उपयोग के विरोधी थे और भारत की विशाल ग्रामीण श्रम शक्ति के लिए चरखा और हथकरघा को आवश्यक मानते थे", "वे उद्योगों के पूरी तरह पक्ष में थे", "वे कारखानों के मालिक बनना चाहते थे", "सब गलत"], a: 0 },
+            { q: "भारत में कोयला उद्योग (Coal Mining) का वास्तविक और बड़े पैमाने पर प्रारंभ 1814 में बंगाल के किस स्थान से हुआ था?", o: ["झरिया", "रानीगंज (Raniganj)", "धनबाद", "बोकारो"], a: 1 },
+            { q: "1911 ई. में टाटा परिवार द्वारा स्थापित 'टाटा हाइड्रो-इलेक्ट्रिक पावर सप्लाई कंपनी' कहाँ स्थित है जो बंबई को बिजली देती थी?", o: ["पुणे", "लोनावला या खोपोली (Khopoli)", "नागपुर", "नासिक"], a: 1 },
+            { q: "बुनकरों पर नजर रखने वाले 'गुमाश्ते' ईस्ट इंडिया कंपनी के एजेंट थे। वे स्थानीय बुनकरों के बीच अलोकप्रिय क्यों थे?", o: ["वे बहुत अच्छे थे", "वे दमनकारी थे, समय पर कपड़ा न मिलने पर कोड़े मारते थे और बाजार से अधिक कीमत पर बेचने नहीं देते थे", "वे बहुत कम वेतन देते थे", "वे विदेशी थे"], a: 1 },
+            { q: "औद्योगिक क्रांति के फलस्वरूप समाज में किस नए वर्ग का उदय हुआ जो पूरी तरह कारखानों की मजदूरी पर आश्रित था?", o: ["मध्यम वर्ग", "औद्योगिक श्रमिक वर्ग या सर्वहारा वर्ग (Industrial Proletariat)", "जमींदार वर्ग", "व्यापारी वर्ग"], a: 1 },
+            { q: "इंग्लैंड की मिलों में काम करने वाले छोटे बच्चों और महिलाओं की स्थिति कैसी थी जिन्हें कारखानों में रखा जाता था?", o: ["अत्यंत आरामदायक", "अत्यंत दयनीय, 14-16 घंटे काम और बहुत कम मजदूरी पर सीलन भरे अंधेरे कमरों में काम करना पड़ता था", "उन्हें मुफ्त शिक्षा मिलती थी", "सब सही है"], a: 1 },
+            { q: "भारत में पहला 'समेकित श्रम कानून' या औद्योगिक विवाद अधिनियम किस वर्ष पास किया गया था?", o: ["1920 ई.", "1947 ई. में (Industrial Disputes Act 1947)", "1950 ई.", "1935 ई."], a: 1 },
+            { q: "पूंजीपति वर्ग द्वारा श्रमिकों के श्रम का शोषण करके बचाए गए धन को क्या कहते हैं जो नए कारखाने खोलने में प्रयुक्त होता है?", o: ["ब्याज", "पूंजी (Capital)", "उधार", "घाटा"], a: 1 },
+            { q: "कपास को ओटने (बीज अलग करने) वाली मशीन 'कॉटन जिन' (Cotton Gin) का आविष्कार 1793 में किसने किया था?", o: ["जेम्स वाट", "एली व्हिटनी (Eli Whitney)", "रिचर्ड आर्कराइट", "जॉन के"], a: 1 },
+            { q: "19वीं शताब्दी के अंत में भारत में किस उद्योगपति ने कलकत्ता में पहली बार एक बड़ी जूट मिल स्थापित की जो भारतीय मूल के थे?", o: ["जे.एन. टाटा", "सेठ हुकमचंद (Seth Hukumchand)", "जी.डी. बिड़ला", "द्वारकानाथ टैगोर"], a: 1 },
+            { q: "औद्योगिकीकरण ने इंसानी जीवन को तीव्र गति तो दी, परंतु इसका पर्यावरण पर क्या सबसे बड़ा स्थायी दुष्प्रभाव पड़ा?", o: ["नदियाँ गहरी हो गईं", "तीव्र प्रदूषण, जंगलों का विनाश और वायुमंडल में कार्बन गैसों का खतरनाक बढ़ना (Environmental Pollution)", "बारिश बढ़ना", "कोई दुष्प्रभाव नहीं"], a: 1 },
+            { q: "भारत में कपड़ा मिलों के मालिकों द्वारा निर्मित संघ 'बॉम्बे मिलओनर्स एसोसिएशन' की स्थापना किस वर्ष हुई थी?", o: ["1854 ई.", "1875 ई. में (Bombay Millowners' Association)", "1900 ई.", "1920 ई."], a: 1 },
+            { q: "भारत में वस्त्रों के उत्पादन में 'खद्दर' या खादी को राष्ट्रीय आंदोलन का प्रतीक किसने बनाया था?", o: ["जवाहरलाल नेहरू", "महात्मा गांधी (Mahatma Gandhi)", "सुभाष चंद्र बोस", "बाल गंगाधर तिलक"], a: 1 },
+            { q: "ब्रिटेन की फैक्ट्रियों में निर्मित धागे और कपड़े भारत के बाजारों में भर जाने से भारत के किस वर्ग की आजीविका पूरी तरह छिन गई?", o: ["सैनिकों की", "पारंपरिक हथकरघा बुनकरों और सूत कातने वालों की (Traditional Weavers)", "जमींदारों की", "अंग्रेजी बाबूओं की"], a: 1 },
+            { q: "1920 के दशक में बॉम्बे टेक्सटाइल मिलों में कम्युनिस्ट विचारधारा के तहत मजदूरों की कौन सी प्रसिद्ध यूनियन बनी थी जिसने बड़ी हड़ताल की?", o: ["एटक", "गिरनी कामगार यूनियन (Girni Kamgar Union)", "मजदूर दल", "लाल सेना"], a: 1 },
+            { q: "औद्योगिक क्रांति के दौर में फैक्ट्रियों के पास बने कोयले के धुएँ और कालिख से ढके ब्रिटिश शहरों के वातावरण को क्या कहा जाता था?", o: ["स्वच्छ शहर", "काला शहर या स्मोकी सिटी (Black Towns / Smoky Environments)", "हरित शहर", "सुंदर शहर"], a: 1 },
+            { q: "मिश्रधातु 'नाइक्रोम' का उपयोग हीटर में होता है। कारखानों में मशीनों के पुर्जे और गियर बनाने के लिए किस धातु का सर्वाधिक उपयोग हुआ?", o: ["तांबा", "लोहा और इस्पात (Iron and Steel)", "एल्युमिनियम", "सीसा"], a: 1 },
+            { q: "18वीं शताब्दी के अंत तक इंग्लैंड के ग्रामीण क्षेत्रों में खेतों की बाड़ाबंदी (Enclosure Movement) का क्या मुख्य कारण था?", o: ["खेती बंद करना", "ऊन उत्पादन के लिए भेड़ों को पालने और बड़े पैमाने पर अनाज उगाने के लिए जमींदारों द्वारा जमीन घेरना", "बाढ़ रोकना", "कोई कारण नहीं था"], a: 1 },
+            { q: "बाड़ाबंदी आंदोलन (Enclosure Movement) के कारण बेघर हुए छोटे किसान और खेतिहर मजदूर आजीविका के लिए कहाँ जाने को विवश हुए?", o: ["जंगलों में", "शहरों की ओर कारखानों में मजदूरी करने (Migrated to Cities for Factory work)", "विदेशों में", "पहाड़ों पर"], a: 1 },
+            { q: "औद्योगिकीकरण के शुरुआती दौर में मशीनों के आने से अपनी नौकरी छिनने के डर से मजदूरों ने मशीनों को तोड़ने का जो आंदोलन चलाया, उसे क्या कहते हैं?", o: ["चार्टिस्ट आंदोलन", "लुडिज्म या लूडो आंदोलन (Luddite Movement - कैप्टन लूड के नेतृत्व में मशीनों का विनाश)", "सत्याग्रह", "असहयोग"], a: 1 },
+            { q: "भारत में पहली बार 'लोहा गलाने' का आधुनिक प्रयास 1779 या 1830 में मद्रास (तमिलनाडु) के किस स्थान पर किया गया था जो बाद में बंद हो गया?", o: ["साकची", "पोर्टो नोवो (Porto Novo)", "सलेम", "भद्रावती"], a: 1 },
+            { q: "बंगाल में 19वीं सदी के पूर्वाद्ध में किस बड़े भारतीय उद्यमी ने जहाजरानी, कोयला और उद्योगों में छह संयुक्त पूंजी कंपनियों की नींव रखी थी?", o: ["जे.एन. टाटा", "द्वारकानाथ टैगोर (Dwarkanath Tagore)", "घनश्याम दास बिड़ला", "कावासजी नानाभाई"], a: 1 },
+            { q: "प्रथम विश्व युद्ध के समय भारतीय सूती वस्त्र मिलों ने मुख्य रूप से सेना के लिए क्या बनाया था जो ब्रिटिश मिलें नहीं बना पा रही थीं?", o: ["खादी की साड़ियाँ", "फौजी वर्दी के कपड़े, टेंट और जूट की बोरियाँ (Army uniforms, tents & canvas)", "सुंदर टोपियाँ", "प्लास्टिक कोट"], a: 1 },
+            { q: "1921 ई. में ब्रिटिश सरकार ने भारतीय उद्योगों के संरक्षण की मांग की जांच के लिए किसकी अध्यक्षता में एक 'राजस्व आयोग' (Fiscal Commission) बनाया था?", o: ["सर जॉन साइमन", "इब्राहिम रहीमतुल्ला (Ibrahim Rahimtoola)", "लॉर्ड रिपन", "हंटर"], a: 1 },
+            { q: "1921 के राजस्व आयोग की सिफारिशों के आधार पर भारतीय उद्योगों (जैसे लोहा और कपड़ा) को विदेशी प्रतिस्पर्धा से बचाने के लिए क्या दिया गया?", o: ["विदेशी कर्ज", "राजस्व संरक्षण या टैरिफ प्रोटेक्शन (Tariff Protection)", "मुफ़्त जमीन", "सब गलत"], a: 1 },
+            { q: "भारत में 'अहमदाबाद टेक्सटाइल लेबर एसोसिएशन' (मजदूर महाजन संघ) की स्थापना 1920 में किसने की थी?", o: ["लाला लाजपत राय", "महात्मा गांधी (Mahatma Gandhi)", "जवाहरलाल नेहरू", "सुभाष चंद्र बोस"], a: 1 },
+            { q: "1928 के प्रसिद्ध 'बॉम्बे टेक्सटाइल स्ट्राइक' का मुख्य कारण मिल मालिकों द्वारा मजदूरों के किस अधिकार में कटौती करना था?", o: ["छुट्टियों में", "मजदूरी (वेतन) में 11% से अधिक की कटौती और काम के घंटे बढ़ाना", "भोजन रोकने में", "कोई कारण नहीं था"], a: 1 },
+            { q: "औपनिवेशिक सरकार की नीतियों के कारण भारतीय बुनकर सूत की कमी से क्यों जूझ रहे थे क्योंकि सारा कच्चा कपास कहाँ निर्यात हो रहा था?", o: ["चीन को", "इंग्लैंड के मैनचेस्टर और लंकाशायर की मिलों को (Exported to Britain)", "अमेरिका को", "रूस को"], a: 1 },
+            { q: "1934 ई. में भारत के बड़े उद्योगपतियों ने मिलकर देश के आर्थिक विकास के लिए कौन सी प्रसिद्ध योजना बनाई थी?", o: ["कोलकाता योजना", "बॉम्बे प्लान (Bombay Plan)", "दिल्ली योजना", "गांधीवादी योजना"], a: 1 },
+            { q: "औद्योगिक क्रांति के फलस्वरूप समाज में 'मध्यम वर्ग' (Middle Class) के अंतर्गत कौन से लोग शामिल हुए?", o: ["केवल जमींदार", "डॉक्टर, इंजीनियर, क्लर्क, शिक्षक और कारखानों के मैनेजर (Professionals & Managers)", "केवल श्रमिक", "केवल राजा"], a: 1 },
+            { q: "कार्ल मार्क्स ने अपनी किस अमर कृति में पूंजीवाद के इतिहास, उसके शोषण के तरीकों और श्रमिकों की मुक्ति का वैज्ञानिक मार्ग दिया है?", o: ["अप्रैल थीसिस", "दास कैपिटल (Das Kapital)", "वार एंड पीस", "द हिस्ट्री ऑफ लॉस"], a: 1 },
+            { q: "1942 के भारत छोड़ो आंदोलन के समय अहमदाबाद की कपड़ा मिलों के मजदूरों ने कितने महीनों की ऐतिहासिक और शांतिपूर्ण हड़ताल की थी?", o: ["एक सप्ताह", "साढ़े तीन महीने (3.5 Months - 'अहमदाबाद का स्टालिनग्राद' कहा गया)", "छह महीने", "दस दिन"], a: 1 },
+            { q: "ब्रिटेन की मिलों में बने कपड़े भारत के बाजारों में किस नाम से प्रसिद्ध थे जो मशीनों से बने होने के कारण बहुत सस्ते और महीन थे?", o: ["देशी कपड़ा", "मैनचेस्टर का कपड़ा (Manchester goods)", "सूरत का वस्त्र", "ढाका का मलमल"], a: 1 },
+            { q: "आजादी के बाद भारत में भारी उद्योगों (जैसे भिलाई, बोकारो, राउरकेला स्टील प्लांट) की स्थापना किस पंचवर्षीय योजना (1956-61) के तहत मुख्य रूप से की गई थी?", o: ["प्रथम योजना", "द्वितीय पंचवर्षीय योजना (Second Five Year Plan / पी.सी. महालनोबिस मॉडल)", "तृतीय योजना", "चौथी योजना"], a: 1 },
+            { q: "औद्योगिक क्रांति के दौरान यातायात को सुगम बनाने के लिए पिघले हुए तारकोल और पत्थरों की पक्की सड़कें (Macadamized roads) बनाने की विधि किसने खोजी थी?", o: ["जॉर्ज स्टीफनसन", "जॉन मैकैडम (John McAdam)", "जेम्स वाट", "हम्फ्री डेवी"], a: 1 },
+            { q: "1807 ई. में रॉबर्ट फुल्टन ने भाप की शक्ति से चलने वाले पहले जलयान (Steamboat) का आविष्कार किस देश में किया था?", o: ["इंग्लैंड", "अमेरिका (America)", "फ्रांस", "जर्मनी"], a: 1 },
+            { q: "इंग्लैंड में औद्योगिकीकरण के कारण किस बड़े पारंपरिक गृह-उद्योग का पूरी तरह अंत हो गया जहाँ महिलाएँ चरखे से सूत कातती थीं?", o: ["लोहा उद्योग", "घरेलू हथकरघा सूत कताई (Domestic system / Cottage spinning)", "खेती", "मिट्टी के बर्तन बनाना"], a: 1 },
+            { q: "1881 के प्रथम भारतीय फैक्ट्री एक्ट के तहत कुल कितने वर्ष से कम आयु के बच्चों को कारखाने में काम पर रखने पर पूरी तरह रोक लगा दी गई थी?", o: ["5 वर्ष", "7 वर्ष (7 years)", "12 वर्ष", "14 वर्ष"], a: 1 },
+            { q: "1891 के दूसरे भारतीय फैक्ट्री एक्ट के तहत महिलाओं के लिए काम के घंटे प्रतिदिन अधिकतम कितने निश्चित किए गए थे?", o: ["8 घंटे", "11 घंटे (11 hours per day)", "14 घंटे", "6 घंटे"], a: 1 },
+            { q: "भारत में प्रथम विश्व युद्ध के बाद किस भारतीय मारवाड़ी व्यवसायी ने बिड़ला जूट मिल और सूती मिलों का एक बड़ा औद्योगिक साम्राज्य खड़ा किया?", o: ["जे.एन. टाटा", "घनश्याम दास बिड़ला (G. D. Birla)", "सेठ हुकमचंद", "द्वारकानाथ"], a: 1 },
+            { q: "औद्योगिक क्रांति के दौर में फैक्ट्रियों के मालिकों द्वारा अधिक लाभ कमाने के लिए पुरुषों की जगह महिलाओं और बच्चों को काम पर रखने का मुख्य कारण क्या था?", o: ["वे बहुत कुशल थे", "उन्हें पुरुषों की तुलना में बहुत कम मजदूरी देनी पड़ती थी और वे विरोध नहीं करते थे (Cheap and docile labor)", "वे बड़ी मशीनें चलाते थे", "सब गलत"], a: 1 },
+            { q: "कारखानों में काम करने वाले मजदूरों के रहने के लिए बनाई जाने वाली अत्यंत तंग, सीलन भरी और अस्वच्छ चालों या कोठरियों को इंग्लैंड में क्या कहते थे?", o: ["महाल", "टेनमेंट्स या टेनमेंट क्वार्टर (Tenements)", "बंगला", "विला"], a: 1 },
+            { q: "1929 की आर्थिक मंदी के दौरान भारतीय सूती वस्त्र मिलों को बचाने के लिए भारत के राष्ट्रवादियों ने किस आंदोलन को दोबारा तीव्र किया जिससे स्वदेशी कपड़ों की मांग बढ़ी?", o: ["असहयोग आंदोलन", "सविनय अवज्ञा आंदोलन और स्वदेशी बहिष्कार (Swadeshi & Boycott)", "भारत छोड़ो", "चंपारण सत्याग्रह"], a: 1 },
+            { q: "मशीनों द्वारा बड़े पैमाने पर होने वाले औद्योगिक उत्पादन के युग से ठीक पहले के काल को इतिहास में क्या कहा जाता है?", o: ["उत्तर-औद्योगीकरण", "आदि-औद्योगीकरण या प्राक-औद्योगीकरण (Proto-industrialization)", "सामंतवाद का अंत", "आधुनिक काल"], a: 1 },
+            { q: "आदि-औद्योगीकरण के काल में वस्तुओं का उत्पादन कारखानों में न होकर कहाँ होता था जो अंतरराष्ट्रीय बाजारों के लिए था?", o: ["केवल महलों में", "ग्रामीण घरों और नेटवर्क में (Produced by merchants in rural households)", "दुकानों पर", "विदेशों में"], a: 1 },
+            { q: "18वीं सदी के अंत में मैनचेस्टर के कपड़ा मिल मालिकों ने अपने कपड़ों के थानों (Bundles) पर खरीदारों को आकर्षित करने और शुद्धता का भरोसा देने के लिए क्या लगाना शुरू किया?", o: ["लोहे की सील", "सुंदर लेबल और चित्रों वाले स्टीकर (Labels / Trademarks)", "कीमत का टैग", "अपना नाम हाथ से लिखना"], a: 1 },
+            { q: "मैनचेस्टर के कपड़ों के लेबलों पर भारतीय खरीदारों को प्रभावित करने के लिए मुख्य रूप से किनके चित्र छपे होते थे?", o: ["ब्रिटिश राजा-रानी के", "भारतीय देवी-देवताओं (जैसे कृष्ण, सरस्वती, लक्ष्मी) और ऐतिहासिक नायकों के चित्र", "जंगलों के चित्र", "मशीनों के चित्र"], a: 1 },
+            { q: "19वीं और 20वीं शताब्दी में भारत के राष्ट्रवादियों और उद्योगपतियों ने विदेशी कपड़ों का बहिष्कार करने के लिए 'स्वदेशी' का नारा दिया। यह नारा किस भावना को पुख्ता करता था?", o: ["साम्राज्यवाद", "आर्थिक राष्ट्रवाद और आत्मनिर्भरता की भावना (Economic Nationalism)", "पूंजीवाद", "सामंतवाद"], a: 1 },
+            { q: "क्या औद्योगिक क्रांति रातों-रात होने वाली कोई जादुई घटना थी या एक क्रमिक विकास था?", o: ["रातों-रात हुई थी", "यह दशकों तक चलने वाली एक क्रमिक, तकनीकी और आर्थिक विकास की दीर्घकालिक प्रक्रिया थी (Gradual evolution)", "केवल 1 साल में हुई थी", "सब गलत"], a: 1 },
+            { q: "औद्योगिक क्रांति के फलस्वरूप पूरी दुनिया में किस व्यवस्था का विस्तार हुआ जिसने देशों को कच्चे माल और बाजारों के लिए अपना गुलाम (उपनिवेश) बनाया?", o: ["समाजवाद", "साम्राज्यवाद और उपनिवेशवाद (Imperialism & Colonialism)", "साम्यवाद", "पूर्ण लोकतंत्र"], a: 1 },
+            { q: "भारत में आजादी के बाद वर्ष 1948 में न्यूनतम मजदूरी कानून क्यों आवश्यक था?", o: ["मिल मालिकों को अमीर बनाने के लिए", "ताकि अनपढ़ और असंगठित मजदूरों को मिल मालिकों द्वारा दी जाने वाली अत्यंत कम मजदूरी और आर्थिक शोषण से बचाया जा सके", "कर बढ़ाने के लिए", "कारखाने बंद करने के लिए"], a: 1 },
+            { q: "अर्थव्यवस्था और आजीविका (Economy and Livelihood) के इस संपूर्ण अध्याय का अंतिम ऐतिहासिक व वैज्ञानिक निष्कर्ष क्या है?", o: ["औद्योगीकरण से केवल अमीरों का भला हुआ और मजदूरों का कोई विकास नहीं हुआ", "मशीनों द्वारा बड़े पैमाने पर होने वाले औद्योगिक उत्पादन ने जहाँ वैश्विक अर्थव्यवस्था, शहरीकरण और आजीविका के साधनों का पूरी तरह कायाकल्प कर दिया, वहीं इसके कारण शोषित श्रमिक वर्ग (सर्वहारा) का उदय हुआ जिसने अपने अधिकारों के लिए ट्रेड यूनियनों और श्रम कानूनों के माध्यम से आधुनिक लोक-कल्याणकारी राज्य की मजबूत नींव रखी", "कुटीर उद्योग मशीनों से बेहतर थे", "भारत में औद्योगिक क्रांति कभी नहीं पहुँच पाई थी"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #e0f2fe; color: #0ea5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">अर्थव्यवस्था और आजीविका (Economy & Livelihood)</h1>
+                    <p style="color: #475569; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">बिहार बोर्ड (BSEB) कक्षा 10वीं - इतिहास (अध्याय 5)</p>
+                    <p style="color: #64748b; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">औद्योगिक क्रांति, स्पिनिंग जेनी, वाष्प इंजन, भारत में सूती और जूट मिलें, जे.एन. टाटा (टिस्को), न्यूनतम मजदूरी अधिनियम और ट्रेड यूनियनों के इतिहास पर आधारित 100 वस्तुनिष्ठ प्रश्नों का महा-क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #0ea5e9; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #475569; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #0f172a;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.innerHTML = '';
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1e293b;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #38bdf8;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #0ea5e9;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! अर्थव्यवस्था और आजीविका अध्याय पर आपका पूरा नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! औद्योगिक क्रांति और श्रमिक इतिहास पर आपकी गहरी पकड़ है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! वैचारिक समझ को बेहतर करने के लिए फिर से प्रयास करें।"; emoji = "👍"; }
+            else { message = "कोई बात नहीं! एक बार अध्याय को दोहराएं और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #94a3b8;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #0ea5e9; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #475569; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>इतिहास क्विज़ - यूरोप में राष्ट्रवाद</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(194, 65, 12, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #c2410c;
+            background-color: #fff7ed;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #f97316, #c2410c); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #ea580c, #c2410c); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(234, 88, 12, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #1e293b; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #475569; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #f97316, #c2410c); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "इतिहास के संदर्भ में 'राष्ट्रवाद' (Nationalism) का क्या अर्थ है?", o: ["एक विशेष भौगोलिक, सांस्कृतिक या सामाजिक परिवेश में रहने वाले लोगों में एकता की भावना", "राजा के प्रति अंधभक्ति", "विदेशी आक्रमण का समर्थन", "जातिवाद का विस्तार"], a: 0 },
+            { q: "यूरोप में राष्ट्रवाद की भावना का बीजारोपण मुख्य रूप से किस ऐतिहासिक घटना से माना जाता है?", o: ["पुनर्जागरण (Renaissance)", "फ्रांसीसी क्रांति", "गौरवपूर्ण क्रांति", "औद्योगिक क्रांति"], a: 0 },
+            { q: "फ्रांसीसी क्रांति किस वर्ष हुई थी जिसने राष्ट्रवाद को पूरे यूरोप में फैलाया?", o: ["1769 ई. में", "1789 ई. में", "1804 ई. में", "1815 ई. में"], a: 1 },
+            { q: "1789 की फ्रांसीसी क्रांति के समय फ्रांस पर किस राजवंश का शासन था?", o: ["ट्यूडर वंश", "स्टुआर्ट वंश", "बूर्बो वंश (Bourbon)", "रोमानोव वंश"], a: 2 },
+            { q: "फ्रांसीसी क्रांति के समय फ्रांस का राजा कौन था?", o: ["लुई XIV", "लुई XV", "लुई XVI", "नेपोलियन बोनापार्ट"], a: 2 },
+            { q: "नेपोलियन बोनापार्ट फ्रांस का सम्राट कब बना और उसने 'नेपोलियन कोड' लागू किया?", o: ["1799 ई. में", "1804 ई. में", "1812 ई. में", "1815 ई. में"], a: 1 },
+            { q: "नेपोलियन संहिता (Napoleon Code) किस वर्ष लागू की गई थी?", o: ["1789 ई. में", "1804 ई. में", "1815 ई. में", "1830 ई. में"], a: 1 },
+            { q: "नेपोलियन ने जर्मनी में कितने राज्यों को मिलाकर 'जर्मन राइन राज्य संघ' (Rhine Confederation) का गठन किया था?", o: ["29", "39", "49", "300"], a: 1 },
+            { q: "नेपोलियन बोनापार्ट की अंतिम पराजय किस प्रसिद्ध युद्ध में हुई थी?", o: ["वाटरलू का युद्ध (Battle of Waterloo)", "लीपजिग का युद्ध", "टैफेनबर्ग का युद्ध", "सेडान का युद्ध"], a: 0 },
+            { q: "वाटरलू का ऐतिहासिक युद्ध किस वर्ष लड़ा गया था?", o: ["1804 ई. में", "1812 ई. में", "1815 ई. में", "1848 ई. में"], a: 2 },
+            { q: "नेपोलियन के पतन के बाद यूरोप की विजयी शक्तियों ने 1815 में किस सम्मेलन का आयोजन किया था?", o: ["पेरिस शांति सम्मेलन", "वियना कांग्रेस (Congress of Vienna)", "बर्लिन सम्मेलन", "लंदन सम्मेलन"], a: 1 },
+            { q: "वियना कांग्रेस (1815) की मेजबानी या ऑस्ट्रिया के किस चांसलर ने की थी जो घोर प्रतिक्रियावादी था?", o: ["बिस्मार्क", "मैटर्निक (Metternich)", "कावूर", "मेजिनी"], a: 1 },
+            { q: "मैटर्निक युग का अंत किस वर्ष की क्रांति के बाद पूरी तरह हो गया?", o: ["1815 ई.", "1830 ई.", "1848 ई.", "1871 ई."], a: 2 },
+            { q: "वियना कांग्रेस के द्वारा फ्रांस में पुनः किस राजवंश को सत्ता सौंपी गई?", o: ["बूर्बो वंश (Bourbon)", "आर्लेया वंश", "हैब्सबर्ग वंश", "बोनापार्ट वंश"], a: 0 },
+            { q: "मैटर्निक की नीति का मुख्य उद्देश्य क्या था?", o: ["यूरोप में राष्ट्रवाद का प्रसार", "लोकतंत्र की स्थापना", "यूरोप में पुरानी पुरातन व्यवस्था की पुनर्स्थापना (Restoration of old order)", "औद्योगीकरण का विरोध"], a: 2 },
+            { q: "फ्रांस में जुलाई 1830 की क्रांति के बाद बूर्बो वंश के स्थान पर किस वंश को गद्दी मिली?", o: ["हैब्सबर्ग वंश", "ऑर्लेया वंश (Orleans)", "ट्यूडर वंश", "रोमानोव वंश"], a: 1 },
+            { q: "जुलाई 1830 की क्रांति के बाद फ्रांस का शासक कौन बना जो उदारवादी था?", o: ["चार्ल्स दशम", "लुई फिलिप (Louis Philippe)", "लुई अठारहवां", "नेपोलियन तृतीय"], a: 1 },
+            { q: "चार्ल्स दशम (Charles X) के दमनकारी शासक के खिलाफ फ्रांस में कौन सी प्रसिद्ध क्रांति हुई?", o: ["जुलाई 1830 की क्रांति", "फरवरी 1848 की क्रांति", "1789 की क्रांति", "बोल्शेविक क्रांति"], a: 0 },
+            { q: "लुई फिलिप ने 1840 में किसे अपना प्रधानमंत्री नियुक्त किया जो घोर प्रतिक्रियावादी था और सुधारों का विरोधी था?", o: ["थियर्स", "गीजो (Guizot)", "मैटर्निक", "बिस्मार्क"], a: 1 },
+            { q: "फ्रांस की फरवरी 1848 की क्रांति का मुख्य कारण क्या था?", o: ["लुई फिलिप की विफलता, गीजो की प्रतिक्रियावादी नीति और भुखमरी/बेरोजगारी", "विदेशी हमला", "नेपोलियन का आगमन", "चर्च का हस्तक्षेप"], a: 0 },
+            { q: "1848 की फ्रांसीसी क्रांति के बाद फ्रांस में किस प्रकार के शासन की घोषणा की गई?", o: ["पुनः राजतंत्र", "द्वितीय गणराज्य (Second Republic)", "सैनिक तानाशाही", "साम्यवाद"], a: 1 },
+            { q: "इटली के एकीकरण का पैगंबर या मसीहा (Prophet of Italian Unification) किसे कहा जाता है?", o: ["कावूर", "गैरीबाल्डी", "मेजिनी (Mazzini)", "विक्टर इमैनुएल"], a: 2 },
+            { q: "मेजिनी का संबंध किस गुप्त क्रांतिकारी संगठन से था जिसकी स्थापना 1810 के आसपास हुई थी?", o: ["लाल कुर्ती", "कार्बोनरी (Carbonari)", "जालवेरिन", "फिलाडेल्फिया"], a: 1 },
+            { q: "मेजिनी ने 1831 ई. में मार्सैई में किस नए संगठन की स्थापना की जिसने युवाओं में राष्ट्रवाद भरा?", o: ["यंग इटली (Young Italy)", "यंग यूरोप", "लाल कुर्ती", "आजाद हिंद"], a: 0 },
+            { q: "मेजिनी ने 1834 ई. में बर्न में किस अंतरराष्ट्रीय संगठन की नींव रखी थी?", o: ["यंग इटली", "यंग यूरोप (Young Europe)", "अंतरराष्ट्रीय संघ", "यूरोपीय लीग"], a: 1 },
+            { q: "1848 की क्रांति के समय मेजिनी ने इटली के किस शहर पर अधिकार करके गणतंत्र की स्थापना की थी परंतु ऑस्ट्रिया ने उसे दबा दिया?", o: ["नेपल्स", "रोम (Rome)", "मिलान", "वेनेशिया"], a: 1 },
+            { q: "पीडमाउंट-सार्डिनिया के राजा विक्टर इमैनुएल ने किसे अपना प्रधानमंत्री नियुक्त किया जो एक सफल कूटनीतिज्ञ था?", o: ["मेजिनी", "काउंट कावूर (Count Cavour)", "गैरीबाल्डी", "बिस्मार्क"], a: 1 },
+            { q: "काउंट कावूर इटली के एकीकरण में सबसे बड़ी बाधा किसे मानता था?", o: ["फ्रांस को", "ऑस्ट्रिया (Austria) को", "प्रशा को", "रूस को"], a: 1 },
+            { q: "कावूर ने 1853-54 के क्रीमिया के युद्ध में बिना आमंत्रण के किस देश की मदद के लिए अपनी सेना भेजी थी?", o: ["ऑस्ट्रिया", "फ्रांस (France)", "रूस", "इंग्लैंड"], a: 1 },
+            { q: "काउंट कावूर और फ्रांस के सम्राट नेपोलियन तृतीय के बीच 1858 में कौन सा गुप्त समझौता हुआ था?", o: ["प्लॉम्बियर्स का समझौता (Plombieres Agreement)", "वियना संधि", "फ्रैंकफर्ट संधि", "पेरिस संधि"], a: 0 },
+            { q: "इटली के एकीकरण की तलवार (Sword of Italian Unification) किसे कहा जाता है?", o: ["मेजिनी", "कावूर", "गैरीबाल्डी (Garibaldi)", "मुसोलिनी"], a: 2 },
+            { q: "गैरीबाल्डी पेशे से क्या था जिसने अपने स्वयंसेवकों की मदद से इटली के दक्षिणी राज्यों को जीता?", o: ["सिपाही", "किसान", "नाविक (Sailor)", "जमींदार"], a: 2 },
+            { q: "गैरीबाल्डी ने किस नाम से एक सशस्त्र स्वयंसेवकों की सेना का गठन किया था?", o: ["यंग इटली", "लाल कुर्ती (Red Shirts)", "काला कुर्ता", "फ्री कॉर्प्स"], a: 1 },
+            { q: "गैरीबाल्डी ने इटली के किन दो दक्षिणी प्रांतों को जीतकर विक्टर इमैनुएल को सौंप दिया और अपनी संपत्ति दान कर दी?", o: ["लोम्बार्डी और वेनेशिया", "नेपल्स और सिसली (Naples & Sicily)", "रोम और टस्कनी", "पार्मा और मोडेना"], a: 1 },
+            { q: "कावूर की मृत्यु किस वर्ष हुई थी, जिसके बाद भी एकीकरण का कार्य जारी रहा?", o: ["1860 ई.", "1862 ई.", "1870 ई.", "1871 ई."], a: 1 },
+            { q: "1870 में फ्रांस और प्रशा के बीच कौन सा युद्ध हुआ, जिसके कारण फ्रांसीसी सेना के हटते ही रोम इटली में मिल गया?", o: ["सेडोवा का युद्ध", "सेडान का युद्ध (Battle of Sedan)", "क्रीमिया का युद्ध", "वाटरलू का युद्ध"], a: 1 },
+            { q: "इटली का एकीकरण किस वर्ष पूरी तरह संपन्न हुआ जब रोम संयुक्त इटली की राजधानी बना?", o: ["1815 ई.", "1848 ई.", "1861 ई.", "1871 ई."], a: 3 },
+            { q: "जर्मनी के एकीकरण का मुख्य श्रेय (लोह पुरुष) किसे दिया जाता है?", o: ["मेजिनी", "हिटलर", "ऑटो वॉन बिस्मार्क (Otto von Bismarck)", "विलियम प्रथम"], a: 2 },
+            { q: "बिस्मार्क प्रशा के किस राजा का प्रधानमंत्री था जो सेना की मदद से एकीकरण करना चाहता था?", o: ["विलियम प्रथम (William I)", "फ्रेडरिक विलियम", "नेपोलियन", "चार्ल्स दशम"], a: 0 },
+            { q: "बिस्मार्क जर्मन एकीकरण के लिए किस नीति का पालन करने के लिए प्रसिद्ध है?", o: ["उदारवादी नीति", "रक्त और लौह की नीति (Blood and Iron Policy)", "शांतिपूर्ण वार्ता", "असहयोग नीति"], a: 1 },
+            { q: "जर्मनी के व्यापारियों ने चुंगी और व्यापारिक बाधाओं को दूर करने के लिए 1834 में किस आर्थिक संघ की स्थापना की थी?", o: ["कार्बोनरी", "जालवेरिन (Zollverein)", "यंग यूरोप", "फ्रैंकफर्ट पार्लियामेंट"], a: 1 },
+            { q: "बिस्मार्क ने जर्मनी के एकीकरण के लिए मुख्य रूप से कितने युद्ध लड़े थे?", o: ["एक", "दो", "तीन (डेनमार्क, ऑस्ट्रिया, फ्रांस से)", "पाँच"], a: 2 },
+            { q: "1866 में ऑस्ट्रिया और प्रशा के बीच कौन सा युद्ध हुआ था जिसमें ऑस्ट्रिया की हार हुई और वह जर्मन संघ से बाहर हो गया?", o: ["सेडान का युद्ध", "सेडोवा का युद्ध (Battle of Sadowa)", "क्रिमिया का युद्ध", "डेनमार्क युद्ध"], a: 1 },
+            { q: "प्रशा और फ्रांस के बीच 1870 का सेडान का युद्ध कब समाप्त हुआ और इसके बाद कौन सी संधि हुई?", o: ["फ्रैंकफर्ट की संधि (Treaty of Frankfurt - 1871)", "वियना संधि", "पेरिस संधि", "प्राग की संधि"], a: 0     },
+            { q: "फ्रैंकफर्ट की ऐतिहासिक संधि किस तिथि/वर्ष को हुई थी?", o: ["10 मई 1871 ई. को", "15 अगस्त 1870 ई.", "12 जून 1866 ई.", "18 मार्च 1848 ई."], a: 0 },
+            { q: "जर्मनी का एकीकरण किस वर्ष पूर्ण हुआ और विलियम प्रथम जर्मन साम्राज्य का सम्राट घोषित हुआ?", o: ["1815 ई.", "1848 ई.", "1870 ई.", "1871 ई."], a: 3 },
+            { q: "1848 में जर्मनी के राष्ट्रवादियों ने फ्रैंकफर्ट शहर में सेंट पॉल चर्च में एक नेशनल असेंबली बुलाई थी, उसे क्या कहते हैं?", o: ["वियना कांग्रेस", "फ्रैंकफर्ट संसद (Frankfurt Parliament)", "जालवेरिन", "स्टेट्स जनरल"], a: 1 },
+            { q: "यूनान (Greece) को किस साम्राज्य के दमनकारी शासन से स्वतंत्रता पाने के लिए संघर्ष करना पड़ा था?", o: ["ब्रिटिश साम्राज्य", "ऑटोमन साम्राज्य या तुर्की (Ottoman Empire / Turkey)", "रूसी साम्राज्य", "फ्रांसीसी साम्राज्य"], a: 1 },
+            { q: "यूनानियों में स्वतंत्रता की भावना जगाने के लिए ओडेसा में किस गुप्त संगठन की स्थापना की गई थी?", o: ["कार्बोनरी", "हितेरिया फिलाइक (Hetairia Philike)", "यंग यूरोप", "लाल कुर्ती"], a: 1 },
+            { q: "यूनान के स्वतंत्रता संग्राम में इंग्लैंड का कौन सा महान कवि तुर्की के खिलाफ लड़ते हुए शहीद हो गया था?", o: ["लॉर्ड बायरन (Lord Byron)", "विलियम वर्डसवर्थ", "जॉन कीट्स", "शेक्सपियर"], a: 0 },
+            { q: "1827 में इंग्लैंड, फ्रांस और रूस की संयुक्त सेना ने किस युद्ध में तुर्की की सेना को बुरी तरह हराया था?", o: ["नवारिनो की खाड़ी का युद्ध (Battle of Navarino)", "सेडान का युद्ध", "वाटरलू का युद्ध", "क्रीमिया का युद्ध"], a: 0 },
+            { q: "1829 में रूस और तुर्की के बीच कौन सी संधि हुई जिसके तहत तुर्की ने यूनान की स्वायत्तता को आंशिक रूप से माना?", o: ["फ्रैंकफर्ट की संधि", "एड्रियानोपुल की संधि (Treaty of Adrianople)", "पेरिस की संधि", "लंदन संधि"], a: 1 },
+            { q: "एड्रियानोपुल की संधि किस वर्ष हुई थी?", o: ["1815 ई.", "1829 ई.", "1832 ई.", "1848 ई."], a: 1 },
+            { q: "किस वर्ष लंदन की संधि द्वारा यूनान को एक स्वतंत्र और संप्रभु राष्ट्र घोषित किया गया और बवेरिया के राजा ओटो को वहाँ का राजा बनाया गया?", o: ["1829 ई.", "1830 ई.", "1832 ई. (Treaty of London / Constantinople)", "1848 ई."], a: 2 },
+            { q: "हंगरी की राजधानी निम्नलिखित में से कौन सी है जहाँ 1848 में राष्ट्रवाद उग्र हुआ?", o: ["प्राग", "बुडापेस्ट (Budapest)", "वियना", "वारसा"], a: 1 },
+            { q: "हंगरी में राष्ट्रीय आंदोलन का नेतृत्व किसने किया था जो एक लोकतांत्रिक क्रांतिकारी नेता था?", o: ["लुई कोसूथ (Louis Kossuth) और फ्रांसिस डीक", "मेजिनी", "मैटर्निक", "बिस्मार्क"], a: 0 },
+            { q: "पोलैंड में रूस के खिलाफ किस वर्ष एक बड़ा राष्ट्रवादी विद्रोह हुआ था जिसे रूसी सेना ने बेरहमी से कुचल दिया?", o: ["1830 ई.", "1831 ई.", "1848 ई.", "1863 ई."], a: 1 },
+            { q: "फ्रांस की राष्ट्र की स्वतंत्रता की प्रतीक महिला छवि को क्या नाम दिया गया था, जिसकी मूर्तियाँ सार्वजनिक चौकों पर लगाई गईं?", o: ["जर्मेनिया", "मारियान (Marianne)", "ब्रिटानिया", "भारत माता"], a: 1 },
+            { q: "जर्मन राष्ट्र की प्रतीक महिला छवि का नाम क्या था जो बलूत के पत्तों का मुकुट (वीरता का प्रतीक) पहनती थी?", o: ["मारियान", "जर्मेनिया (Germania)", "एथेना", "विक्टोरिया"], a: 1 },
+            { q: "मैटर्निक ने इटली के बारे में व्यंग्य करते हुए क्या कहा था क्योंकि वह उसे केवल टुकड़ों का समूह मानता था?", o: ["यह एक महान राष्ट्र है", "यह मात्र एक 'भौगोलिक अभिव्यक्ति' है (Merely a geographical expression)", "यह यूरोप का दिल है", "यह अजेय है"], a: 1 },
+            { q: "मैटर्निक ने फ्रांस के बारे में कौन सा प्रसिद्ध कथन कहा था जो यूरोप पर फ्रांस के प्रभाव को दिखाता है?", o: ["जब फ्रांस छींकता है, तो पूरे यूरोप को सर्दी-जुकाम हो जाता है (When France sneezes, the rest of Europe catches cold)", "फ्रांस एक अशांत देश है", "फ्रांस का पतन निश्चित है", "कोई नहीं"], a: 0 },
+            { q: "यूरोपीय सभ्यता का पालना (Cradle of European Civilization) किस देश को कहा जाता है क्योंकि उसकी कला और ज्ञान महान थे?", o: ["इटली", "यूनान (Greece)", "फ्रांस", "इंग्लैंड"], a: 1 },
+            { q: "1815 के वियना समझौते के तहत उत्तरी इटली के लोम्बार्डी और वेनेशिया प्रांतों पर किसका अधिकार बनाए रखा गया?", o: ["फ्रांस का", "ऑस्ट्रिया (Austria) का", "प्रशा का", "रूस का"], a: 1 },
+            { q: "कावूर ने अपनी कूटनीति के तहत पेरिस शांति सम्मेलन (1856) में किसे अंतर्राष्ट्रीय मुद्दा बना दिया जो पहले आंतरिक माना जाता था?", o: ["जर्मनी की समस्या को", "इटली की समस्या को (Italian Question)", "यूनान के संकट को", "पोलैंड के विद्रोह को"], a: 1 },
+            { q: "गैरीबाल्डी जब रोम पर आक्रमण करने की योजना बना रहा था, तो कावूर ने उसकी रक्षा और नियंत्रण के लिए अपनी सेना कहाँ भेजी?", o: ["रोम के दक्षिण में", "नेपल्स में", "पीडमाउंट के रास्ते सार्डिनिया", "सार्डिनिया"], a: 1 },
+            { q: "बिस्मार्क का यह मानना था कि जर्मनी की समस्या का समाधान भाषणों या बहुमत के प्रस्तावों से नहीं बल्कि किससे होगा?", o: ["शांतिपूर्ण समझौतों से", "रक्त और लौह से (By Blood and Iron)", "विदेशी मदद से", "चुनावों से"], a: 1 },
+            { q: "बिस्मार्क चांसलर बनने से पहले किस देश में प्रशा का राजदूत (Ambassador) रह चुका था जहाँ उसने कूटनीति सीखी?", o: ["इंग्लैंड", "रूस और फ्रांस (Russia & France)", "ऑस्ट्रिया", "तुर्की"], a: 1 },
+            { q: "1864 में प्रशा और ऑस्ट्रिया ने मिलकर किस देश पर हमला किया था और श्लेसविग व होल्सटीन प्रांतों को जीता था?", o: ["फ्रांस", "डेनमार्क (Denmark)", "यूनान", "पोलैंड"], a: 1 },
+            { q: "डेनमार्क की पराजय के बाद श्लेसविग और होल्सटीन का बंटवारा प्रशा और ऑस्ट्रिया के बीच किस समझौते के तहत हुआ था?", o: ["गैस्टाइन का समझौता (Gastein Convention)", "प्राग की संधि", "फ्रैंकफर्ट संधि", "वियना संधि"], a: 0 },
+            { q: "1866 के सेडोवा के युद्ध के बाद ऑस्ट्रिया और प्रशा के बीच कौन सी संधि हुई जिसके तहत ऑस्ट्रिया ने जर्मन संघ से हटना स्वीकार किया?", o: ["फ्रैंकफर्ट की संधि", "प्राग की संधि (Treaty of Prague)", "पेरिस की संधि", "लंदन की संधि"], a: 1 },
+            { q: "बिस्मार्क ने फ्रांस को अलग-थलग करने और युद्ध के लिए उकसाने के लिए स्पेन के उत्तराधिकार को लेकर कौन सा प्रसिद्ध टेलीग्राम जारी किया था?", o: ["बर्लिन टेलीग्राम", "एम्स टेलीग्राम (Ems Telegram)", "पेरिस पत्र", "प्राग संदेश"], a: 1 },
+            { q: "सेडान के युद्ध (1870) में फ्रांस के किस सम्राट को प्रशा की सेना के सामने आत्मसमर्पण करना पड़ा और बंदी बनना पड़ा?", o: ["नेपोलियन बोनापार्ट", "नेपोलियन तृतीय (Napoleon III)", "लुई फिलिप", "चार्ल्स दशम"], a: 1 },
+            { q: "राष्ट्रवाद के विकास में 'रोमानीवाद' (Romanticism) का क्या योगदान था?", o: ["यह केवल युद्ध का समर्थन था", "एक सांस्कृतिक आंदोलन जिसने कला, काव्य, कहानियों और संगीत के माध्यम से राष्ट्रवादी भावनाओं को जगाया", "यह राजा का महिमामंडन था", "यह विदेशी व्यापार का समर्थन था"], a: 1 },
+            { q: "मटर के दानों की तरह बिखरे इटली को मेजिनी ने क्या नारा दिया था ताकि लोग एकजुट हों?", o: ["इटली केवल राजा का है", "इटली एक राष्ट्र है, उसे एक होना चाहिए (Italy is one nation)", "ऑस्ट्रिया का सम्मान करो", "विभाजन ही सत्य है"], a: 1 },
+            { q: "यूरोप में राष्ट्रवाद के दौर में 'रूढ़िवाद' (Conservatism) से क्या तात्पर्य है?", o: ["तेजी से बदलाव का समर्थन", "परंपरा, स्थापित संस्थाओं, स्थापित रिवाजों और धीरे-धीरे विकास को प्राथमिकता देने वाला राजनीतिक दर्शन", "साम्यवाद की स्थापना", "तानाशाही का अंत"], a: 1 },
+            { q: "यूरोप में उदारवाद (Liberalism) का आर्थिक क्षेत्र में क्या मुख्य लक्ष्य था?", o: ["बाजारों की मुक्ति तथा चीजों और पूंजी के आवागमन पर राज्य द्वारा लगाए गए नियंत्रणों को खत्म करना", "सरकारी नौकरियों में आरक्षण", "कर बढ़ाना", "विदेशी वस्तुओं पर प्रतिबंध"], a: 0 },
+            { q: "1815 के वियना समझौते के बाद इटली के मध्य भाग (रोम और आसपास के राज्यों) पर किसका शासन बना रहा?", o: ["ऑस्ट्रिया के हैब्सबर्ग का", "पोप का शासन (The Pope)", "विक्टर इमैनुएल का", "फ्रांस का"], a: 1 },
+            { q: "मैटर्निक ने वियना कांग्रेस के माध्यम से इटली को छोटे-छोटे राज्यों में क्यों विभाजित रखा?", o: ["ताकि इटली शक्तिशाली न बन सके और ऑस्ट्रिया का प्रभाव बना रहे", "इटली के लोग यही चाहते थे", "जगह की कमी थी", "सब गलत"], a: 0 },
+            { q: "बिस्मार्क ने जर्मन संसद (डाइट) में प्रशा का प्रतिनिधित्व करते हुए किसका हमेशा कड़ा विरोध किया था?", o: ["ऑस्ट्रिया के प्रभुत्व का (Austrian dominance)", "प्रशा के राजा का", "सेना का", "उद्योगों का"], a: 0 },
+            { q: "1848 की क्रांतियों को यूरोप के इतिहास में किस नाम से जाना जाता है क्योंकि इस दौरान अनेक देशों में जनता उठ खड़ी हुई थी?", o: ["राजाओं का युग", "तत्वों का युग", "लोगों का वसंत या जनता का वसंत (Spring of Nations)", "अंधकार युग"], a: 2 },
+            { q: "राष्ट्रवाद के प्रसार में नेपोलियन के अभियानों का क्या सकारात्मक प्रभाव पड़ा?", o: ["उसने छोटे राज्यों को जीतकर प्रशासनिक और कानूनी रूप से एकीकृत किया जिससे राष्ट्रवाद का आधार बना", "उसने सबको गुलाम बनाया", "उसने कर बहुत बढ़ा दिए", "कोई प्रभाव नहीं पड़ा"], a: 0 },
+            { q: "यूरोप में किस देश के राष्ट्रवाद को 'यूरोपीय इतिहास का स्वर्ण युग' के सांस्कृतिक गौरव से प्रेरणा मिली?", o: ["जर्मनी", "यूनान (Greece)", "इटली", "रूस"], a: 1 },
+            { q: "1830 की फ्रांसीसी क्रांति के प्रभाव से निम्नलिखित में से कौन सा देश नीदरलैंड्स (बेल्जियम) से अलग होकर स्वतंत्र हो गया?", o: ["हंगरी", "बेल्जियम (Belgium)", "पोलैंड", "इटली"], a: 1 },
+            { q: "1830 की क्रांति के समय इंग्लैंड में किस राजनीतिक दल की सरकार थी जिसने यूरोप के उदारवादियों का अप्रत्यक्ष समर्थन किया?", o: ["टोरी दल", "व्हिग दल (Whigs / Liberal विचारधारा)", "लेबर पार्टी", "साम्यवादी"], a: 1 },
+            { q: "कावूर ने अपनी मृत्यु से ठीक पहले इटली के बारे में संतोष व्यक्त करते हुए क्या कहा था?", o: ["इटली कभी एक नहीं होगा", "स्थिति बदल गई है, अब इटली का एकीकरण पूर्णता के करीब है (The situation is safe)", "मैं हार गया", "सब बेकार है"], a: 1 },
+            { q: "बिस्मार्क ने अपनी चतुर कूटनीति के तहत किस युद्ध में ऑस्ट्रिया को पूरी तरह अलग-थलग कर दिया था ताकि कोई उसकी मदद न करे?", o: ["डेनमार्क युद्ध", "सेडोवा का युद्ध (1866)", "सेडान का युद्ध", "क्रीमिया का युद्ध"], a: 1 },
+            { q: "वर्साय के शीशमहल (Hall of Mirrors) में 18 जनवरी 1871 को किसे जर्मन साम्राज्य का सम्राट घोषित किया गया?", o: ["बिस्मार्क को", "प्रशा के राजा विलियम प्रथम को (Kaiser William I)", "फ्रेडरिक महान को", "हिटलर को"], a: 1 },
+            { q: "यूनान के स्वतंत्रता संग्राम की सफलता ने यूरोप के अन्य किस अधीन क्षेत्र के राष्ट्रवादियों को सबसे अधिक प्रेरित किया?", o: ["बाल्कन क्षेत्र के अन्य ईसाई राज्यों को (Balkan States)", "इंग्लैंड को", "फ्रांस को", "स्पेन को"], a: 0 },
+            { q: "ऑटोमन साम्राज्य (तुर्की) को 19वीं सदी में उसकी कमजोरी और पतन के कारण क्या कहा जाता था?", o: ["यूरोप का शेर", "यूरोप का बीमार आदमी (Sick man of Europe)", "एशिया का गौरव", "अजेय साम्राज्य"], a: 1 },
+            { q: "यूरोप में राष्ट्रवाद के कारण 19वीं सदी के अंत में किस क्षेत्र में तीव्र कूटनीतिक और सैनिक तनाव बढ़ा जो प्रथम विश्व युद्ध का कारण बना?", o: ["बाल्कन क्षेत्र (Balkan Region)", "स्कैंडिनेविया", "आईबेरिया", "ब्रिटेन"], a: 0 },
+            { q: "फ्रांसीसी क्रांति के दौरान कलाकारों ने स्वतंत्रता, न्याय और गणतंत्र जैसे विचारों को व्यक्त करने के लिए किसका प्रयोग किया?", o: ["केवल राजा के चित्रों का", "नारी रूपात्मक छवियों (Female Allegories) का", "पशुओं के चित्रों का", "अमूर्त डिजाइनों का"], a: 1 },
+            { q: "राष्ट्रवाद की भावना के तहत 'पितृभूमि' (La Patrie) और 'नागरिक' (Le Citoyen) जैसे विचारों ने फ्रांस में क्या किया?", o: ["लोगों को विभाजित किया", "एक संयुक्त समुदाय के विचार पर बल दिया जिसे संविधान के अंतर्गत समान अधिकार प्राप्त थे", "राजा की शक्ति बढ़ाई", "विदेशी व्यापार रोका"], a: 1 },
+            { q: "नेपोलियन कोड (1804) ने जन्म पर आधारित विशेषाधिकारों को समाप्त करके क्या स्थापित किया?", o: ["सैनिक तानाशाही", "कानून के समक्ष समानता और संपत्ति के अधिकार की सुरक्षा (Equality before law)", "नया टैक्स", "धार्मिक कट्टरता"], a: 1 },
+            { q: "मेंडलीव की आवर्त सारणी की तरह इतिहास में मैटर्निक व्यवस्था भी एक काल को दर्शाती है। मैटर्निक व्यवस्था का मुख्य उद्देश्य क्या था?", o: ["क्रांतियों का समर्थन", "यूरोप को नेपोलियन के पूर्व की स्थिति में ले जाना और राजशाही को सुरक्षित रखना", "लोकतंत्र लाना", "औद्योगीकरण बढ़ाना"], a: 1 },
+            { q: "1848 की उदारवादियों की क्रांति ने पुरुषों के साथ-साथ महिलाओं के लिए किस अधिकार की मांग को भी हवा दी थी जो बाद में आंदोलनों का आधार बनी?", o: ["मताधिकार और राजनीतिक समानता (Suffrage rights)", "केवल घर में रहने का अधिकार", "कोई अधिकार नहीं", "सब गलत"], a: 0 },
+            { q: "बिस्मार्क ने फ्रैंकफर्ट संसद (1848) की विफलता से क्या सबक सीखा था?", o: ["भाषणों से एकीकरण संभव नहीं है, केवल सैन्य शक्ति और राजा के नेतृत्व से ही जर्मनी एक हो सकता है", "संसद सर्वशक्तिमान है", "जनता शांत है", "विदेशी मदद सबसे जरूरी है"], a: 0 },
+            { q: "इटली के एकीकरण में मेजिनी, कावूर और गैरीबाल्डी के संयुक्त प्रयासों का क्या निष्कर्ष निकला?", o: ["तीनों असफल रहे", "मेजिनी ने विचार दिया, कावूर ने कूटनीति की और गैरीबाल्डी ने शक्ति दी, जिससे इटली का एकीकरण संभव हुआ", "इटली का विभाजन हो गया", "मुसोलिनी राजा बना"], a: 1 },
+            { q: "जर्मनी के एकीकरण में बिस्मार्क की 'रक्त और लौह' की नीति का वास्तविक व्यावहारिक अर्थ क्या था?", o: ["केवल शांति वार्ता", "युद्ध, सैन्य आधुनिकीकरण और कठोर कूटनीतिक निर्णयों द्वारा राष्ट्र का एकीकरण करना", "हथियार नष्ट करना", "लोहे के कारखाने खोलना"], a: 1 },
+            { q: "यूरोप में राष्ट्रवाद (Nationalism in Europe) के इस संपूर्ण अध्याय का मूल ऐतिहासिक निष्कर्ष क्या है?", o: ["यूरोप में राजतंत्र हमेशा के लिए अमर हो गया", "19वीं सदी में राष्ट्रवाद एक ऐसी शक्तिशाली ताकत बनकर उभरा जिसने यूरोप के बहुराष्ट्रीय साम्राज्यों को तोड़कर संप्रभु राष्ट्र-राज्यों (Nation-States) के गठन का मार्ग पूरी तरह प्रशस्त किया", "सभी देश स्वतंत्र होने के बाद साम्यवादी बन गए", "मैटर्निक की नीतियां पूरी तरह सफल रहीं"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #ffedd5; color: #c2410c; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">यूरोप में राष्ट्रवाद (Nationalism in Europe)</h1>
+                    <p style="color: #475569; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">बिहार बोर्ड (BSEB) कक्षा 10वीं - इतिहास (अध्याय 1)</p>
+                    <p style="color: #64748b; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">मैटर्निक युग, मेजिनी, कावूर, गैरीबाल्डी, बिस्मार्क, इटली-जर्मनी एकीकरण और यूनान स्वतंत्रता संग्राम के 100 वस्तुनिष्ठ (MCQ) प्रश्नों का महा-क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #c2410c; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #475569; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #0f172a;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1e293b;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #f97316;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #c2410c;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! यूरोप में राष्ट्रवाद अध्याय पर आपका पूरा नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! यूरोपीय क्रांतियों और एकीकरण के इतिहास पर आपकी गहरी पकड़ है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! वैचारिक समझ को बेहतर करने के लिए फिर से प्रयास करें।"; emoji = "👍"; }
+            else { message = "कोई बात नहीं! एक बार अध्याय को दोहराएं और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #94a3b8;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #c2410c; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #475569; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

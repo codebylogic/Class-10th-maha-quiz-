@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 हिंदी - श्रम विभाजन और जाति प्रथा क्विज़</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdfa;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0ea5e9;
+            background-color: #f0f9ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #2dd4bf, #0ea5e9); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #14b8a6, #06b6d4); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "'श्रम विभाजन और जाति प्रथा' के लेखक कौन हैं?", o: ["डॉ. राममनोहर लोहिया", "बाबासाहेब भीमराव आंबेडकर", "महात्मा गांधी", "डॉ. राजेन्द्र प्रसाद"], a: 1 },
+            { q: "बाबासाहेब भीमराव आंबेडकर का जन्म कब हुआ था?", o: ["14 अप्रैल 1891", "20 अप्रैल 1892", "15 अगस्त 1889", "14 मार्च 1890"], a: 0 },
+            { q: "डॉ. आंबेडकर का जन्म किस राज्य में हुआ था?", o: ["उत्तर प्रदेश", "बिहार", "मध्य प्रदेश", "महाराष्ट्र"], a: 2 },
+            { q: "भीमराव आंबेडकर का जन्म किस परिवार में हुआ था?", o: ["ब्राह्मण परिवार", "क्षत्रिय परिवार", "दलित परिवार", "कायस्थ परिवार"], a: 2 },
+            { q: "डॉ. आंबेडकर के चिंतन और रचनात्मकता के मुख्यतः कितने प्रेरक व्यक्ति रहे?", o: ["दो", "तीन", "चार", "पांच"], a: 1 },
+            { q: "निम्नलिखित में से कौन डॉ. आंबेडकर के प्रेरक व्यक्ति थे?", o: ["बुद्ध", "कबीर", "ज्योतिबा फुले", "उपर्युक्त सभी"], a: 3 },
+            { q: "बाबासाहेब का जन्म मध्य प्रदेश के किस स्थान पर हुआ था?", o: ["महू", "इंदौर", "ग्वालियर", "जबलपुर"], a: 0 },
+            { q: "डॉ. आंबेडकर ने उच्चतर शिक्षा के लिए कहाँ गए?", o: ["न्यूयार्क (अमेरिका) और लंदन (इंग्लैंड)", "पेरिस", "टोक्यो", "मस्को"], a: 0 },
+            { q: "भीमराव आंबेडकर को किसने उच्चतर शिक्षा के लिए न्यूयॉर्क जाने हेतु प्रोत्साहन दिया?", o: ["दरभंगा नरेश", "बड़ौदा नरेश", "जयपुर नरेश", "ग्वालियर नरेश"], a: 1 },
+            { q: "भारत के संविधान निर्माण में किसकी मुख्य भूमिका थी?", o: ["महात्मा गांधी", "डॉ. भीमराव आंबेडकर", "जवाहरलाल नेहरू", "सुभाष चंद्र बोस"], a: 1 },
+            { q: "डॉ. आंबेडकर का वाङ्मय हिंदी में कितने खंडों में प्रकाशित हो चुका है?", o: ["15 खंडों में", "17 खंडों में", "21 खंडों में", "25 खंडों में"], a: 2 },
+            { q: "बाबासाहेब भीमराव आंबेडकर का निधन (मृत्यु) कब हुआ था?", o: ["दिसंबर 1956", "दिसंबर 1957", "नवंबर 1955", "जनवरी 1960"], a: 0 },
+            { q: "बाबासाहेब आंबेडकर का निधन कहाँ हुआ था?", o: ["दिल्ली", "मुंबई", "पटना", "कोलकाता"], a: 0 },
+            { q: "'श्रम विभाजन और जाति प्रथा' लेखक के किस विख्यात भाषण का संपादन है?", o: ["द कास्ट्स इन इंडिया", "जेनेसिस एंड डेवलपमेंट", "एनीहिलेशन ऑफ कास्ट", "हु आर शूद्राज"], a: 2 },
+            { q: "'एनीहिलेशन ऑफ कास्ट' का हिंदी रूपांतरण किसने किया?", o: ["ललई सिंह यादव", "रामचंद्र शुक्ल", "लल्लन सिंह यादव", "मोहन राकेश"], a: 0 },
+            { q: "यह भाषण 'एनीहिलेशन ऑफ कास्ट' किस सम्मेलन के लिए तैयार किया गया था?", o: ["जाति-पाति तोड़क मंडल, लाहौर (1936)", "दलित महासम्मेलन, मुंबई", "समानता सम्मेलन, दिल्ली", "अखिल भारतीय छात्र संघ"], a: 0 },
+            { q: "लाहौर का जाति-पाति तोड़क मंडल वार्षिक सम्मेलन किस वर्ष होने वाला था?", o: ["1935", "1936", "1937", "1940"], a: 1 },
+            { q: "लेखक के अनुसार आज के युग में भी किसके पोषकों की कमी नहीं है?", o: ["जातिवाद के", "मानवतावाद के", "समाजवाद के", "विज्ञानवाद के"], a: 0 },
+            { q: "जातिवाद के पोषक इसके समर्थन का क्या आधार देते हैं?", o: ["यह आधुनिक समाज के लिए आवश्यक है", "यह कार्यकुशलता के लिए श्रम विभाजन का ही दूसरा रूप है", "यह धार्मिक स्वतंत्रता देता है", "इससे आर्थिक विकास होता है"], a: 1 },
+            { q: "विंटबना का अर्थ क्या होता है?", o: ["उपेक्षा", "उपहास (मजाक/मजाक उड़ाना)", "आधार", "प्रशंसा"], a: 1 },
+            { q: "जाति प्रथा किस विभाजन का स्वाभाविक रूप नहीं कही जा सकती?", o: ["श्रम विभाजन का", "मनुष्यों के विभाजन का", "रुचि आधारित विभाजन का", "भौगोलिक विभाजन का"], a: 2 },
+            { q: "भारतीय समाज में जाति प्रथा श्रम विभाजन के साथ-साथ किसका रूप लिए हुए है?", o: ["स्वतंत्रता का", "समानता का", "श्रमिक विभाजन का", "भ्रातृत्व का"], a: 2 },
+            { q: "जाति प्रथा के अनुसार श्रम विभाजन का आधार क्या है?", o: ["मनुष्य की रुचि", "रोजगार क्षमता", "पैतृक पेशा (माता-पिता का पेशा)", "सरकार का निर्णय"], a: 2 },
+            { q: "जाति प्रथा मनुष्य को जीवन भर के लिए किसमें बांध देती है?", o: ["एक ही पेशे में", "स्वतंत्रता में", "शिक्षा में", "विदेशी व्यापार में"], a: 0 },
+            { q: "उद्योग-धंधों की प्रक्रिया और तकनीक में निरंतर विकास के कारण मनुष्य को क्या बदलने की आवश्यकता पड़ सकती है?", o: ["अपना देश", "अपना पेशा", "अपना धर्म", "अपनी भाषा"], a: 1 },
+            { q: "यदि प्रतिकूल परिस्थितियों में भी मनुष्य को पेशा बदलने की स्वतंत्रता न हो, तो इसका क्या परिणाम होता है?", o: ["भुखमरी और बेरोजगारी", "अत्यधिक धन लाभ", "सामाजिक प्रतिष्ठा", "कुशलता में वृद्धि"], a: 0 },
+            { q: "हिंदू धर्म की जाति प्रथा किसी भी व्यक्ति को ऐसा पेशा चुनने की अनुमति नहीं देती जो उसका...?", o: ["पसंदीदा हो", "पैतृक पेशा न हो", "सरकारी हो", "आर्थिक रूप से कमजोर हो"], a: 1 },
+            { q: "बुद्ध एंड हिज धम्मा के लेखक कौन हैं?", o: ["भीमराव आंबेडकर", "जवाहरलाल नेहरू", "महात्मा गांधी", "रवींद्रनाथ ठाकुर"], a: 0 },
+            { q: "जाति प्रथा का श्रम विभाजन मनुष्य की किस चीज़ पर निर्भर नहीं रहता?", o: ["इच्छा पर", "व्यक्तिगत रुचि पर", "व्यक्तिगत क्षमता पर", "उपर्युक्त सभी पर"], a: 3 },
+            { q: "लेखक के अनुसार आदर्श समाज किस पर आधारित होना चाहिए?", o: ["स्वतंत्रता पर", "समता पर", "भ्रातृत्व (भाईचारे) पर", "उपर्युक्त सभी पर"], a: 3 },
+            { q: "भ्रातृत्व का वास्तविक रूप क्या है?", o: ["पानी और चीनी के मिश्रण की तरह", "दूध और पानी के मिश्रण की तरह", "नमक और पानी की तरह", "मिट्टी और पत्थर की तरह"], a: 1 },
+            { q: "भाईचारे के इसी वास्तविक रूप का दूसरा नाम क्या है?", o: ["राजतंत्र", "लोकतंत्र", "तानाशाही", "साम्यवाद"], a: 1 },
+            { q: "लोकतंत्र केवल शासन की एक पद्धति ही नहीं, मूलतः क्या है?", o: ["सामूहिक जीवनचर्या की एक रीति और समाज के सम्मिलित अनुभवों के आदान-प्रदान का नाम", "एक कानूनी दस्तावेज़", "चुनाव लड़ने की प्रक्रिया", "नेताओं का समूह"], a: 0 },
+            { q: "'द कास्ट्स इन इंडिया: देयर मैकेनिज्म' किनकी रचना है?", o: ["महात्मा गांधी", "डॉ. गुणाकर मुले", "डॉ. भीमराव आंबेडकर", "हजारी प्रसाद द्विवेदी"], a: 2 },
+            { q: "'हु आर शूद्राज' (Who are Shudras) किसकी कृति है?", o: ["भीमराव आंबेडकर", "यतींद्र मिश्र", "अमरकांत", "मैक्समूलर"], a: 0 },
+            { q: "आंबेडकर के अनुसार, जाति प्रथा का सबसे बड़ा दोष क्या है?", o: ["यह मनुष्य को अपनी इच्छा का पेशा नहीं चुनने देती", "यह जन्म से ही पेशा निर्धारित कर देती है", "यह श्रम का अस्वाभाविक विभाजन करती है", "उपर्युक्त सभी"], a: 3 },
+            { q: "लेखक भारत में बेरोजगारी का एक प्रमुख व प्रत्यक्ष कारण किसे मानते हैं?", o: ["कार्य अकुशलता को", "जाति प्रथा को", "उद्योग-धंधों की कमी को", "भ्रष्टाचार को"], a: 1 },
+            { q: "जाति प्रथा के तहत किया गया श्रम विभाजन कैसा होता है?", o: ["रुचि पर आधारित", "अस्वाभाविक और भेदभावपूर्ण", "प्राकृतिक", "वैज्ञानिक"], a: 1 },
+            { q: "गोधूलि भाग-2 का पहला पाठ 'श्रम विभाजन और जाति प्रथा' गद्य की कौन सी विधा है?", o: ["कहानी", "भाषण/निबंध", "कविता", "साक्षात्कार"], a: 1 },
+            { q: "आंबेडकर जी ने किस प्रथा को आर्थिक पहलू से भी खतरनाक माना है?", o: ["सती प्रथा", "दहेज प्रथा", "जाति प्रथा", "बाल विवाह प्रथा"], a: 2 },
+            { q: "डॉ. आंबेडकर ने मैट्रिक परीक्षा किस वर्ष उत्तीर्ण की थी?", o: ["1905", "1907", "1912", "1915"], a: 1 },
+            { q: "डॉ. भीमराव आंबेडकर के माता का नाम क्या था?", o: ["रानी बाई", "कुंती बाई", "शीला बाई", "भीमा बाई"], a: 3 },
+            { q: "डॉ. भीमराव आंबेडकर के पिता का नाम क्या था?", o: ["रामजी सकपाल", "रामनprimary सकपाल", "रामानंद सकपाल", "राधेराम सकपाल"], a: 0 },
+            { q: "जाति प्रथा मनुष्य के स्वाभाविक प्रेरणा, रुचि व आत्म-शक्ति को दबाकर उसे क्या बना देती है?", o: ["सक्रिय", "निष्क्रिय और जड़", "कुशल", "विद्वान"], a: 1 },
+            { q: "सच्चे लोकतंत्र की स्थापना के लिए आंबेडकर ने किन बातों को आवश्यक माना है?", o: ["समाज में स्वतंत्रता, समता और बंधुत्व हो", "लोगों में एक-दूसरे के प्रति श्रद्धा और सम्मान हो", "सभी को समान अवसर मिले", "उपर्युक्त सभी"], a: 3 },
+            { q: "आंबेडकर के भाषण का मुख्य उद्देश्य क्या मिटाना था?", o: ["आर्थिक असमानता", "जातिगत भेदभाव और छुआछूत", "राजनीतिक दल", "विदेशी शिक्षा"], a: 1 },
+            { q: "जाति प्रथा में मनुष्य का पेशा कब निर्धारित होता है?", o: ["गर्भधारण के समय ही (जन्म के पूर्व)", "शिक्षा पूरी होने पर", "शादी के बाद", "वयस्क होने पर"], a: 0 },
+            { q: "कुशलता के लिए किसे आवश्यक माना जाता है?", o: ["श्रम विभाजन को", "जाति प्रथा को", "वर्ग व्यवस्था को", "पूंजीवाद को"], a: 0 },
+            { q: "डॉ. भीमराव आंबेडकर को और किस उपनाम से जाना जाता है?", o: ["राष्ट्रपिता", "संविधान के निर्माता / बाबासाहेब", "लोह पुरुष", "लोकनायक"], a: 1 },
+            { q: "लाहौर का वह सम्मेलन क्यों स्थगित कर दिया गया था?", o: ["क्रांति के कारण", "आयोजकों की पूर्ण सहमति न बन पाने और क्रांतिकारी रुख के कारण", "पैसों की कमी से", "नेताओं की बीमारी से"], a: 1 },
+            { q: "जाति प्रथा का दूसरा नाम क्या है?", o: ["धर्म विभाजन", "श्रम विभाजन", "वर्ग विभाजन", "वर्ण व्यवस्था"], a: 1 },
+            { q: "आंबेडकर के अनुसार, दासता (Slavery) केवल कानूनी पराधीनता नहीं है, बल्कि और क्या है?", o: ["अपनी पसंद का पेशा न चुनने की मजबूरी", "कम वेतन मिलना", "विदेश न जा पाना", "जेल में रहना"], a: 0 },
+            { q: "समता के औचित्य पर विचार करते हुए आंबेडकर ने किसे प्राथमिकता दी?", o: ["वंश परंपरा को", "सामाजिक उत्तराधिकार को", "मनुष्य के अपने प्रयत्नों और समान अवसरों को", "शारीरिक बल को"], a: 2 },
+            { q: "भीमराव आंबेडकर ने वकालत कहाँ से शुरू की थी?", o: ["भारत लौटने के बाद बंबई उच्च न्यायालय से", "लंदन से", "कोलकाता से", "पटना से"], a: 0 },
+            { q: "लेखक के अनुसार, समाज के किस वर्ग को जाति प्रथा सबसे अधिक प्रभावित करती है?", o: ["उच्च वर्ग को", "शोषित और दलित वर्ग को", "शासक वर्ग को", "व्यापारी वर्ग को"], a: 1 },
+            { q: "जाति प्रथा का आधार क्या पूर्णतः वैज्ञानिक है?", o: ["हाँ", "नहीं, यह अवैज्ञानिक और संकीर्ण है", "आंशिक रूप से", "कहा नहीं जा सकता"], a: 1 },
+            { q: "आंबेडकर जी के अनुसार समाज में न्याय का क्या अर्थ है?", o: ["सभी को समान रूप से स्वतंत्रता और अवसर मिलना", "केवल अमीरों की रक्षा", "कठोर सजा देना", "कानून बदलना"], a: 0 },
+            { q: "जाति प्रथा किस देश की सामाजिक व्यवस्था का एक विशेष लक्षण रही है?", o: ["अमेरिका", "भारत", "चीन", "जापान"], a: 1 },
+            { q: "लेखक के अनुसार रुचि के बिना काम करने का क्या परिणाम होता है?", o: ["काम में मन नहीं लगता और कार्यकुशलता घटती है", "काम बहुत अच्छा होता है", "पैसे अधिक मिलते हैं", "सम्मान बढ़ता है"], a: 0 },
+            { q: "डॉ. आंबेडकर ने संपूर्ण वाङ्मय को कितने भागों में विभाजित किया है जिसे भारत सरकार ने प्रकाशित किया?", o: ["10", "15", "21", "30"], a: 2 },
+            { q: "आंबेडकर के अनुसार भाईचारे का आधार क्या होना चाहिए?", o: ["समानता और सहानुभूति", "स्वार्थ", "डर", "कानूनी दबाव"], a: 0 },
+            { q: "जातिवाद के कारण समाज में क्या पैदा होता है?", o: ["ऊंच-नीच की भावना और सामाजिक विघटन", "एकता", "अखंडता", "समृद्धि"], a: 0 },
+            { q: "भीमराव आंबेडकर की प्रारंभिक शिक्षा कहाँ हुई थी?", o: ["उनके अपने गाँव और स्थानीय स्कूल में", "इंग्लैंड में", "अमेरिका में", "दिल्ली में"], a: 0 },
+            { q: "जाति प्रथा के कारण भारत में श्रमिकों की स्थिति कैसी हो गई है?", o: ["उन्हें उच्च सम्मान मिला है", "वे अपनी मर्जी के मालिक हैं", "वे अस्वाभाविक श्रेणियों में विभाजित और शोषित हैं", "वे बहुत अमीर हो गए हैं"], a: 2 },
+            { q: "आंबेडकर जी ने समाज के किन वर्गों के उत्थान के लिए संघर्ष किया?", o: ["अछूतों/दलितों", "महिलाओं", "श्रमिकों", "उपर्युक्त सभी"], a: 3 },
+            { q: "पाठ में प्रयुक्त शब्द 'अस्वाभाविक' का क्या अर्थ है?", o: ["जो प्रकृति या नियम के अनुकूल न हो", "बहुत अच्छा", "सामान्य", "सरल"], a: 0 },
+            { q: "'श्रम विभाजन और जाति प्रथा' पाठ से हमें क्या शिक्षा मिलती है?", o: ["जातिवाद का समर्थन करना चाहिए", "समाज को जातिविहीन, समतामूलक और लोकतांत्रिक होना चाहिए", "पेशा कभी नहीं बदलना चाहिए", "शिक्षा महत्वपूर्ण नहीं है"], a: 1 },
+            { q: "बाबासाहेब आंबेडकर ने किस पत्रिका का संपादन किया था?", o: ["उद्बुद्ध भारत", "बहिष्कृत भारत", "यंग इंडिया", "हरिजन"], a: 1 },
+            { q: "जाति प्रथा का मुख्य दोष यह है कि यह व्यक्ति को...?", o: ["देशभक्त बनाती है", "उसकी क्षमता और रुचि की परवाह किए बिना एक ही पेशे में जीवनभर रखती है", "बहुत अमीर बनाती है", "अंतर्राष्ट्रीय ख्याति देती है"], a: 1 },
+            { q: "डॉ. भीमराव आंबेडकर भारत के प्रथम क्या थे?", o: ["प्रधान मंत्री", "गृह मंत्री", "कानून/विधि मंत्री", "शिक्षा मंत्री"], a: 2 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #ccfbf1; color: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v21H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">BSEB कक्षा 10वीं हिंदी (गोधूलि)</h1>
+                    <h2 style="font-size: 1.5rem; color: #0d9488; font-weight: 700; margin-bottom: 16px;">अध्याय 1: श्रम विभाजन और जाति प्रथा</h2>
+                    <p style="color: #4a5568; margin-bottom: 32px; max-width: 600px; font-size: 1.15rem;">लेखक परिचय तथा संपूर्ण पाठ के विश्लेषण पर आधारित कुल 70 महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का महा-क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #0d9488; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Profile Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 24px; line-height: 1.35;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center;">प्रश्नावली ओवरव्यू (कुल 70 प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #0d9488;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अद्भुत! आपने इस अध्याय में शत-प्रतिशत अंक हासिल किए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "उत्कृष्ट प्रदर्शन! आपकी बिहार बोर्ड की तैयारी बहुत मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और ध्यान से पढ़ें।"; emoji = "👍"; }
+            else { message = "घबराएँ नहीं! फिर से कोशिश करें और बेहतरीन अंक लाएँ।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 70</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से खेलें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

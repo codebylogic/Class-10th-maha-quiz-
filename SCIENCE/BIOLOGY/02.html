@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>जीव विज्ञान क्विज़ - नियंत्रण एवं समन्वय</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #6366f1;
+            background-color: #f5f7ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #818cf8, #6366f1); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #6366f1, #4f46e5); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #818cf8, #6366f1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "जीवों में बाहरी पर्यावरण से सूचनाएं प्राप्त करने वाले विशिष्ट अंगों को क्या कहा जाता है?", o: ["नेफ्रॉन", "ग्राही (Receptors)", "चालक अंग", "हार्मोन"], a: 1 },
+            { q: "हमारी जीव (जीभ) में मुख्य रूप से कौन सा ग्राही उपस्थित होता है जो स्वाद का पता लगाता है?", o: ["प्रकाश ग्राही", "रस-संवेदी ग्राही (Gustatory)", "घ्राण ग्राही", "श्रवण ग्राही"], a: 1 },
+            { q: "नाक के आंतरिक भाग में कौन सा ग्राही होता है जो गंध (Smell) को सूंघने में मदद करता है?", o: ["घ्राण ग्राही (Olfactory)", "रस संवेदी", "प्रकाश ग्राही", "स्पर्श ग्राही"], a: 0 },
+            { q: "तंत्रिका ऊतक की मूल संरचनात्मक और कार्यात्मक इकाई कौन सी है जो सूचनाएं प्रसारित करती है?", o: ["नेफ्रॉन", "तंत्रिका कोशिका या न्यूरॉन (Neuron)", "मस्तिष्क", "मेरुरज्जू"], a: 1 },
+            { q: "न्यूरॉन का वह भाग जहाँ से सबसे पहले बाहरी सूचना या विद्युत आवेग उपार्जित किया जाता है?", o: ["द्रुमाकृतिक सिरा या डेंड्राइट (Dendrite)", "तंत्रिकाक्ष", "कोशिका काय", "सिनैप्स"], a: 0 },
+            { q: "डेंड्राइट से प्राप्त सूचना विद्युत आवेग के रूप में कोशिका काय से होते हुए कहाँ तक जाती है?", o: ["केन्द्रक तक", "तंत्रिकाक्ष या एक्सॉन (Axon) के छोर तक", "रक्त में", "दूसरे न्यूरॉन के डेंड्राइट तक सीधे"], a: 1 },
+            { q: "दो न्यूरॉनों के बीच के सूक्ष्म रिक्त स्थान को क्या कहते हैं जहाँ विद्युत आवेग रासायनिक संकेत में बदलता है?", o: ["एक्सॉन", "सिनैप्स या अंतर्ग्रंथन (Synapse)", "डेंड्रॉन", "माइलिन म्यान"], a: 1 },
+            { q: "सिनैप्स के आर-पार विद्युत आवेग को ले जाने वाले रासायनिक पदार्थों को क्या कहा जाता है?", o: ["हार्मोन", "न्यूरोट्रांसमीटर (जैसे एसिटाइलकोलीन)", "एंजाइम", "प्लाज्मा"], a: 1 },
+            { q: "पर्यावरण में किसी खतरनाक उद्दीपन के प्रति अचानक होने वाली अनैच्छिक और तीव्र अनुक्रिया क्या कहलाती है?", o: ["सोचना", "प्रतिवर्ती क्रिया (Reflex Action)", "ऐच्छिक क्रिया", "समन्वयन"], a: 1 },
+            { q: "प्रतिवर्ती क्रियाओं में संवेदी अंग से लेकर मस्तिष्क या मेरुरज्जू और फिर प्रेरक अंग तक का मार्ग क्या कहलाता है?", o: ["तंत्रिका मार्ग", "प्रतिवर्ती चाप (Reflex Arc)", "सिनैप्टिक मार्ग", "हार्मोनल लूप"], a: 1 },
+            { q: "सामान्यतः प्रतिवर्ती क्रियाएं (जैसे गर्म वस्तु छूने पर हाथ खींचना) मुख्य रूप से किसके द्वारा नियंत्रित होती हैं?", o: ["प्रमस्तिष्क", "मेरुरज्जू या स्पाइनल कॉर्ड (Spinal Cord)", "अनुमस्तिष्क", "मेड्यूला"], a: 1 },
+            { q: "मानव केंद्रीय तंत्रिका तंत्र (Central Nervous System - CNS) किन दो मुख्य अंगों से मिलकर बना है?", o: ["धमनियां और शिराएं", "मस्तिष्क और मेरुरज्जू (Brain & Spinal Cord)", "कपाल तंत्रिकाएं", "हार्मोन ग्रंथियां"], a: 1 },
+            { q: "परिधीय तंत्रिका तंत्र (PNS) में मस्तिष्क से निकलने वाली तंत्रिकाओं को क्या कहते हैं?", o: ["कपाल तंत्रिकाएं (Cranial Nerves)", "मेरु तंत्रिकाएं", "सिनैप्टिक तंत्रिकाएं", "अनैच्छिक तंत्रिकाएं"], a: 0 },
+            { q: "परिधीय तंत्रिका तंत्र में मेरुरज्जू (Spinal Cord) से निकलने वाली तंत्रिकाएं क्या कहलाती हैं?", o: ["कपाल तंत्रिकाएं", "मेरु तंत्रिकाएं (Spinal Nerves)", "स्वायत्त तंत्रिकाएं", "केंद्रीय तंत्रिकाएं"], a: 1 },
+            { q: "मस्तिष्क का सबसे बड़ा, मुख्य और सोचने वाला जटिल भाग कौन सा है?", o: ["अग्रमस्तिष्क या प्रमस्तिष्क (Forebrain / Cerebrum)", "मध्यमस्तिष्क", "पश्चमस्तिष्क", "अनुमस्तिष्क"], a: 0 },
+            { q: "भूख, सुनने, सूंघने और देखने के विशिष्ट केंद्र मस्तिष्क के किस मुख्य भाग में स्थित होते हैं?", o: ["पश्चमस्तिष्क", "मध्यमस्तिष्क", "अग्रमस्तिष्क (Forebrain)", "अनुमस्तिष्क"], a: 2 },
+            { q: "रक्तदाब (Blood Pressure), लार आना और वमन (Vomiting) जैसी अनैच्छिक क्रियाएं पश्चमस्तिष्क के किस भाग द्वारा नियंत्रित होती हैं?", o: ["अनुमस्तिष्क", "मेड्यूला (Medulla Oblongata)", "पॉन्स", "हाइपोथैलेमस"], a: 1 },
+            { q: "शरीर की भंगिमा (Posture) और संतुलन बनाए रखना तथा सीधी रेखा में चलना मस्तिष्क का कौन सा भाग नियंत्रित करता है?", o: ["प्रमस्तिष्क", "अनुमस्तिष्क (Cerebellum)", "मेड्यूला", "पॉन्स"], a: 1 },
+            { q: "मस्तिष्क को बाहरी झटकों और चोटों से बचाने के लिए वह किस हड्डी के बने खोल के अंदर सुरक्षित रहता है?", o: ["कपाल या क्रेनियम (Cranium)", "रीढ़ की हड्डी", "पसली", "जबड़ा"], a: 0 },
+            { q: "मस्तिष्क और मेरुरज्जू के चारों ओर पाई जाने वाली सुरक्षात्मक झिल्लियों को क्या कहते हैं?", o: ["पेरीकार्डियम", "मेनिन्जेस (Meninges)", "प्ल्युरा", "पेरिटोनियम"], a: 1 },
+            { q: "मस्तिष्क की झिल्लियों के बीच कौन सा द्रव भरा होता है जो इसे झटकों से सुरक्षा देता है और पोषण प्रदान करता है?", o: ["लसीका", "प्रमस्तिष्क मेरुद्रव (Cerebrospinal Fluid - CSF)", "प्लाज्मा", "सीरम"], a: 1 },
+            { q: "पौधों में जंतुओं की तरह पेशी या तंत्रिका तंत्र नहीं होता, फिर भी वे उद्दीपन के प्रति गति कैसे करते हैं?", o: ["हड्डियों द्वारा", "कोशिकाओं में जल की मात्रा में परिवर्तन कर अपना आकार बदलकर", "रक्त प्रवाह द्वारा", "चलकर"], a: 1 },
+            { q: "छुईमुई (Mimosa pudica) के पौधे की पत्तियों को छूने पर उनका तुरंत मुरझा जाना किस प्रकार की गति है?", o: ["प्रकाशानुवर्तन", "स्पर्शानुुकुंचन गति या वृद्धि से मुक्त गति (Nastic Movement)", "जलाdynamic गति", "गुरुत्वानुवर्तन"], a: 1 },
+            { q: "पौधों में किसी उद्दीपन की दिशा में होने वाली वृद्धि आधारित गतियों को क्या कहा जाता है?", o: ["अनुकुंचन गति", "अनुवर्तन गतियां (Tropic Movements)", "मुक्त गतियां", "चक्रीय गतियां"], a: 1 },
+            { q: "पौधों के प्ररोह (Shoot) का सूर्य के प्रकाश की दिशा में मुड़ना या बढ़ना क्या कहलाता है?", o: ["गुरुत्वानुवर्तन", "प्रकाशानुवर्तन (Phototropism)", "रासायनुवर्तन", "जलाdynamic अनुवर्तन"], a: 1 },
+            { q: "जड़ों का पृथ्वी के गुरुत्वाकर्षण की दिशा में नीचे की ओर बढ़ना क्या कहलाता है?", o: ["धनात्मक गुरुत्वानुवर्तन (Geotropism)", "ऋणात्मक गुरुत्वानुवर्तन", "प्रकाशानुवर्तन", "रासायनुवर्तन"], a: 0 },
+            { q: "पराग नलिका (Pollen Tube) का बीजांड (Ovule) की ओर वृद्धि करना किस अनुवर्तन का एक प्रमुख उदाहरण है?", o: ["जला अनुवर्तन", "रासायनुवर्तन (Chemotropism)", "प्रकाशानुवर्तन", "गुरुत्वानुवर्तन"], a: 1 },
+            { q: "पौधों में वृद्धि, विकास और पर्यावरण के प्रति समन्वय स्थापित करने वाले रासायनिक पदार्थों को क्या कहते हैं?", o: ["एंजाइम", "पादप हार्मोन या फाइटोहार्मोन (Plant Hormones)", "विटामिन", "रस"], a: 1 },
+            { q: "प्ररोह के अग्रभाग (Tip) में संश्लेषित होने वाला वह पादप हार्मोन कौन सा है जो कोशिकाओं की लंबाई में वृद्धि में सहायक है?", o: ["साइटोकाइनिन", "ऑक्सिन (Auxin)", "एब्सिसिक अम्ल", "एथिलीन"], a: 1 },
+            { q: "जब पौधे पर एक ओर से प्रकाश पड़ता है, तो ऑक्सिन विसरित होकर प्ररोह के किस भाग की ओर आ जाता है?", o: ["प्रकाश वाले भाग की ओर", "छाया वाले (Shady side) भाग की ओर जिससे वह हिस्सा लंबा हो जाता है", "जड़ की ओर", "पत्तियों के सिरे पर"], a: 1 },
+            { q: "तने की वृद्धि में सहायता करने वाला और ऑक्सिन की तरह कार्य करने वाला दूसरा मुख्य पादप हार्मोन कौन सा है?", o: ["एब्सिसिक अम्ल", "जिबरेलिन (Gibberellins)", "साइटोकाइनिन", "इंसुलिन"], a: 1 },
+            { q: "पौधों में कोशिका विभाजन (Cell Division) को तीव्र करने वाला हार्मोन कौन सा है जो फलों और बीजों में अधिक होता है?", o: ["ऑक्सिन", "साइटोकाइनिन (Cytokinin)", "एब्सिसिक अम्ल", "जिबरेलिन"], a: 1 },
+            { q: "पौधों में वृद्धि को रोकने (Inhibit) वाला और पत्तियों के मुरझाने के लिए उत्तरदायी हार्मोन कौन सा है?", o: ["जिबरेलिन", "एब्सिसिक अम्ल (Abscisic Acid - ABA)", "ऑक्सिन", "साइटोकाइनिन"], a: 1 },
+            { q: "फलों को प्राकृतिक रूप से पकाने के लिए उत्तरदायी गैसीय पादप हार्मोन कौन सा है?", o: ["ऑक्सिन", "एथिलीन (Ethylene)", "जिबरेलिन", "साइटोकाइनिन"], a: 1 },
+            { q: "जंतुओं में अंतःस्रावी ग्रंथियों (Endocrine调节) द्वारा सीधे रक्त में स्रावित होने वाले रासायनिक दूत क्या कहलाते हैं?", o: ["एंजाइम", "हार्मोन (Harmones)", "लार", "लसीका"], a: 1 },
+            { q: "हमारे गले में श्वासनली के ऊपर स्थित तितली के आकार की ग्रंथि का नाम क्या है?", o: ["पीयूष ग्रंथि", "थायरॉइड ग्रंथि (Thyroid)", "अधिवृक्क ग्रंथि", "अग्न्याशय"], a: 1 },
+            { q: "थायरॉइड ग्रंथि को थायरोक्सिन हार्मोन बनाने के लिए किस तत्व की अनिवार्य आवश्यकता होती है?", o: ["लोहा", "कैल्शियम", "आयोडीन (Iodine)", "फॉस्फोरस"], a: 2 },
+            { q: "भोजन में आयोडीन की कमी से थायरॉइड ग्रंथि फूल जाती है, इस बीमारी को क्या कहते हैं?", o: ["मधुमेह", "घेंघा या गलगंड (Goitre)", "बौनापन", "एनीमिया"], a: 1 },
+            { q: "मस्तिष्क के आधार में स्थित वह ग्रंथि कौन सी है जिसे 'मास्टर ग्रंथि' कहा जाता है क्योंकि यह अन्य ग्रंथियों को नियंत्रित करती है?", o: ["थायरॉइड", "पीयूष ग्रंथि या पिट्यूटरी (Pituitary)", "अधिवृक्क", "अंडाशय"], a: 1 },
+            { q: "बच्चों में लंबाई और शारीरिक विकास को नियंत्रित करने वाला पीयूष ग्रंथि से निकला हार्मोन कौन सा है?", o: ["थायरोक्सिन", "वृद्धि हार्मोन (Growth Hormone)", "इंसुलिन", "टेस्टोस्टेरोन"], a: 1 },
+            { q: "बाल्यावस्था में वृद्धि हार्मोन के अल्पस्राव (कम निकलने) से कौन सा विकार उत्पन्न होता है?", o: ["अतिदीर्घकायता", "बौनापन (Dwarfism)", "मधुमेह", "घेंघा"], a: 1 },
+            { q: "वृक्क (Kidney) के ऊपर टोपी की तरह स्थित ग्रंथियों को क्या कहा जाता है?", o: ["पिट्यूटरी", "अधिवृक्क ग्रंथि या एड्रिनल ग्रंथि (Adrenal)", "थाइमस", "पैराथायरॉइड"], a: 1 },
+            { q: "डर, क्रोध या आपातकालीन स्थितियों में दिल की धड़कन और श्वसन दर बढ़ाने वाला 'लड़ो या उड़ो' हार्मोन कौन सा है?", o: ["इंसुलिन", "एड्रिनेलिन (Adrenaline)", "थायरोक्सिन", "एस्ट्रोजन"], a: 1 },
+            { q: "अग्न्याशय (Pancreas) ग्रंथि द्वारा स्रावित होने वाला वह हार्मोन कौन सा है जो रक्त में शर्करा (ग्लूकोज) के स्तर को नियंत्रित करता है?", o: ["एड्रिनेलिन", "इंसुलिन (Insulin)", "एस्ट्रोजन", "टेस्टोस्टेरोन"], a: 1 },
+            { q: "इंसुलिन हार्मोन के कम स्राव से रक्त में ग्लूकोज बढ़ जाता है, इस रोग को क्या कहते हैं?", o: ["घेंघा", "मधुमेह या डायबिटीज (Diabetes)", "बौनापन", "मोटापा"], a: 1 },
+            { q: "पुरुषों में यौवनावस्था के लक्षणों (जैसे दाढ़ी-मूछ आना, आवाज भारी होना) को नियंत्रित करने वाला नर लैंगिक हार्मोन कौन सा है?", o: ["एस्ट्रोजन", "टेस्टोस्टेरोन (Testosterone)", "प्रोजेस्टेरोन", "इंसुलिन"], a: 1 },
+            { q: "महिलाओं में अंडाशय (Ovary) द्वारा स्रावित होने वाला मुख्य मादा लैंगिक हार्मोन कौन सा है?", o: ["टेस्टोस्टेरोन", "एस्ट्रोजन (Estrogen)", "एड्रिनेलिन", "थायरोक्सिन"], a: 1 },
+            { q: "हार्मोन के स्राव की मात्रा और समय को नियंत्रित करने वाली शरीर की आंतरिक क्रियाविधि को क्या कहते हैं?", o: ["प्रतिवर्ती चाप", "पुनर्भरण क्रियाविधि (Feedback Mechanism)", "सिनैप्टिक संचार", "थर्मोरेगुलेशन"], a: 1 },
+            { q: "मस्तिष्क का कौन सा छोटा भाग अंतःस्रावी तंत्र और तंत्रिका तंत्र के बीच मुख्य कड़ी (हाइपोथैलेमस) का कार्य करता है?", o: ["अनुमस्तिष्क", "हाइपोथैलेमस (Hypothalamus)", "मेड्यूला", "पॉन्स"], a: 1 },
+            { q: "पौधों का प्रकाश की ओर मुड़ना ऑक्सिन के कारण होता है। ऑक्सिन कोशिका के किस भाग में अधिक प्रभावी होता है?", o: ["प्रकाशित भाग में", "छायादार भाग में जिससे कोशिकाएं लंबी हो जाती हैं", "जड़ों में", "फूलों में"], a: 1 },
+            { q: "मानव शरीर में सूचनाएं किस रूप में तंत्रिका तंतुओं में गमन करती हैं?", o: ["रासायनिक द्रव के रूप में", "विद्युत आवेग (Electrical Impulses) के रूप में", "गैसीय रूप में", "हार्मोन के रूप में"], a: 1 },
+            { q: "एक्सॉन के चारों ओर पाई जाने वाली वसायुक्त सुरक्षात्मक परत को क्या कहते हैं जो आवेग की गति बढ़ाती है?", o: ["डेंड्राइट", "माइलिन म्यान (Myelin Sheath)", "सिनैप्स", "साइटोन"], a: 1 },
+            { q: "मस्तिष्क का कौन सा भाग श्वसन दर, हृदय स्पंदन और निगलने जैसी अनैच्छिक क्रियाओं का अंतिम नियंत्रण केंद्र है?", o: ["मेड्यूला ऑब्लोंगाटा (Medulla)", "प्रमस्तिष्क", "अनुमस्तिष्क", "हाइपोथैलेमस"], a: 0 },
+            { q: "रीढ़ की हड्डी (Vertebral Column) के भीतर कौन सा नाजुक तंत्रिका अंग सुरक्षित रहता है?", o: ["मस्तिष्क", "मेरुरज्जू (Spinal Cord)", "हृदय", "फेफड़े"], a: 1 },
+            { q: "पौधों की जड़ें प्रकाश से दूर नीचे की ओर जाती हैं, इसे किस प्रकार का प्रकाशानुवर्तन कहेंगे?", o: ["धनात्मक", "ऋणात्मक प्रकाशानुवर्तन (Negative Phototropism)", "उदासीन", "कोई नहीं"], a: 1 },
+            { q: "छुईमुई की पत्तियों में गति जल की मात्रा बदलने से होती है, इस घटना को कोशिकाओं की क्या कहते हैं?", o: ["स्फीति दाब में परिवर्तन (Turgor Pressure Change)", "प्रकाश संश्लेषण", "वाष्पोत्सर्जन", "प्लास्मोलिसिस"], a: 0 },
+            { q: "हार्मोन ग्रंथियों को 'नलिकाविहीन ग्रंथियां' (Ductless调节) क्यों कहा जाता है?", o: ["उनमें खून नहीं होता", "वे अपने स्राव को सीधे रक्त में छोड़ती हैं, उनके पास कोई नलिका नहीं होती", "वे बाहर खुलती हैं", "वे अक्रिय होती हैं"], a: 1 },
+            { q: "एड्रिनेलिन हार्मोन सीधे रक्त में स्रावित होकर मुख्य रूप से किस अंग पर कार्य करता है जिससे धड़कन बढ़ती है?", o: ["फेफड़े", "हृदय (Heart)", "यकृत", "वृक्क"], a: 1 },
+            { q: "यदि रक्त में ग्लूकोज का स्तर बढ़ जाता है, तो अग्न्याशय की कौन सी कोशिकाएं इसे पहचानकर इंसुलिन बनाती हैं?", o: ["अल्फा कोशिकाएं", "बीटा कोशिकाएं (Beta Cells)", "डेल्टा कोशिकाएं", "गामा कोशिकाएं"], a: 1 },
+            { q: "हमारे शरीर में जैविक घड़ियों (Biological Clock) और सोने-जागने के चक्र को नियंत्रित करने वाली ग्रंथि कौन सी है?", o: ["पिट्यूटरी", "पिनियल ग्रंथि (Pineal Gland)", "थाइमस", "अधिवृक्क"], a: 1 },
+            { q: "हृदय स्पंदन का तेज होना और आंख की पुतली का फैलना किस तंत्रिका तंत्र के कार्य हैं?", o: ["केंद्रीय तंत्रिका तंत्र", "अनुकंपी तंत्रिका तंत्र (Sympathetic)", "परानुकंपी तंत्रिका तंत्र", "स्वायत्त तंत्रिका तंत्र"], a: 1 },
+            { q: "आपातकाल के बाद शरीर को सामान्य स्थिति में लाना और हृदय गति को धीमा करना किसका कार्य है?", o: ["अनुकंपी", "परानुकंपी तंत्रिका तंत्र (Parasympathetic)", "केंद्रीय", "ऐच्छिक"], a: 1 },
+            { q: "तंत्रिका आवेग की सिनैप्स पर गति हमेशा किस दिशा में होती है?", o: ["एक्सॉन से डेंड्राइट की ओर (Axon to Dendrite)", "डेंड्राइट से एक्सॉन की ओर वापस", "दोनों दिशाओं में", "यादृच्छिक"], a: 0 },
+            { q: "पादप तंतु जो किसी आधार के संपर्क में आते हैं, वे ऑक्सिन के कारण आधार के विपरीत दिशा में अधिक बढ़कर आधार को चारों ओर से घेर लेते हैं, इसे क्या कहते हैं?", o: ["प्रकाशानुवर्तन", "स्पर्शानुवर्तन (Thigmotropism)", "जलाdynamic", "रासायनुवर्तन"], a: 1 },
+            { q: "मानव मस्तिष्क का कुल औसत वजन लगभग कितना होता है?", o: ["500 ग्राम", "1.3 से 1.4 किलोग्राम (1300-1400g)", "3 किलोग्राम", "100 ग्राम"], a: 1 },
+            { q: "मस्तिष्क का कौन सा भाग बुद्धि, स्मृति, इच्छाशक्ति और चेतना का केंद्र माना जाता है?", o: ["अनुमस्तिष्क", "प्रमस्तिष्क (Cerebrum)", "मेड्यूला", "हाइपोथैलेमस"], a: 1 },
+            { q: "पैराथायरॉइड ग्रंथि से निकलने वाला पैराथार्मोन हार्मोन रक्त में किसके स्तर को नियंत्रित करता है?", o: ["ग्लूकोज", "कैल्शियम और फॉस्फेट (Calcium)", "लोहा", "सोडियम"], a: 1 },
+            { q: "थाइमस ग्रंथि (Thymus Gland) मुख्य रूप से बच्चों में सक्रिय होती है, यह किस प्रणाली के विकास में सहायक है?", o: ["पाचन तंत्र", "प्रतिरक्षा प्रणाली (Immune System)", "श्वसन तंत्र", "उत्सर्जन तंत्र"], a: 1 },
+            { q: "उद्दीपन के प्रति पौधों में होने वाली अनुक्रियाएं जंतुओं की तुलना में कैसी होती हैं?", o: ["अत्यधिक तीव्र", "अत्यंत धीमी (Very Slow)", "समान वेग वाली", "शून्य"], a: 1 },
+            { q: "न्यूरॉन में माइलिन म्यान के बीच-बीच में पाए जाने वाले खाली स्थानों (Rings) को क्या कहते हैं?", o: ["सिनैप्स", "रैनवियर के नोड (Nodes of Ranvier)", "डेंड्रॉन", "एक्सॉन टर्मिनल"], a: 1 },
+            { q: "हाइपोथैलेमस ग्रंथि शरीर के किस मुख्य भौतिक कारक को नियंत्रित करती है जिसे शरीर का तापमान केंद्र कहते हैं?", o: ["रक्तदाब", "शरीर का तापमान (Body Temperature)", "भूख", "प्यास"], a: 1 },
+            { q: "एब्सिसिक अम्ल पादप कोशिकाओं में क्या प्रभाव डालता है जिससे पत्तियां पीली होकर गिर जाती हैं?", o: ["वृद्धि बढ़ाता है", "रंध्रों को बंद करता है और वृद्धि रोकता है", "कोशिका विभाजन तीव्र करता है", "तने लंबे करता है"], a: 1 },
+            { q: "निम्नलिखित में से कौन सी एक ऐच्छिक क्रिया (Voluntary Action) का उदाहरण है जो हमारी इच्छा पर निर्भर है?", o: ["पलक झपकना", "दिल धड़कना", "किताब पढ़ना (Reading a book)", "लार आना"], a: 2 },
+            { q: "निम्नलिखित में से कौन सी क्रिया पूरी तरह से अनैच्छिक (Involuntary) है जिसे हम चाहकर भी तुरंत नहीं रोक सकते?", o: ["हंसना", "कूदना", "हृदय स्पंदन (Heartbeat)", "लिखना"], a: 2 },
+            { q: "टेंड्रिल (Pratan) का किसी बाड़ के सहारे ऊपर चढ़ना पादप गति के किस लक्षण को दर्शाता है?", o: ["रासायनुवर्तन", "स्पर्शानुवर्तन (Thigmotropism)", "गुरुत्वानुवर्तन", "प्रकाशानुवर्तन"], a: 1 },
+            { q: "तंत्रिका कोशिकाएं विभाजित क्यों नहीं हो सकतीं क्योंकि उनमें किसका अभाव होता है?", o: ["केन्द्रक", "तारककाय या सेंट्रोसोम (Centrosome)", "माइटोकॉन्ड्रिया", "राइबोसोम"], a: 1 },
+            { q: "यदि किसी व्यक्ति का अनुमस्तिष्क (Cerebellum) क्षतिग्रस्त हो जाए, तो क्या प्रभाव पड़ेगा?", o: ["स्मृति चली जाएगी", "शारीरिक संतुलन और चलने का समन्वय नष्ट हो जाएगा", "सांस रुक जाएगी", "दृष्टि चली जाएगी"], a: 1 },
+            { q: "प्रतिवर्ती चाप में संवेदी न्यूरॉन सूचना को संवेदी अंग से कहाँ लेकर जाता है?", o: ["पेशी तक", "मेरुरज्जू या केंद्रीय तंत्रिका तंत्र तक", "मस्तिष्क के प्रमस्तिष्क तक सीधे", "ग्रंथि तक"], a: 1 },
+            { q: "प्रेरक न्यूरॉन (Motor Neuron) मेरुरज्जू से आदेश को कहाँ तक पहुँचाता है जिससे अनुक्रिया होती है?", o: ["संवेदी अंग तक", "कार्यकर अंग या पेशी/ग्रंथि (Effector Organ) तक", "सिनैप्स तक", "केन्द्रक तक"], a: 1 },
+            { q: "घुटने का झटका (Knee Jerk) किस प्रकार की जैविक क्रिया का एक सटीक उदाहरण है?", o: ["ऐच्छिक क्रिया", "प्रतिवर्ती क्रिया (Reflex Action)", "धीमी वृद्धि", "हार्मोनल क्रिया"], a: 1 },
+            { q: "जंतुओं में तंत्रिका तंत्र के साथ मिलकर नियंत्रण और समन्वय स्थापित करने वाले दूसरे तंत्र को क्या कहते हैं?", o: ["पाचन तंत्र", "अंतःस्रावी तंत्र (Endocrine System)", "श्वसन तंत्र", "उत्सर्जन तंत्र"], a: 1 },
+            { q: "ग्रोथ हार्मोन के अतिस्राव (बचपन में बहुत अधिक निकलने) से कौन सा रोग होता है?", o: ["बौनापन", "जाइगेंटिज्म या अतिदीर्घकायता (Gigantism)", "मधुमेह", "घेंघा"], a: 1 },
+            { q: "हाइपोथैलेमस पीयूष ग्रंथि को हार्मोन छोड़ने के लिए प्रेरित करने वाले कौन से हार्मोन छोड़ता है?", o: ["वृद्धि हार्मोन", "मोचक हार्मोन (Releasing Hormones)", "इंसुलिन", "एस्ट्रोजन"], a: 1 },
+            { q: "कोशिका काय (Cyton) से निकलने वाले छोटे शाखित प्रवर्धों को क्या नाम दिया गया है?", o: ["एक्सॉन", "डेंड्राइट्स (Dendrites)", "सिनैप्स", "माइलिन"], a: 1 },
+            { q: "एक्सॉन के अंतिम सिरे पर पाई जाने वाली घुंडी जैसी संरचनाओं को क्या कहते हैं?", o: ["डेंड्रॉन", "सिनैप्टिक नोब (Synaptic Knobs)", "केन्द्रक", "मास्ट"], a: 1 },
+            { q: "पौधों में पानी की दिशा में जड़ों का मुड़ना या बढ़ना क्या कहलाता है?", o: ["जलांनुवर्तन (Hydrotropism)", "प्रकाशानुवर्तन", "गुरुत्वानुवर्तन", "रासायनुवर्तन"], a: 0 },
+            { q: "मनुष्य का मस्तिष्क कितने प्रमुख भागों में बंटा होता है?", o: ["दो", "तीन (अग्र, मध्य, पश्च मस्तिष्क)", "चार", "पांच"], a: 1 },
+            { q: "मस्तिष्क के पश्चमस्तिष्क भाग में कौन-कौन सी संरचनाएं शामिल होती हैं?", o: ["केवल प्रमस्तिष्क", "पॉन्स, अनुमस्तिष्क और मेड्यूला (Pons, Cerebellum, Medulla)", "केवल हाइपोथैलेमस", "एक्सॉन"], a: 1 },
+            { q: "स्वायत्त तंत्रिका तंत्र (Autonomic Nervous System) किन दो भागों में विभाजित होता है?", o: ["केंद्रीय और परिधीय", "अनुकंपी और परानुकंपी (Sympathetic & Parasympathetic)", "संवेदी और प्रेरक", "ऐच्छिक और अनैच्छिक"], a: 1 },
+            { q: "उद्दीपन (Stimulus) किसे कहते हैं?", o: ["केवल आंतरिक गर्मी को", "पर्यावरण में होने वाले वे बदलाव जिनके प्रति जीव अनुक्रिया करते हैं", "केवल भोजन को", "सोने को"], a: 1 },
+            { q: "कपाल तंत्रिकाओं की कुल संख्या मानव शरीर में कितनी जोड़ी होती है?", o: ["10 जोड़ी", "12 जोड़ी (12 Pairs)", "31 जोड़ी", "25 जोड़ी"], a: 1 },
+            { q: "मेरु तंत्रिकाओं (Spinal Nerves) की कुल संख्या मानव शरीर में कितनी जोड़ी पाई जाती है?", o: ["12 जोड़ी", "31 जोड़ी (31 Pairs)", "10 जोड़ी", "50 जोड़ी"], a: 1 },
+            { q: "मिश्रित तंत्रिका (Mixed Nerve) किसे कहा जाता है?", o: ["जो केवल संवेदी हो", "जिसमें संवेदी और प्रेरक दोनों प्रकार के तंतु होते हैं", "जो अक्रिय हो", "कोई नहीं"], a: 1 },
+            { q: "रक्त में टेस्टोस्टेरोन और एस्ट्रोजन हार्मोन के स्तर को नियंत्रित करने के लिए पीयूष ग्रंथि कौन सा हार्मोन छोड़ती है?", o: ["थायरोक्सिन", "गोनाडोट्रोपिन या LH/FSH", "इंसुलिन", "वृद्धि हार्मोन"], a: 1 },
+            { q: "पौधों में वृद्धि गतियों के विपरीत प्रकाश, गुरुत्व आदि से मुक्त तात्कालिक गतियों को क्या कहते हैं?", o: ["अनुवर्तन गतियां", "अनुकुंचन गतियां (Nastic Movements)", "स्थायी गतियां", "विकास गतियां"], a: 1 },
+            { q: "सिनैप्स पर विद्युत आवेग का रासायनिक संकेत में बदलना किस सिरे पर होता है?", o: ["डेंड्राइट के सिरे पर", "एक्सॉन के अंतिम छोर पर (Axon Terminal)", "केन्द्रक में", "रक्त वाहिनी में"], a: 1 },
+            { q: "हमारे शरीर में रिफ्लेक्स एक्शन का मुख्य विकास क्यों हुआ है?", o: ["सोचने की गति धीमी होने के कारण त्वरित सुरक्षात्मक प्रतिक्रिया हेतु", "चलने के लिए", "हार्मोन बचाने के लिए", "सुंदरता के लिए"], a: 0 },
+            { q: "मस्तिष्क का कौन सा भाग मुख्य रूप से दृश्य और श्रवण प्रतिवर्ती क्रियाओं को नियंत्रित करता है?", o: ["अग्रमस्तिष्क", "मध्यमस्तिष्क (Midbrain)", "पश्चमस्तिष्क", "मेरुरज्जू"], a: 1 },
+            { q: "नियंत्रण एवं समन्वय (Control and Coordination) के इस संपूर्ण अध्याय का अंतिम वैज्ञानिक निष्कर्ष क्या है?", o: ["जंतुओं में नियंत्रण केवल हार्मोन द्वारा होता है", "जीवों के जीवित रहने और कुशल संचालन के लिए तंत्रिका तंत्र और रासायनिक अंतःस्रावी तंत्र (हार्मोन) का एक साथ मिलकर सटीक संतुलन में कार्य करना ही नियंत्रण एवं समन्वय का मूल आधार है", "पौधों में गतियां अनियंत्रित होती हैं", "मस्तिष्क का रीढ़ की हड्डी से कोई संबंध नहीं होता है"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #e0e7ff; color: #4f46e5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">नियंत्रण एवं समन्वय (Control & Coordination)</h1>
+                    <p style="color: #4a5568; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (अध्याय 7)</p>
+                    <p style="color: #6b7280; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">तंत्रिका तंत्र, मस्तिष्क, पादप और जंतु हार्मोन के 100 वैचारिक प्रश्नों का पूर्ण संकलन। प्रोग्रेस ट्रैकिंग और नेविगेशन पैनल के साथ अभ्यास शुरू करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #6366f1; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1a202c;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #2d3748;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #818cf8;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #6366f1;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! आपने इस अध्याय में शत-प्रतिशत अंक प्राप्त किए हैं।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "उत्कृष्ट प्रदर्शन! तंत्रिका तंत्र और हार्मोनल नियंत्रण पर आपकी पकड़ बहुत मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! अध्यायों और हार्मोन के कार्यों का एक बार पुनः गहराई से अध्ययन करें।"; emoji = "👍"; }
+            else { message = "निराश न हों! जैविक नियंत्रण प्रणालियों को दोबारा समझें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

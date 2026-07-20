@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>आधुनिक रसायन विज्ञान क्विज़</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdfa;
+            color: #2d3748;
+            min-h: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-col: column;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0ea5e9;
+            background-color: #f0f9ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { w-full; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #2dd4bf, #0ea5e9); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #14b8a6, #06b6d4); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "LPG (तरल पेट्रोलियम गैस) मुख्य रूप से किन गैसों का मिश्रण है?", o: ["मीथेन और एथेन", "ब्यूटेन, प्रोपेन और एथेन", "हाइड्रोजन और नाइट्रोजन", "ऑक्सीजन और कार्बन"], a: 1 },
+            { q: "LPG में गैस रिसाव का पता लगाने के लिए क्या मिलाया जाता है?", o: ["एथिल मरकैप्टन", "हाइड्रोजन सल्फाइड", "सल्फर डाइऑक्साइड", "क्लोरीन"], a: 0 },
+            { q: "LPG में ब्यूटेन की मात्रा लगभग कितने प्रतिशत होती है?", o: ["20%", "43%", "50%", "75%"], a: 2 },
+            { q: "LPG में प्रोपेन की मात्रा लगभग कितनी होती है?", o: ["43%", "50%", "10%", "5%"], a: 0 },
+            { q: "वह न्यूनतम तापमान जिस पर कोई पदार्थ जलना शुरू करता है, क्या कहलाता है?", o: ["क्वथनांक", "गलनांक", "ज्वलन ताप", "हिमांक"], a: 2 },
+            { q: "मोमबत्ती की ज्वाला का नीला भाग क्या दर्शाता है?", o: ["अपूर्ण दहन", "पूर्ण दहन", "ऑक्सीजन की कमी", "कार्बन की उपस्थिति"], a: 1 },
+            { q: "अपर्याप्त ऑक्सीजन में दहन होने पर ज्वाला का रंग कैसा होता है?", o: ["नीला", "हरा", "लाल", "पीला"], a: 3 },
+            { q: "जब दो या दो से अधिक पदार्थ मिलकर एक नया पदार्थ बनाते हैं, तो उसे क्या कहते हैं?", o: ["वियोजन अभिक्रिया", "विस्थापन अभिक्रिया", "संयोजन अभिक्रिया", "उदासीनीकरण अभिक्रिया"], a: 2 },
+            { q: "N₂ + 3H₂ → 2NH₃ किस प्रकार की अभिक्रिया है?", o: ["संयोजन अभिक्रिया", "अवक्षेपण अभिक्रिया", "वियोजन अभिक्रिया", "विस्थापन अभिक्रिया"], a: 0 },
+            { q: "अम्ल और भस्म के बीच होने वाली अभिक्रिया को क्या कहते हैं?", o: ["संयोजन अभिक्रिया", "उदासीनीकरण अभिक्रिया", "उपचयन अभिक्रिया", "अपचयन अभिक्रिया"], a: 1 },
+            { q: "जिस अभिक्रिया में ऊष्मा का अवशोषण होता है, उसे क्या कहते हैं?", o: ["ऊष्माक्षेपी अभिक्रिया", "ऊष्माशोषी अभिक्रिया", "विस्थापन अभिक्रिया", "दहन अभिक्रिया"], a: 1 },
+            { q: "जिस अभिक्रिया में ऊष्मा उत्पन्न होती है, उसे क्या कहते हैं?", o: ["ऊष्माशोषी अभिक्रिया", "ऊष्माक्षेपी अभिक्रिया", "अवक्षेपण अभिक्रिया", "उदासीनीकरण अभिक्रिया"], a: 1 },
+            { q: "जल और बालू का मिश्रण किस प्रकार का मिश्रण है?", o: ["समांगी मिश्रण", "विषमांगी मिश्रण", "यौगिक", "तत्व"], a: 1 },
+            { q: "नमक और पानी का मिश्रण क्या कहलाता है?", o: ["विषमांगी मिश्रण", "समांगी मिश्रण", "निलंबन", "कोलाइड"], a: 1 },
+            { q: "यौगिक के सबसे सूक्ष्मतम कण को क्या कहा जाता है?", o: ["परमाणु", "आयन", "अणु", "इलेक्ट्रॉन"], a: 2 },
+            { q: "पदार्थ का वह सूक्ष्मतम कण जिसे और खंडित नहीं किया जा सकता, क्या कहलाता है?", o: ["परमाणु", "अणु", "यौगिक", "मिश्रण"], a: 0 },
+            { q: "वह शुद्धतम पदार्थ जो केवल एक ही प्रकार के परमाणुओं से बना होता है?", o: ["यौगिक", "तत्व", "मिश्रण", "गैस"], a: 1 },
+            { q: "जब दो या दो से अधिक पदार्थों को निश्चित अनुपात में मिलाया जाता है, तो क्या बनता है?", o: ["तत्व", "मिश्रण", "यौगिक", "परमाणु"], a: 2 },
+            { q: "CaCO₃ → CaO + CO₂ किस प्रकार की अभिक्रिया है?", o: ["संयोजन अभिक्रिया", "उदासीनीकरण अभिक्रिया", "वियोजन अभिक्रिया", "अवक्षेपण अभिक्रिया"], a: 2 },
+            { q: "जिस अभिक्रिया में कोई ठोस पदार्थ विलयन से अलग हो जाता है, उसे क्या कहते हैं?", o: ["अवक्षेपण अभिक्रिया", "दहन अभिक्रिया", "संयोजन अभिक्रिया", "उदासीनीकरण अभिक्रिया"], a: 0 },
+            { q: "सिल्वर नाइट्रेट विलयन में सोडियम क्लोराइड मिलाने पर कौन सा अवक्षेप बनता है?", o: ["सिल्वर ऑक्साइड", "सोडियम नाइट्रेट", "सिल्वर क्लोराइड", "सोडियम ऑक्साइड"], a: 2 },
+            { q: "किरोसिन और मोम के जलने पर ज्वाला क्यों उत्पन्न होती है?", o: ["वे ठोस होते हैं", "वे गर्म करने पर वाष्प में परिणत होते हैं", "उनमें ऑक्सीजन होती है", "वे तरल हैं"], a: 1 },
+            { q: "पदार्थ की कितनी मुख्य अवस्थाएँ होती हैं?", o: ["दो", "तीन", "चार", "पाँच"], a: 3 },
+            { q: "सूर्य और तारों में चमक पदार्थ की किस अवस्था के कारण होती है?", o: ["ठोस", "द्रव", "गैस", "प्लाज्मा"], a: 3 },
+            { q: "मैग्नीशियम रिबन को वायु में जलाने पर क्या बनता है?", o: ["मैग्नीशियम क्लोराइड", "मैग्नीशियम ऑक्साइड", "मैग्नीशियम हाइड्रॉक्साइड", "मैग्नीशियम कार्बोनेट"], a: 1 },
+            { q: "मैग्नीशियम रिबन का जलना किस प्रकार का परिवर्तन है?", o: ["भौतिक परिवर्तन", "रासायनिक परिवर्तन", "जैविक परिवर्तन", "कोई परिवर्तन नहीं"], a: 1 },
+            { q: "Fe + S → FeS किस प्रकार की अभिक्रिया का उदाहरण है?", o: ["वियोजन", "संयोजन", "विस्थापन", "द्विविस्थापन"], a: 1 },
+            { q: "CaO + H₂O → Ca(OH)₂ इस अभिक्रिया में CaO क्या है?", o: ["बिना बुझा हुआ चूना", "बुझा हुआ चूना", "चूना पत्थर", "संगमरमर"], a: 0 },
+            { q: "Ca(OH)₂ का सामान्य नाम क्या है?", o: ["बिना बुझा हुआ चूना", "बुझा हुआ चूना", "चूना पत्थर", "संगमरमर"], a: 1 },
+            { q: "रासायनिक समीकरण में अभिकारकों को किस ओर लिखा जाता है?", o: ["दायीं ओर", "बायीं ओर", "ऊपर", "नीचे"], a: 1 },
+            { q: "रासायनिक समीकरण में प्रतिफलों (उत्पादों) को किस ओर लिखा जाता है?", o: ["दायीं ओर", "बायीं ओर", "मध्य में", "कहीं भी नहीं"], a: 0 },
+            { q: "रासायनिक अभिक्रिया के दौरान गैसीय पदार्थ का जलना क्या उत्पन्न करता है?", o: ["केवल धुआँ", "ज्वाला (Flame)", "केवल राख", "जल वाष्प"], a: 1 },
+            { q: "ऑक्सीजन की अनुपस्थिति में क्या दहन संभव है?", o: ["हाँ, हमेशा", "नहीं, कभी नहीं", "कुछ विशेष परिस्थितियों में (जैसे मैग्नीशियम का नाइट्रोजन में जलना)", "कह नहीं सकते"], a: 2 },
+            { q: "मैग्नीशियम नाइट्रोजन की उपस्थिति में जलकर क्या बनाता है?", o: ["मैग्नीशियम नाइट्रेट", "मैग्नीशियम नाइट्राइड", "मैग्नीशियम ऑक्साइड", "मैग्नीशियम क्लोराइड"], a: 1 },
+            { q: "मोमबत्ती का जलना कौन सा दहन है?", o: ["तीव्र दहन", "मंद दहन", "स्वतः दहन", "विस्फोट"], a: 1 },
+            { q: "दहन के लिए आवश्यक शर्तें क्या हैं?", o: ["दहनशील पदार्थ", "ऑक्सीजन (पोषक)", "ज्वलन ताप की प्राप्ति", "उपर्युक्त सभी"], a: 3 },
+            { q: "हाइड्रोजन गैस जलने पर किस रंग की ज्वाला देती है?", o: ["लाल", "पीली", "हल्की नीली", "हरी"], a: 2 },
+            { q: "क्या लकड़ी के कोयले (Charcoal) के जलने पर ज्वाला उत्पन्न होती है?", o: ["हाँ, बहुत बड़ी", "नहीं, केवल चमकता है", "हाँ, नीली ज्वाला", "हाँ, पीली ज्वाला"], a: 1 },
+            { q: "समीकरण को संतुलित क्यों किया जाता है?", o: ["सुंदर दिखने के लिए", "द्रव्यमान संरक्षण के नियम के पालन के लिए", "समय बचाने के लिए", "जगह बचाने के लिए"], a: 1 },
+            { q: "द्रव्यमान संरक्षण का नियम किसने दिया था?", o: ["डाल्टन", "लेवोजियर", "न्यूटन", "रदरफोर्ड"], a: 1 },
+            { q: "वे पदार्थ जो रासायनिक अभिक्रिया में भाग लेते हैं, क्या कहलाते हैं?", o: ["उत्पाद", "प्रतिफल", "अभिकारक (Reactants)", "अवक्षेप"], a: 2 },
+            { q: "अभ अभिक्रिया के फलस्वरूप बनने वाले नए पदार्थ क्या कहलाते हैं?", o: ["अभिकारक", "उत्पाद (Products)", "उत्प्रेरक", "विलायक"], a: 1 },
+            { q: "हाइड्रोक्लोरिक अम्ल का रासायनिक सूत्र क्या है?", o: ["H₂SO₄", "HNO₃", "HCl", "CH₃COOH"], a: 2 },
+            { q: "सल्फ्यूरिक अम्ल का रासायनिक सूत्र क्या है?", o: ["HCl", "H₂SO₄", "HNO₃", "H₂CO₃"], a: 1 },
+            { q: "NaCl किसका रासायनिक सूत्र है?", o: ["चीनी", "साधारण नमक", "बेकिंग सोडा", "धोवन सोडा"], a: 1 },
+            { q: "उदासीनीकरण अभिक्रिया में अम्ल और क्षार मिलकर क्या बनाते हैं?", o: ["केवल जल", "केवल लवण", "लवण और जल", "गैस और जल"], a: 2 },
+            { q: "विद्युत अपघटन (Electrolysis) में धनायन किस इलेक्ट्रोड पर जाते हैं?", o: ["एनोड (Anode)", "कैथोड (Cathode)", "दोनों पर", "किसी पर नहीं"], a: 1 },
+            { q: "विद्युत अपघटन में ऋणायन किस इलेक्ट्रोड पर जाते हैं?", o: ["कैथोड", "एनोड", "बीच में रहते हैं", "बाहर निकल जाते हैं"], a: 1 },
+            { q: "शुद्ध जल विद्युत का क्या होता है?", o: ["सुचालक", "कुचालक (हीन चालक)", "अर्धचालक", "अतिचालक"], a: 1 },
+            { q: "शुद्ध जल में विद्युत प्रवाह करने के लिए उसमें क्या मिलाया जाता है?", o: ["चीनी", "तेल", "थोड़ा सा अम्ल या लवण", "रेत"], a: 2 },
+            { q: "सोडियम क्लोराइड के जलीय विलयन से विद्युत प्रवाहित करने पर कौन सी गैस एनोड पर मुक्त होती है?", o: ["हाइड्रोजन", "क्लोरीन", "ऑक्सीजन", "नाइट्रोजन"], a: 1 },
+            { q: "जल (H₂O) में हाइड्रोजन और ऑक्सीजन के द्रव्यमान का अनुपात क्या होता है?", o: ["1:8", "8:1", "2:1", "1:2"], a: 0 },
+            { q: "प्लाज्मा अवस्था में कण किस रूप में होते हैं?", o: ["उदासीन", "अत्यधिक ऊर्जावान और आयनीकृत गैस", "ठोस क्रिस्टल", "तरल बूंदें"], a: 1 },
+            { q: "पदार्थ की पाँचवीं अवस्था (BEC) का पूरा नाम क्या है?", o: ["बोस-आइंस्टीन कंडेनसेट", "बेसिक एनर्जी कोर", "बोस-इलेक्ट्रॉन क्लाउड", "बोस-एमिशन सेंटर"], a: 0 },
+            { q: "निम्नलिखित में से कौन सा एक भौतिक परिवर्तन है?", o: ["लोहे में जंग लगना", "भोजन का पचना", "बर्फ का पिघलना", "कोयले का जलना"], a: 2 },
+            { q: "निम्नलिखित में से कौन सा एक रासायनिक परिवर्तन है?", o: ["पानी का उबलना", "कागज का फटना", "दूध से दही बनना", "नमक का पानी में घुलना"], a: 2 },
+            { q: "रासायनिक अभिक्रिया के होने का संकेत क्या हो सकता है?", o: ["रंग में परिवर्तन", "गैस का निकलना", "तापमान में परिवर्तन", "उपर्युक्त सभी"], a: 3 },
+            { q: "लेड नाइट्रेट (Pb(NO₃)₂) और पोटेशियम आयोडाइड (KI) को मिलाने पर किस रंग का अवक्षेप बनता है?", o: ["सफेद", "पीला", "काला", "लाल"], a: 1 },
+            { q: "श्वसन (Respiration) किस प्रकार की अभिक्रिया है?", o: ["ऊष्माशोषी", "ऊष्माक्षेपी", "अवक्षेपण", "वियोजन"], a: 1 },
+            { q: "शाक-सब्जियों का विघटित होकर कम्पोस्ट बनना कैसी अभिक्रिया है?", o: ["ऊष्माक्षेपी", "ऊष्माशोषी", "विस्थापन", "द्विविस्थापन"], a: 0 },
+            { q: "लोहे की वस्तुओं पर जंग लगने की प्रक्रिया क्या कहलाती है?", o: ["यशदलेपन", "संक्षारण (Corrosion)", "उदासीनीकरण", "क्रिस्टलीकरण"], a: 1 },
+            { q: "जंग लगने से बचाने के लिए लोहे पर जिंक की परत चढ़ाने को क्या कहते हैं?", o: ["विद्युत लेपन", "यशदलेपन (Galvanization)", "पेंटिंग", "मिश्रधातु बनाना"], a: 1 },
+            { q: "चिप्स की थैली में ऑक्सीकरण रोकने के लिए कौन सी गैस भरी जाती है?", o: ["ऑक्सीजन", "हाइड्रोजन", "नाइट्रोजन", "क्लोरीन"], a: 2 },
+            { q: "उपचयन (Oxidation) में क्या होता है?", o: ["ऑक्सीजन की वृद्धि", "हाइड्रोजन की वृद्धि", "इलेक्ट्रॉन ग्रहण करना", "ऑक्सीजन का ह्रास"], a: 0 },
+            { q: "अपचयन (Reduction) में क्या होता है?", o: ["ऑक्सीजन की वृद्धि", "हाइड्रोजन की वृद्धि", "इलेक्ट्रॉन त्यागना", "विद्युत ऋणात्मक तत्व का जुड़ना"], a: 1 },
+            { q: "जिस अभिक्रिया में उपचयन और अपचयन दोनों साथ-साथ होते हैं, उसे क्या कहते हैं?", o: ["विस्थापन", "उदासीनीकरण", "रेडॉक्स (Redox) अभिक्रिया", "अवक्षेपण"], a: 2 },
+            { q: "कॉपर सल्फेट के विलयन में लोहे की कील डालने पर विलयन का रंग कैसा हो जाता है?", o: ["नीले से हरा", "हरे से नीला", "लाल से काला", "रंगहीन"], a: 0 },
+            { q: "Fe + CuSO₄ → FeSO₄ + Cu यह किस अभिक्रिया का उदाहरण है?", o: ["संयोजन", "वियोजन", "एकल विस्थापन", "द्विविस्थापन"], a: 2 },
+            { q: "जल के एक अणु में हाइड्रोजन और ऑक्सीजन के परमाणुओं की संख्या का अनुपात क्या है?", o: ["1:2", "2:1", "1:1", "2:2"], a: 1 },
+            { q: "तत्वों के आधुनिक प्रतीक प्रणाली का जन्मदाता किसे माना जाता है?", o: ["डाल्टन", "बर्जीलियस", "मेंडलीव", "नील्स बोर"], a: 1 },
+            { q: "परमाणउ के नाभिक में कौन से कण पाए जाते हैं?", o: ["प्रोटॉन और इलेक्ट्रॉन", "न्यूट्रॉन और इलेक्ट्रॉन", "प्रोटॉन और न्यूट्रॉन", "केवल इलेक्ट्रॉन"], a: 2 },
+            { q: "इलेक्ट्रॉन पर कौन सा आवेश (Charge) होता है?", o: ["धनावेश (Positive)", "ऋणावेश (Negative)", "उदासीन (Neutral)", "परिवर्तनीय"], a: 1 },
+            { q: "प्रोटॉन पर कौन सा आवेश होता है?", o: ["धनावेश (Positive)", "ऋणावेश (Negative)", "उदासीन (Neutral)", "परिवर्तनीय"], a: 0 },
+            { q: "न्यूट्रॉन पर कौन सा आवेश होता है?", o: ["धनावेश", "ऋणावेश", "उदासीन (कोई आवेश नहीं)", "दोनों"], a: 2 },
+            { q: "परमाणु संख्या (Atomic Number) किसके बराबर होती है?", o: ["न्यूट्रॉन की संख्या", "प्रोटॉन की संख्या", "इलेक्ट्रॉन और न्यूट्रॉन का योग", "प्रोटॉन और न्यूट्रॉन का योग"], a: 1 },
+            { q: "द्रव्यमान संख्या (Mass Number) किसके योग के बराबर होती है?", o: ["प्रोटॉन + इलेक्ट्रॉन", "प्रोटॉन + न्यूट्रॉन", "न्यूट्रॉन + इलेक्ट्रॉन", "केवल प्रोटॉन"], a: 1 },
+            { q: "समस्थानिक (Isotopes) में क्या समान होता है?", o: ["परमाणु द्रव्यमान", "न्यूट्रॉन की संख्या", "परमाणु संख्या", "भौतिक गुण"], a: 2 },
+            { q: "संयोजकता (Valency) क्या है?", o: ["तत्व का द्रव्यमान", "परमाणु की संयोजन क्षमता", "तत्व का आयतन", "परमाणु का आकार"], a: 1 },
+            { q: "सोडियम (Na) की परमाणु संख्या क्या है?", o: ["10", "11", "12", "13"], a: 1 },
+            { q: "कार्बन (C) की संयोजकता कितनी होती है?", o: ["2", "3", "4", "5"], a: 2 },
+            { q: "ऑक्सीजन गैस का रासायनिक सूत्र क्या है?", o: ["O", "O₂", "O₃", "H₂O"], a: 1 },
+            { q: "ओजोन गैस का रासायनिक सूत्र क्या है?", o: ["O", "O₂", "O₃", "CO₂"], a: 2 },
+            { q: "चूना पत्थर (Limestone) का रासायनिक सूत्र क्या है?", o: ["CaO", "Ca(OH)₂", "CaCO₃", "CaCl₂"], a: 2 },
+            { q: "अम्ल स्वाद में कैसे होते हैं?", o: ["कड़वे", "मीठे", "खट्टे", "नमकीन"], a: 2 },
+            { q: "क्षार (Base) स्वाद में कैसे होते हैं?", o: ["खट्टे", "मीठे", "नमकीन", "कड़वे (तीखे)"], a: 3 },
+            { q: "अम्ल नीले लिटमस पत्र को कैसा कर देता है?", o: ["लाल", "हरा", "काला", "पीला"], a: 0 },
+            { q: "क्षार लाल लिटमस पत्र को कैसा कर देता है?", o: ["हरा", "नीला", "पीला", "सफेद"], a: 1 },
+            { q: "pH स्केल का परास (Range) कहाँ से कहाँ तक होता है?", o: ["1 से 10", "0 से 14", "1 से 100", "0 से 7"], a: 1 },
+            { q: "उदासीन विलयन (जैसे शुद्ध जल) का pH मान कितना होता है?", o: ["0", "7", "14", "10"], a: 1 },
+            { q: "अम्लीय विलयन का pH मान कितना होता है?", o: ["7 से अधिक", "7 के बराबर", "7 से कम", "14 के बराबर"], a: 2 },
+            { q: "क्षारीय विलयन का pH मान कितना होता है?", o: ["7 से कम", "7 के बराबर", "7 से अधिक", "0 के बराबर"], a: 2 },
+            { q: "रक्त (Blood) का pH मान लगभग कितना होता है?", o: ["6.4", "7.4", "8.4", "5.4"], a: 1 },
+            { q: "चींटी के डंक में कौन सा अम्ल पाया जाता है?", o: ["एसिटिक अम्ल", "लैक्टिक अम्ल", "मेथेनोइक (फॉर्मिक) अम्ल", "सिट्रिक अम्ल"], a: 2 },
+            { q: "दही में कौन सा अम्ल पाया जाता है?", o: ["टार्टरिक अम्ल", "ऑक्सालिक अम्ल", "लैक्टिक अम्ल", "साइट्रिक अम्ल"], a: 2 },
+            { q: "नींबू में कौन सा अम्ल होता है?", o: ["सिट्रिक अम्ल", "लैक्टिक अम्ल", "टार्टरिक अम्ल", "एसिटिक अम्ल"], a: 0 },
+            { q: "आधुनिक आवर्त सारणी (Modern Periodic Table) किसने दी?", o: ["मेंडलीव", "मोसले", "न्यूलैंड्स", "डोबेराइनर"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी में कितने वर्ग (Groups) हैं?", o: ["7", "9", "18", "15"], a: 2 },
+            { q: "आधुनिक आवर्त सारणी में कितने आवर्त (Periods) हैं?", o: ["7", "18", "10", "8"], a: 0 },
+            { q: "सबसे हल्का तत्व कौन सा है?", o: ["ऑक्सीजन", "हीलियम", "लिथियम", "हाइड्रोजन"], a: 3 },
+            { q: "कमरे के ताप पर कौन सी धातु द्रव अवस्था में पाई जाती है?", o: ["सोना", "चांदी", "पारा (Mercury)", "लोहा"], a: 2 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        
+        // Track states of each question: 'default', 'correct', 'wrong', 'skipped'
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #ccfbf1; color: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H15M10 9H14M3 21H21M7 21V7A2 2 0 0 1 9 5H15A2 2 0 0 1 17 7V21M12 21V13M7 17H17"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 16px;">रसायन विज्ञान महा-क्विज़</h1>
+                    <p style="color: #4a5568; margin-bottom: 32px; max-width: 512px; font-size: 1.25rem;">पीडीएफ नोट्स और मूलभूत रसायन विज्ञान पर आधारित पूरे 100 प्रश्नों की श्रृंखला। क्या आप तैयार हैं?</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #0d9488; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Profile Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.75rem; font-weight: bold; margin-bottom: 32px; line-height: 1.25;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+            
+            // If already answered before (via grid nav), show result state
+            if(questionStates[currentQuestion] !== 'default') {
+                // Keep it simple, just let them re-answer or proceed
+            }
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        // Navigation Grid Functions
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center;">प्रश्नावली ओवरव्यू</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <!-- Two options below the Overview Grid -->
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #0d9488;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अविश्वसनीय! आपने रसायन विज्ञान में 100% अंक प्राप्त किए!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! आपकी तैयारी शानदार है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! थोड़ा और अभ्यास करें।"; emoji = "👍"; }
+            else { message = "निराश न हों! फिर से अध्ययन करें और प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से खेलें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

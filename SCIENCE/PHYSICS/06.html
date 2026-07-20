@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>भौतिक विज्ञान क्विज़ - ऊर्जा के स्रोत</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fffbeb;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(217, 119, 6, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #d97706;
+            background-color: #fef3c7;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #fbbf24, #d97706); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #d97706, #b45309); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(217, 119, 6, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #1e293b; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #475569; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #fbbf24, #d97706); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "एक अच्छे ऊर्जा के स्रोत में निम्नलिखित में से कौन सी विशेषता होनी चाहिए?", o: ["प्रति एकांक आयतन या द्रव्यमान अधिक कार्य करे", "वह आसानी से सुलभ हो", "उसका भंडारण और परिवहन आसान हो", "उपर्युक्त सभी"], a: 3 },
+            { q: "लाखों वर्षों पूर्व सजीवों (पौधों और जंतुओं) के अवशेषों के पृथ्वी की परतों के नीचे दबने से बने ईंधन को क्या कहते हैं?", o: ["बायोमास", "जीवाश्म ईंधन (Fossil Fuels)", "नाभिकीय ईंधन", "सौर ईंधन"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा एक जीवाश्म ईंधन का उदाहरण नहीं है?", o: ["कोयला", "पेट्रोलियम", "लकड़ी (Wood)", "प्राकृतिक गैस"], a: 2 },
+            { q: "जीवाश्म ईंधन ऊर्जा के किस प्रकार के स्रोत माने जाते हैं क्योंकि इनका भंडार सीमित है?", o: ["नवीकरणीय स्रोत", "अनवीकरणीय स्रोत (Non-renewable)", "असीमित स्रोत", "वैकल्पिक स्रोत"], a: 1 },
+            { q: "कोयला और पेट्रोलियम जैसे जीवाश्म ईंधनों के दहन से वायुमंडल में मुख्य रूप से कौन सा प्रदूषण होता है?", o: ["अम्ल वर्षा और वायु प्रदूषण (Acid rain & Air pollution)", "रेडियोधर्मी प्रदूषण", "ध्वनि प्रदूषण", "जल प्रदूषण"], a: 0 },
+            { q: "जीवाश्म ईंधनों के जलने से निकलने वाली कार्बन डाइऑक्साइड (CO₂) गैस मुख्य रूप से किस प्रभाव के लिए उत्तरदायी है?", o: ["ओजोन परत का क्षरण", "अम्ल वर्षा", "ग्रीनहाउस प्रभाव या ग्लोबल वार्मिंग (Global Warming)", "जल प्रदूषण"], a: 2 },
+            { q: "जीवाश्म ईंधन के अपूर्ण दहन (Incomplete Combustion) से कौन सी अत्यंत विषैली गैस उत्पन्न होती है?", o: ["ऑक्सीजन", "कार्बन मोनोऑक्साइड (CO)", "नाइट्रोजन डाइऑक्साइड", "हीलियम"], a: 1 },
+            { q: "वैसा विद्युत संयंत्र जिसमें जीवाश्म ईंधन (कोयला/गैस) को जलाकर भाप बनाई जाती है और टरबाइन घुमाया जाता है?", o: ["जल विद्युत संयंत्र", "तापीय विद्युत संयंत्र (Thermal Power Plant)", "नाभिकीय संयंत्र", "पवन फार्म"], a: 1 },
+            { q: "तापीय विद्युत संयंत्रों को आमतौर पर कोयले या तेल के क्षेत्रों के पास ही क्यों स्थापित किया जाता है?", o: ["कोयला जल से भारी होता है", "कोयले या पेट्रोलियम का परिवहन करने की तुलना में उत्पादित विद्युत का संचरण अधिक दक्ष और सस्ता होता है", "वहाँ पानी नहीं होता", "कोई विशेष कारण नहीं है"], a: 1 },
+            { q: "बहते हुए जल की गतिज ऊर्जा या ऊंचाई पर स्थित जल की स्थितिज ऊर्जा को विद्युत ऊर्जा में बदलने वाले संयंत्र को क्या कहते हैं?", o: ["तापीय विद्युत संयंत्र", "जल विद्युत संयंत्र (Hydro Power Plant)", "जैवमात्रा संयंत्र", "सौर फार्म"], a: 1 },
+            { q: "जल विद्युत संयंत्रों के निर्माण के लिए नदियों पर बड़े-बड़े बांध बनाए जाते हैं, यह ऊर्जा का कैसा स्रोत है?", o: ["अनवीकरणीय स्रोत", "नवीकरणीय स्रोत (Renewable Source)", "प्रदूषणकारी स्रोत", "कृत्रिम रासायनिक स्रोत"], a: 1 },
+            { q: "बड़े बांधों के निर्माण से जुड़ी सबसे प्रमुख सामाजिक और पर्यावरणीय समस्या निम्नलिखित में से क्या है?", o: ["स्थानीय लोगों का बड़े पैमाने पर विस्थापन और पारिस्थितिक तंत्र का नष्ट होना", "बिजली महंगी होना", "पानी का खट्टा होना", "मछलियों का आकार बढ़ना"], a: 0 },
+            { q: "लकड़ी, कृषि अपशिष्ट, गोबर और सूखे पत्ते जैसे जीवों के अवशेषों से प्राप्त ईंधन को तकनीकी रूप से क्या कहा जाता है?", o: ["जीवाश्म ईंधन", "जैव मात्रा या बायोमास (Biomass)", "नाभिकीय ईंधन", "खनिज ईंधन"], a: 1 },
+            { q: "लकड़ी को वायु की सीमित आपूर्ति में जलाने पर जल और वाष्पशील पदार्थ निकल जाते हैं, तो पीछे क्या शेष बचता है जो बिना धुएँ के जलता है?", o: ["कोयला", "चारकोल (Charcoal)", "राख", "कोक"], a: 1 },
+            { q: "चारकोल लकड़ी की तुलना में एक बेहतर ईंधन क्यों माना जाता है?", o: ["यह बिना ज्वाला के सुलगता है, अपेक्षाकृत कम धुआँ पैदा करता है और इसकी ऊष्मा उत्पन्न करने की क्षमता अधिक होती है", "यह बहुत भारी होता है", "यह तरल होता है", "यह बहुत सस्ता है"], a: 0 },
+            { q: "गोबर, फसलों के अवशेष और अपशिष्ट पदार्थों को ऑक्सीजन की अनुपस्थिति में सड़ाकर बनाई जाने वाली गैस क्या कहलाती है?", o: ["प्राकृतिक गैस", "जैव गैस या बायोगैस (Biogas)", "LPG", "CFC"], a: 1 },
+            { q: "बायोगैस (जैव गैस) का मुख्य घटक कौन सी गैस होती है जो लगभग 75% मात्रा में उपस्थित होती है?", o: ["हाइड्रोजन", "कार्बन डाइऑक्साइड", "मीथेन (Methane)", "नाइट्रोजन"], a: 2 },
+            { q: "बायोगैस संयंत्र से गैस निकलने के बाद बची हुई 'स्लरी' (Slurry) का उपयोग किस रूप में किया जाता है जो फसलों के लिए बहुत उत्तम है?", o: ["सीमेंट बनाने में", "नाइट्रोजन और फास्फोरस से भरपूर उत्तम खाद (Manure) के रूप में", "पानी साफ करने में", "कीटनाशक के रूप में"], a: 1 },
+            { q: "सूर्य द्वारा पृथ्वी की सतह के असमान रूप से गर्म होने और पृथ्वी के घूर्णन के कारण हवाओं का चलना किस ऊर्जा का आधार है?", o: ["ज्वलीय ऊर्जा", "भूतापीय ऊर्जा", "पवन ऊर्जा (Wind Energy)", "नाभिकीय ऊर्जा"], a: 2 },
+            { q: "पवन चक्की (Windmill) की घूर्णन गति का उपयोग करके विद्युत उत्पन्न करने के लिए जनरेटर को कम से कम कितनी न्यूनतम पवन चाल की आवश्यकता होती है?", o: ["5 किमी/घंटा", "15 किमी/घंटा से अधिक (Minimum 15 km/h)", "50 किमी/घंटा", "100 किमी/घंटा"], a: 1 },
+            { q: "विश्व में किस देश को 'पवन ऊर्जा का देश' (Country of Winds) कहा जाता है क्योंकि वहाँ पवन ऊर्जा का व्यापक जाल है?", o: ["भारत", "डेनमार्क (Denmark)", "जर्मनी", "अमेरिका"], a: 1 },
+            { q: "विद्युत उत्पादन के क्षेत्र में पवन ऊर्जा के दोहन में भारत का विश्व में कौन सा स्थान है?", o: ["पहला", "तीसरा", "पांचवां (5th)", "दसवां"], a: 2      },
+            { q: "भारत के तमिलनाडु में कन्याकुमारी के पास स्थापित पवन ऊर्जा फार्म की कुल क्षमता लगभग कितनी है, जो देश का सबसे बड़ा फार्म है?", o: ["10 MW", "100 MW", "380 मेगावाट (380 MW)", "1000 MW"], a: 2 },
+            { q: "पवन ऊर्जा फार्म स्थापित करने की सबसे बड़ी सीमा या मुख्य कमी क्या है?", o: ["यह प्रदूषण फैलाती है", "इसके लिए बहुत बड़े भूमि क्षेत्र (Land area) की आवश्यकता होती है और हवा न चलने पर बैकअप की जरूरत होती है", "यह महंगी बिजली देती है", "यह पानी सुखा देती है"], a: 1 },
+            { q: "ऊर्जा के वे स्रोत जिनका उपयोग तकनीकी विकास के साथ हाल के समय में वैकल्पिक रूप से बढ़ा है, क्या कहलाते हैं?", o: ["पारंपरिक स्रोत", "गैर-पारंपरिक या वैकल्पिक स्रोत (Non-conventional / Alternative sources)", "सीमित स्रोत", "जीवाश्म स्रोत"], a: 1 },
+            { q: "सूर्य से प्राप्त होने वाली विशाल ऊर्जा को क्या कहा जाता है जो पृथ्वी पर जीवन का मुख्य आधार है?", o: ["भूतापीय ऊर्जा", "सौर ऊर्जा (Solar Energy)", "ज्वारीय ऊर्जा", "नाभिकीय ऊर्जा"], a: 1 },
+            { q: "वैसी युक्तियाँ जो सौर ऊर्जा को सीधे ऊष्मा या विद्युत में बदलती हैं, क्या कहलाती हैं?", o: ["पवन उपकरण", "सौर उपकरण (Solar Devices)", "बायोमास उपकरण", "थर्मल इंजन"], a: 1 },
+            { q: "सौर कुकर (Solar Cooker) और सौर जल तापक के आंतरिक भाग को काले रंग से क्यों रंगा जाता है?", o: ["सुंदरता के लिए", "क्योंकि काला रंग ऊष्मा का सबसे अच्छा अवशोषक (Good absorber of heat) होता है", "जंग से बचाने के लिए", "ताकि वह चमके"], a: 1 },
+            { q: "सौर कुकर के ऊपर काँच की एक शीट या ढक्कन क्यों लगाया जाता है जो ग्रीनहाउस प्रभाव पैदा करता है?", o: ["धूल रोकने के लिए", "ऊष्मा विकिरणों को बाहर जाने से रोकने और अंदर का तापमान बढ़ाने के लिए", "खाना देखने के लिए", "ढक्कन मजबूत करने के लिए"], a: 1 },
+            { q: "सौर कुकर में सूर्य की किरणों को एक बिंदु पर केंद्रित करके उच्च तापमान प्राप्त करने के लिए किस दर्पण का उपयोग सर्वोत्तम है?", o: ["उत्तल दर्पण", "अवतल दर्पण (Concave Mirror)", "समतल दर्पण", "मिश्रित लेंस"], a: 1 },
+            { q: "वह इलेक्ट्रॉनिक युक्ति जो सौर ऊर्जा (धूप) को सीधे विद्युत ऊर्जा में परिवर्तित कर देती है, क्या कहलाती है?", o: ["सौर कुकर", "सौर सेल (Solar Cell)", "डायनेमो", "ट्रांसफार्मर"], a: 1 },
+            { q: "एक सामान्य धूप में रखे गए एकल सौर सेल से लगभग कितनी विद्युत शक्ति (W) प्राप्त होती है?", o: ["0.7 वाट (0.7 W)", "10 वाट", "50 वाट", "100 वाट"], a: 0 },
+            { q: "बहुत सारे सौर सेलों को एक निश्चित प्रतिरूप में आपस में जोड़कर बनाई गई बड़ी व्यवस्था को क्या कहते हैं?", o: ["सौर जनरेटर", "सौर सेल पैनल (Solar Cell Panel)", "सौर बैटरी", "सौर ग्रिड"], a: 1 },
+            { q: "सौर सेलों को आपस में जोड़ने के लिए किस अत्यंत महंगी और अतिविशिष्ट धातु का उपयोग किया जाता है जो इसकी लागत बढ़ाता है?", o: ["तांबा", "चांदी (Silver)", "सोना", "एल्युमिनियम"], a: 1 },
+            { q: "सौर सेलों का सबसे बड़ा व्यावहारिक और वैज्ञानिक लाभ कहाँ होता है जहाँ बिजली के तार ले जाना असंभव है?", o: ["कृत्रिम उपग्रहों (Satellites) और अंतरिक्ष अन्वेषण वाहनों में", "गाड़ियों में", "घरेलू हीटरों में", "कारखानों में"], a: 0     },
+            { q: "चंद्रमा और पृथ्वी के बीच गुरुत्वाकर्षण खिंचाव के कारण समुद्र के जल स्तर के चढ़ने और गिरने से मिलने वाली ऊर्जा?", o: ["तरंग ऊर्जा", "ज्वारीय ऊर्जा (Tidal Energy)", "महासागरीय तापीय ऊर्जा", "भूतापीय ऊर्जा"], a: 1 },
+            { q: "ज्वारीय ऊर्जा का दोहन करने के लिए बांध कहाँ बनाए जाते हैं जिनकी सीमाएं बहुत संकीर्ण हैं?", o: ["नदियों के बीच में", "सागर के किसी संकीर्ण क्षेत्र या खाड़ी के मुहाने पर (Narrow opening of a bay)", "पहाड़ों पर", "मैदानों में"], a: 1 },
+            { q: "समुद्र के तट के पास बहने वाली तेज और विशाल हवाओं के कारण पानी की सतह पर उत्पन्न होने वाली गतियों से प्राप्त ऊर्जा?", o: ["ज्वारीय ऊर्जा", "तरंग ऊर्जा (Wave Energy)", "भूतापीय ऊर्जा", "नाभिकीय ऊर्जा"], a: 1 },
+            { q: "समुद्र की सतह के जल (गर्म) और गहराई के जल (ठंडे) के बीच तापमान के अंतर का उपयोग करके प्राप्त की जाने वाली ऊर्जा?", o: ["तरंग ऊर्जा", "महासागरीय तापीय ऊर्जा (Ocean Thermal Energy - OTE)", "भूतापीय ऊर्जा", "ज्वारीय ऊर्जा"], a: 1 },
+            { q: "महासागरीय तापीय ऊर्जा रूपांतरण (OTEC) संयंत्र चलाने के लिए सतह और 2 किमी गहराई के जल के बीच न्यूनतम कितना तापांतर होना चाहिए?", o: ["5°C", "10°C", "20°C या अधिक (20°C or more)", "50°C"], a: 2 },
+            { q: "भौगोलिक परिवर्तनों के कारण पृथ्वी की गहराइयों में गर्म स्थानों पर चट्टानों के पिघलने से उत्पन्न ऊष्मा से प्राप्त ऊर्जा क्या कहलाती है?", o: ["सौर ऊर्जा", "भूतापीय ऊर्जा (Geothermal Energy)", "नाभिकीय ऊर्जा", "समुद्री ऊर्जा"], a: 1 },
+            { q: "भूतापीय ऊर्जा के क्षेत्रों में भूमिगत जल गर्म चट्टानों के संपर्क में आकर भाप में बदल जाता है, इस भाप को बाहर निकालने वाले स्थानों को क्या कहते हैं?", o: ["कुएँ", "गर्म चश्मे या हॉट स्पॉट (Hot Spots)", "वातरंध्र", "गीजर"], a: 1 },
+            { q: "विश्व में भूतापीय ऊर्जा (Geothermal Energy) पर आधारित विद्युत संयंत्र मुख्य रूप से किन देशों में सफलतापूर्वक चल रहे हैं?", o: ["भारत और श्रीलंका", "न्यूजीलैंड और संयुक्त राज्य अमेरिका (New Zealand & USA)", "मिस्र और सूडान", "जापान और रूस"], a: 1 },
+            { q: "किसी भारी परमाणु (जैसे यूरेनियम, प्लूटोनियम) के नाभिक पर निम्न ऊर्जा न्यूट्रॉन की बौछार कराकर उसे हल्के नाभिकों में तोड़ने की प्रक्रिया?", o: ["नाभिकीय संलयन", "नाभिकीय विखंडन (Nuclear Fission)", "रासायनिक दहन", "रेडियोधर्मी क्षय"], a: 1 },
+            { q: "नाभिकीय विखंडन (Nuclear Fission) के दौरान मुक्त होने वाली ऊर्जा का परिमाण कोयले के एक कार्बन परमाणु के दहन की तुलना में कितना अधिक होता है?", o: ["2 गुना", "100 गुना", "10,000 गुना", "1 करोड़ गुना (10 Million times अधिक ऊर्जा)", "शून्य"], a: 3 },
+            { q: "वह संयंत्र जिसमें नियंत्रित दर पर नाभिकीय विखंडन कराकर भाप बनाई जाती है और बिजली पैदा की जाती है?", o: ["जल संयंत्र", "नाभिकीय रिएक्टर (Nuclear Reactor)", "तापीय बॉयलर", "जैव संयंत्र"], a: 1 },
+            { q: "भारत में तारापुर (महाराष्ट्र), कुडनकुलम (तमिलनाडु) और रावतभाटा (राजस्थान) किस प्रकार के ऊर्जा संयंत्रों के लिए प्रसिद्ध हैं?", o: ["जल विद्युत संयंत्र", "नाभिकीय विद्युत संयंत्र (Nuclear Power Plants)", "सौर ऊर्जा पार्क", "पवन फार्म"], a: 1 },
+            { q: "दो हल्के नाभिकों (जैसे हाइड्रोजन) को अत्यधिक उच्च ताप और दाब पर आपस में जोड़कर एक भारी नाभिक (हीलियम) बनाने की प्रक्रिया?", o: ["नाभिकीय विखंडन", "नाभिकीय संलयन (Nuclear Fusion)", "अपघटन", "उदासीनीकरण"], a: 1 },
+            { q: "सूर्य और ब्रह्मांड के अन्य तारों में प्रचुर ऊर्जा का निरंतर उत्पादन किस मूल प्रक्रिया के कारण हो रहा है?", o: ["नाभिकीय विखंडन", "नाभिकीय संलयन (Nuclear Fusion)", "कोयला जलना", "रासायनिक विसरण"], a: 1 },
+            { q: "नाभिकीय ऊर्जा (Nuclear Energy) के उपयोग से जुड़ा सबसे बड़ा और खतरनाक पर्यावरणीय संकट निम्नलिखित में से कौन सा है?", o: ["धुआँ निकलना", "रेडियोधर्मी अपशिष्टों का असुरक्षित भंडारण व निपटान तथा रिसाव का खतरा (Radioactive Waste and Radiation leak)", "बिजली कम होना", "बड़ी भूमि घेरना"], a: 1 },
+            { q: "हाइड्रोजन बम (Hydrogen Bomb) किस अत्यंत विनाशकारी वैज्ञानिक सिद्धांत पर आधारित होता है?", o: ["नियंत्रित नाभिकीय विखंडन", "अनियंत्रित नाभिकीय संलयन (Uncontrolled Nuclear Fusion)", "रासायनिक विस्फोट", "सौर दहन"], a: 1 },
+            { q: "परमाणु बम (Atom Bomb) किस वैज्ञानिक प्रक्रिया या सिद्धांत पर आधारित होता है जो द्वितीय विश्व युद्ध में प्रयुक्त हुआ था?", o: ["नाभिकीय संलयन", "अनियंत्रित नाभिकीय विखंडन (Uncontrolled Nuclear Fission)", "भूतापीय विस्फोट", "जैव अपघटन"], a: 1     },
+            { q: "ऊर्जा के उन स्रोतों को क्या कहते हैं जो प्रकृति में निरंतर बनते रहते हैं और कभी समाप्त नहीं हो सकते?", o: ["समाप्य स्रोत", "अक्षय या नवीकरणीय स्रोत (Renewable / Inexhaustible sources)", "जीवाश्म स्रोत", "खनिज स्रोत"], a: 1 },
+            { q: "ऊर्जा के उन स्रोतों को क्या कहा जाता है जिनका भंडार सीमित है और एक बार समाप्त होने पर दोबारा नहीं बन सकते?", o: ["नवीकरणीय स्रोत", "अनवीकरणीय या समाप्य स्रोत (Exhaustible / Non-renewable sources)", "असीमित स्रोत", "शाश्वत स्रोत"], a: 1 },
+            { q: "सौर सेल पैनलों का उपयोग कृत्रिम उपग्रहों के अलावा पृथ्वी पर सुदूर क्षेत्रों में किस कार्य के लिए बड़े पैमाने पर हो रहा है?", o: ["रेडियो और टेलीविजन केंद्रों तथा वायरलेस संचार प्रणालियों में", "भारी मिलें चलाने में", "हवाई जहाज उड़ाने में", "लोहा पिघलाने में"], a: 0 },
+            { q: "सौर सेलों के निर्माण में प्रयुक्त होने वाला मुख्य अर्धचालक पदार्थ (Semiconductor) कौन सा है जो प्रकृति में प्रचुर है परंतु शुद्ध रूप में महंगा है?", o: ["तांबा", "सिलिकॉन (Silicon)", "ग्रेफाइट", "लोहा"], a: 1 },
+            { q: "क्या कोई भी ऊर्जा का स्रोत पूरी तरह से पर्यावरण-हितैषी या 'प्रदूषण-मुक्त' (Pollution-free) कहा जा सकता है?", o: ["हाँ, सौर ऊर्जा पूरी तरह मुक्त है", "नहीं, क्योंकि उपकरण बनाने, स्थापित करने या निपटान में किसी न किसी रूप में पर्यावरण प्रभावित होता है", "हाँ, पवन ऊर्जा मुक्त है", "सब सही है"], a: 1 },
+            { q: "LPG (तरल पेट्रोलियम गैस) का मुख्य घटक ब्यूटेन है। सीएनजी (CNG) का मुख्य घटक क्या है?", o: ["प्रोपेन", "एथेन", "मीथेन (Methane)", "ब्यूटेन"], a: 2 },
+            { q: "नाभिकीय विखंडन रिएक्टर में न्यूट्रॉनों की गति को धीमा करने के लिए प्रयुक्त होने वाले 'मंदक' (Moderator) के रूप में किसका उपयोग होता है?", o: ["साधारण पानी", "भारी जल (D₂O) या ग्रेफाइट", "अम्ल", "पारा"], a: 1 },
+            { q: "नाभिकीय रिएक्टर में विखंडन की दर को नियंत्रित करने के लिए प्रयुक्त होने वाली नियंत्रण छड़ें (Control Rods) किसकी बनी होती हैं?", o: ["लोहे की", "कैडमियम या बोरॉन की (Cadmium or Boron)", "तांबे की", "एल्युमिनियम की"], a: 1 },
+            { q: "ऊर्जा संकट (Energy Crisis) का मुख्य कारण क्या है?", o: ["ऊर्जा के पारंपरिक और जीवाश्म स्रोतों का अंधाधुंध दोहन और जनसंख्या वृद्धि (Overexploitation of conventional sources)", "सूरज की रोशनी कम होना", "हवा बंद होना", "नदियों का सूखना"], a: 0 },
+            { q: "किसी आदर्श ईंधन का कैलोरी मान या ऊष्मीय मान (Calorific Value) कैसा होना चाहिए?", o: ["अत्यंत निम्न", "उच्च होना चाहिए (High - प्रति ग्राम अधिक ऊष्मा दे)", "शून्य", "सामान्य"], a: 1 },
+            { q: "ईंधन के ऊष्मीय मान को मापने की मानक इकाई क्या होती है?", o: ["जूल", "किलोजूल प्रति किलोग्राम (kJ/kg)", "वोल्ट", "वाट"], a: 1 },
+            { q: "निम्नलिखित में से किस ईंधन का ऊष्मीय मान सबसे अधिक होता है और इसे भविष्य का स्वच्छ ईंधन माना जाता है?", o: ["कोयला", "LPG", "हाइड्रोजन गैस (Hydrogen Gas)", "चारकोल"], a: 2 },
+            { q: "हाइड्रोजन गैस का उपयोग घरेलू ईंधनों में व्यापक रूप से क्यों नहीं किया जाता?", o: ["यह जलती नहीं है", "यह अत्यधिक विस्फोटक है और इसका सुरक्षित भंडारण व परिवहन अत्यंत कठिन है", "यह बहुत भारी है", "यह धुआँ देती है"], a: 1 },
+            { q: "रॉकेटों में मुख्य ईंधन के रूप में किसका उपयोग अत्यधिक किया जाता है?", o: ["LPG", "द्रव हाइड्रोजन (Liquid Hydrogen)", "पेट्रोल", "कोयला"], a: 1 },
+            { q: "ऊर्जा का मात्रक जूल है, कार्य का मात्रक भी जूल है। शक्ति का मात्रक क्या है?", o: ["वोल्ट", "ओम", "वाट (Watt)", "कूलॉम"], a: 2 },
+            { q: "सौर कुकर के बक्से की दीवारों को थर्मोकोल या काँच की रुई से क्यों घेरा जाता है?", o: ["मजबूती के लिए", "ऊष्मा के नुकसान को रोकने के लिए (चालन द्वारा हीट लॉस कम करने हेतु Insulator की तरह)", "सुंदरता के लिए", "वजन बढ़ाने के लिए"], a: 1 },
+            { q: "महासागरीय तापीय ऊर्जा (OTE) का मुख्य कारण क्या है?", o: ["चंद्रमा का खिंचाव", "सूर्य द्वारा समुद्र की सतह के जल का गर्म होना जबकि गहराई का जल ठंडा रहना", "समुद्र की लहरें", "मछलियों की गति"], a: 1 },
+            { q: "नाभिकीय रिएक्टर में शीतलक (Coolant) का क्या कार्य होता है?", o: ["रिएक्टर को चमकाना", "नाभिकीय विखंडन से उत्पन्न अत्यधिक ऊष्मा को टरबाइन तक ले जाना और क्रोड को ठंडा रखना", "न्यूट्रॉन रोकना", "रेडियोधर्मिता खत्म करना"], a: 1 },
+            { q: "सौर सेलों के उपयोग को बढ़ावा देने के लिए सरकारें सब्सिडी क्यों देती हैं?", o: ["ताकि लोग बिजली बिल न दें", "शुरुआती स्थापना लागत (Initial Setup Cost) अधिक होने के कारण आम लोगों की पहुँच सुलभ बनाने हेतु", "सौर सेल सुंदर होते हैं", "कोई कारण नहीं है"], a: 1 },
+            { q: "जीवाश्म ईंधन के दहन को अधिक दक्ष बनाने और प्रदूषण कम करने के लिए आधुनिक इंजनों में किसका उपयोग होता है?", o: ["ज्यादा पानी का", "उत्प्रेरक कनवर्टर (Catalytic Converters) और परिष्कृत दहन तकनीकों का", "लोहे के फिल्टर का", "प्लास्टिक पाइप का"], a: 1 },
+            { q: "बायोगैस का उपयोग प्रकाश के अलावा मुख्य रूप से किस घरेलू कार्य में व्यापक रूप से होता है?", o: ["कपड़े धोने में", "भोजन पकाने (Cooking) और इंजन चलाने में", "फ्रिज चलाने में", "एसी चलाने में"], a: 1 },
+            { q: "पवन चक्की की पंखुड़ियों के घूमने से किस प्रकार की ऊर्जा प्राप्त होती है जिसे जनरेटर को दिया जाता है?", o: ["रासायनिक ऊर्जा", "यांत्रिक गतिज ऊर्जा (Mechanical Kinetic Energy)", "नाभिकीय ऊर्जा", "विद्युत ऊर्जा"], a: 1 },
+            { q: "पनबिजली या जल विद्युत (Hydroelectricity) पूरे देश की कुल विद्युत आपूर्ति का लगभग कितना भाग पूरा करती है?", o: ["100%", "आधा", "चौथाई भाग (लगभग 25% या 1/4th)", "1%"], a: 2 },
+            { q: "बांधों के पीछे एकत्रित पानी में कौन सी ऊर्जा संचित होती है जो टरबाइन पर गिरने पर गतिज ऊर्जा में बदलती है?", o: ["रासायनिक ऊर्जा", "स्थितिज ऊर्जा (Potential Energy)", "नाभिकीय ऊर्जा", "ध्वनि ऊर्जा"], a: 1 },
+            { q: "ऊर्जा संरक्षण के नियम (Law of Conservation of Energy) के अनुसार, ऊर्जा को न तो बनाया जा सकता है और न ही नष्ट किया जा सकता है, केवल क्या संभव है?", o: ["ऊर्जा का विनाश", "एक रूप से दूसरे रूप में रूपांतरण (Transformation of Energy)", "ऊर्जा का निर्माण", "कुछ भी संभव नहीं"], a: 1 },
+            { q: "जब हम कहते हैं कि ऊर्जा का ह्रास (Loss of Energy) हो गया, तो उसका वास्तविक वैज्ञानिक अर्थ क्या होता है?", o: ["ऊर्जा ब्रह्मांड से गायब हो गई", "ऊर्जा एक ऐसे अनुपयोगी रूप (जैसे बेकार ऊष्मा या ध्वनि) में बदल गई जिसे दोबारा आसानी से कार्य में नहीं लाया जा सकता", "ऊर्जा का द्रव्यमान शून्य हो गया", "सब गलत"], a: 1 },
+            { q: "पेड़-पौधे कोयले में और समुद्री जीव पेट्रोलियम में बदले, इस पूरी भूगर्भीय घटना को होने में कितना समय लगा?", o: ["100 वर्ष", "1000 वर्ष", "लाखों-करोड़ों वर्ष (Millions of years)", "5 वर्ष"], a: 2 },
+            { q: "पेट्रोलियम के कुओं से निकलने वाली गैस को क्या कहते हैं जो वाहनों और उद्योगों में प्रयुक्त होती है?", o: ["LPG", "प्राकृतिक गैस (Natural Gas / CNG)", "ओजोन", "नाइट्रोजन"], a: 1 },
+            { q: "सीएनजी (CNG) का पूरा नाम हिंदी में क्या है जो प्रदूषण मुक्त ईंधन माना जाता है?", o: ["तरल पेट्रोलियम गैस", "संपीड़ित प्राकृतिक गैस (Compressed Natural Gas)", "संयुक्त नाइट्रोजन गैस", "ठोस कार्बन गैस"], a: 1 },
+            { q: "एलपीजी (LPG) का पूरा नाम निम्नलिखित में से कौन सा सही है?", o: ["लिक्विड फास्फोरस गैस", "द्रवीकृत पेट्रोलियम गैस (Liquefied Petroleum Gas)", "लो प्रेशर गैस", "लॉन्ग पावर गैस"], a: 1 },
+            { q: "नाभिकीय कचरे (Radioactive Waste) को नष्ट करना कठिन क्यों है क्योंकि यह लगातार क्या उत्सर्जित करता है जो कैंसर का कारण है?", o: ["धुआँ", "हानिकारक और अदृश्य अल्फा, बीटा, गामा विकिरण (Harmful Radiations)", "तेज गंध", "पानी"], a: 1 },
+            { q: "सौर पैनलों के झुकाव को भौगोलिक स्थिति के अनुसार क्यों व्यवस्थित किया जाता है?", o: ["हवा से बचाने के लिए", "दिन भर अधिकतम सूर्य का प्रकाश (Maximum sunlight) प्राप्त करने के लिए", "सुंदर दिखने के लिए", "ताकि वे साफ रहें"], a: 1 },
+            { q: "तापीय विद्युत संयंत्रों में टरबाइन को घुमाने के लिए पानी को उबालकर क्या बनाई जाती है?", o: ["गैस", "उच्च दाब वाली भाप (High pressure Steam)", "बर्फ", "लहरें"], a: 1 },
+            { q: "लकड़ी की तुलना में गोबर के उपलों (कंडों) को सीधे जलाना एक खराब तरीका क्यों है क्योंकि इससे:", o: ["ऊष्मा अधिक मिलती है", "बहुत अधिक धुआँ निकलता है और मिट्टी के लिए कीमती पोषक तत्व नष्ट हो जाते हैं", "राख नहीं बचती", "वह जलते नहीं हैं"], a: 1 },
+            { q: "नवीकरणीय ऊर्जा स्रोतों का विकास हमारे लिए क्यों अनिवार्य है?", o: ["पारंपरिक जीवाश्म ईंधनों को समाप्त होने से बचाने और पर्यावरण को स्वच्छ रखने के लिए", "गाड़ियों की गति बढ़ाने के लिए", "कारखानों को बंद करने के लिए", "कोई आवश्यकता नहीं है"], a: 0 },
+            { q: "निम्नलिखित में से कौन सा देश अपनी कुल बिजली का एक बहुत बड़ा भाग पवन चक्कियों से प्राप्त करता है?", o: ["भारत", "डेनमार्क (Denmark)", "चीन", "सऊदी अरब"], a: 1 },
+            { q: "बांध के पानी से टरबाइन के ब्लेडों पर पड़ने वाले दबाव से टरबाइन का घूमना क्या पैदा करता है?", o: ["स्थितिज ऊर्जा", "घूर्णन यांत्रिक ऊर्जा जो जनरेटर द्वारा विद्युत में बदलती है", "रासायनिक द्रव", "परमाणु बल"], a: 1 },
+            { q: "सौर सेलों के व्यावसायिक उत्पादन में सबसे बड़ी तकनीकी बाधा क्या है?", o: ["सिलिकॉन का न होना", "अत्यंत शुद्ध सिलिकॉन प्राप्त करने की उच्च लागत और चांदी से सोल्डरिंग करने का महंगा प्रक्रम", "प्लास्टिक की कमी", "तारों का वजन"], a: 1 },
+            { q: "क्या नाभिकीय संलयन (Nuclear Fusion) को आज हम व्यावसायिक रूप से बिजली बनाने के लिए नियंत्रित कर पाए हैं?", o: ["हाँ, सभी देशों में है", "नहीं, क्योंकि संलयन शुरू करने के लिए करोड़ों डिग्री तापमान और अत्यधिक उच्च दाब की आवश्यकता होती है जिसे नियंत्रित करना अभी अनुसंधान के स्तर पर है", "हाँ, भारत में है", "संलयन से बिजली नहीं बनती"], a: 1 },
+            { q: "जीवाश्म ईंधन के दहन से उत्पन्न अम्लीय ऑक्साइड्स (SO₂, NO₂) पानी में घुलकर क्या बनाते हैं?", o: ["शुद्ध जल", "अम्ल (एसिड), जो अम्ल वर्षा का कारण बनते हैं", "क्षार", "लवण"], a: 1 },
+            { q: "बायोगैस संयंत्र ग्रामीण क्षेत्रों के लिए वरदान क्यों है क्योंकि यह एक साथ दो कार्य करता है:", o: ["पानी और हवा देता है", "स्वच्छ ईंधन (गैस) देता है और खेतों के लिए नाइट्रोजनयुक्त समृद्ध खाद प्रदान करता है", "सीमेंट और लोहा बनाता है", "सब गलत"], a: 1 },
+            { q: "सौर कुकर के भीतर का तापमान 2-3 घंटे के अंदर लगभग कितने डिग्री सेल्सियस तक पहुँच जाता है?", o: ["50°C", "100°C से 140°C (100°C to 140°C)", "500°C", "0°C"], a: 1 },
+            { q: "ऊर्जा की मांग (Demand of Energy) लगातार क्यों बढ़ रही है?", o: ["औद्योगीकरण, बदलती जीवन शैली और जनसंख्या वृद्धि के कारण (Industrialization & Populating growth)", "सूरज ठंडा होने के कारण", "हवा तेज होने के कारण", "कोई कारण नहीं है"], a: 0 },
+            { q: "एक उत्तम ईंधन की मुख्य पहचान क्या है?", o: ["वह सस्ता हो", "उसका ज्वलन ताप मध्यम हो, कैलोरी मान उच्च हो और जलने पर विषैला धुआँ न छोड़े (Ideal Fuel traits)", "वह बहुत भारी हो", "वह तरल हो"], a: 1 },
+            { q: "नाभिकीय रिएक्टर की सुरक्षा दीवारें (Shielding) आमतौर पर बहुत मोटी और किसकी बनाई जाती हैं ताकि विकिरण बाहर न आए?", o: ["लकड़ी की", "सीसा और कंक्रीट की मोटी कड़क दीवारें (Lead and Heavy Concrete)", "प्लास्टिक की", "काँच की"], a: 1 },
+            { q: "सौर पैनलों के उपयोग से पर्यावरण को क्या लाभ है?", o: ["यह हवा ठंडी करता है", "यह बिना किसी धुएँ या प्रदूषण के पूरी तरह स्वच्छ और हरित ऊर्जा (Green Energy) देता है", "यह बारिश लाता है", "यह शोर बढ़ाता है"], a: 1 },
+            { q: "पवन चक्कियों के पंखों का आकार कैसा होना चाहिए ताकि वे हवा के थपेड़ों को सह सकें और घूम सकें?", o: ["अत्यंत छोटा", "विशाल और एरोडायनामिक संरचना (Large & Aerodynamic)", "गोलाकार", "चौकोर"], a: 1 },
+            { q: "ऊर्जा के स्रोत (Sources of Energy) के इस संपूर्ण अध्याय का अंतिम व्यावहारिक व वैज्ञानिक निष्कर्ष क्या है?", o: ["पारंपरिक जीवाश्म ईंधन कभी समाप्त नहीं होंगे", "पृथ्वी पर सीमित जीवाश्म स्रोतों के संरक्षण, ऊर्जा संकट से बचने तथा सतत विकास के लिए पारंपरिक स्रोतों की कार्यक्षमता बढ़ाना और सौर, पवन, समुद्री व भूतापीय जैसे अक्षय नवीकरणीय वैकल्पिक स्रोतों की तकनीक का व्यापक विकास करना ही एकमात्र समाधान है", "नाभिकीय ऊर्जा पूरी तरह सुरक्षित है", "सौर ऊर्जा का उपयोग उपग्रहों में नहीं हो सकता"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #fef3c7; color: #d97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">ऊर्जा के स्रोत (Sources of Energy)</h1>
+                    <p style="color: #475569; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (भौतिक विज्ञान)</p>
+                    <p style="color: #64748b; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">पारंपरिक (जीवाश्म, हाइड्रो, बायोगैस, पवन) और गैर-पारंपरिक (सौर, महासागरीय, भूतापीय, नाभिकीय) ऊर्जा स्रोतों के 100 चुनिंदा प्रश्नों का अंतिम महा-क्विज़। अभ्यास शुरू करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #d97706; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #475569; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1e293b;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #1e293b;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #fbbf24;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #d97706;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! ऊर्जा के स्रोत अध्याय पर आपका शत-प्रतिशत नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! वैकल्पिक और पारंपरिक ऊर्जा तकनीकों पर आपकी समझ बेहतरीन है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! वैचारिक समझ को और बेहतर करने के लिए फिर से रिवीजन करें।"; emoji = "👍"; }
+            else { message = "निराश न हों! नवीकरणीय और गैर-नवीकरणीय स्रोतों को दोबारा समझें और फिर प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #94a3b8;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #475569; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #475569; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

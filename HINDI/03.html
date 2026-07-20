@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 हिंदी - भारत से हम क्या सीखें क्विज़</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdfa;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0ea5e9;
+            background-color: #f0f9ff;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #2dd4bf, #0ea5e9); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #14b8a6, #06b6d4); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "'भारत से हम क्या सीखें' पाठ के लेखक कौन हैं?", o: ["हजारी प्रसाद द्विवेदी", "मैक्समूलर", "रामविलास शर्मा", "महात्मा गांधी"], a: 1 },
+            { q: "मैक्समूलर का जन्म कब हुआ था?", o: ["6 दिसंबर 1823", "14 अप्रैल 1891", "20 मार्च 1825", "6 नवंबर 1824"], a: 0 },
+            { q: "मैक्समूलर का जन्म किस देश में हुआ था?", o: ["फ्रांस", "जर्मनी", "इंग्लैंड", "रूस"], a: 1 },
+            { q: "जर्मनी के किस नगर में मैक्समूलर का जन्म हुआ था?", o: ["डेशाउ", "बर्लिन", "फ्रैंकफर्ट", "म्यूनिख"], a: 0 },
+            { q: "मैक्समूलर के पिता का नाम क्या था?", o: ["विल्हेल्म मूलर", "जॉन मूलर", "हेनरी मूलर", "पीटर मूलर"], a: 0 },
+            { q: "जब मैक्समूलर चार वर्ष के थे, तब उनके जीवन में क्या दुखद घटना घटी?", o: ["वे बीमार हो गए", "उनके पिता का निधन हो गया", "उनका घर जल गया", "वे स्कूल से निकाल दिए गए"], a: 1 },
+            { q: "मैक्समूलर ने किस विश्वविद्यालय से संस्कृत का अध्ययन प्रारंभ किया?", o: ["लिपजिग विश्वविद्यालय", "कैम्ब्रिज विश्वविद्यालय", "ऑक्सफोर्ड विश्वविद्यालय", "बर्लिन विश्वविद्यालय"], a: 0 },
+            { q: "मैक्समूलर ने लिपजिग विश्वविद्यालय में कितने वर्ष की उम्र में संस्कृत पढ़ना शुरू किया?", o: ["15 वर्ष", "18 वर्ष", "20 वर्ष", "22 वर्ष"], a: 1 },
+            { q: "हितोपदेश का जर्मन भाषा में अनुवाद किसने किया?", o: ["मैक्समूलर ने", "कालिदास ने", "भारवि ने", "गौतम बुद्ध ने"], a: 0 },
+            { q: "मैक्समूलर ने कठ और केन आदि उपनिषदों का किस भाषा में अनुवाद किया?", o: ["अंग्रेजी", "जर्मन", "फ्रांसीसी", "लैटिन"], a: 1 },
+            { q: "कालिदास के 'मेघदूत' का जर्मन पद्यानुवाद किसने प्रस्तुत किया था?", o: ["मैक्समूलर ने", "रवींद्रनाथ ठाकुर ने", "अमर्त्य सेन ने", "विलियम जोंस ने"], a: 0 },
+            { q: "स्वामी विवेकानंद ने मैक्समूलर को क्या कहा था?", o: ["वेदांतियों का भी वेदांती", "महापंडित", "ऋषि", "कविराज"], a: 0 },
+            { q: "रानी विक्टोरिया ने 1868 में मैक्समूलर को किस महल में ऋग्वेद तथा अन्य भाषाओं पर भाषण देने के लिए आमंत्रित किया था?", o: ["बकिंघम पैलेस", "ओसबोर्न हाउस", "विंडसर कैसल", "लंदन पैलेस"], a: 1 },
+            { q: "रानी विक्टोरिया ने मैक्समूलर के भाषण से प्रसन्न होकर उन्हें कौन सी पदवी दी थी?", o: ["नाइट की", "सर की", "लॉर्ड की", "महामहोपाध्याय की"], a: 0 },
+            { q: "मैक्समूलर ने रानी विक्टोरिया द्वारा दी गई पदवी को क्यों ठुकरा दिया (या उसे तुच्छ माना)?", o: ["क्योंकि वह पदवी उनके ज्ञान के सामने बहुत छोटी थी", "उन्हें पैसे चाहिए थे", "वे रानी से नाराज थे", "वे जर्मनी लौट रहे थे"], a: 0 },
+            { q: "मैक्समूलर की मृत्यु कब हुई थी?", o: ["28 अक्टूबर 1900", "15 अगस्त 1901", "20 सितंबर 1899", "6 दिसंबर 1900"], a: 0 },
+            { q: "'भारत से हम क्या सीखें' गद्य की कौन सी विधा है?", o: ["कहानी", "निबंध", "भाषण", "रेखाचित्र"], a: 2 },
+            { q: "यह भाषण मैक्समूलर ने किनके लिए तैयार किया था?", o: ["जर्मन व्यापारियों के लिए", "भारतीय सिविल सेवा (ICS) के चयनित युवा अंग्रेज अधिकारियों के लिए", "लंदन के स्कूल बच्चों के लिए", "संसदीय नेताओं के लिए"], a: 1 },
+            { q: "इस भाषण का हिंदी रूपांतरण किसने किया है?", o: ["डॉ. भवानीशंकर त्रिवेदी", "डॉ. रामविलास शर्मा", "डॉ. गुणाकर मुले", "डॉ. राजेंद्र प्रसाद"], a: 0 },
+            { q: "लेखक के अनुसार सर्वविध संपदा और प्राकृतिक सौंदर्य से परिपूर्ण कौन सा देश है?", o: ["अमेरिका", "जर्मनी", "भारत", "यूनान"], a: 2 },
+            { q: "यदि कोई मनुष्य भूमंडल का अवलोकन करना चाहे कि कहाँ मानव चित्त का चरम विकास हुआ है, तो लेखक उसे किस देश की यात्रा करने की सलाह देता है?", o: ["चीन", "मिस्र", "भारत", "रोम"], a: 2 },
+            { q: "मैक्समूलर के अनुसार प्लेटो और कांट जैसे दार्शनिकों के अध्ययन के लिए कौन सा देश उपयुक्त है?", o: ["यूनान", "जर्मनी", "भारत", "इंग्लैंड"], a: 2 },
+            { q: "लेखक के अनुसार वास्तविक भारत के दर्शन कहाँ हो सकते हैं?", o: ["मुंबई या दिल्ली जैसे महानगरों में", "भारत के गाँवों में", "फैक्ट्रियों में", "किलों और महलों में"], a: 1 },
+            { q: "अंग्रेज अधिकारी सर विलियम जोंस ने कलकत्ता के तट पर पहुँचने पर भारत के बारे में क्या महसूस किया था?", o: ["वे डर गए थे", "वे भारत की प्राकृतिक छटा देखकर आनंदित और अभिभूत हो गए थे", "उन्हें भारत पसंद नहीं आया", "वे वापस जाना चाहते थे"], a: 1 },
+            { q: "सर विलियम जोंस ने किस वर्ष भारत की यात्रा की थी और कलकत्ता पहुंचे थे?", o: ["1783", "1757", "1857", "1800"], a: 0 },
+            { q: "वाराणसी के पास किसे 172 दारिस नामक सोने के सिक्कों से भरा घड़ा मिला था?", o: ["लॉर्ड क्लाइव को", "वारेन हेस्टिंग्स को", "लॉर्ड कॉर्नवालिस को", "विलियम जोंस को"], a: 1 },
+            { q: "वारेन हेस्टिंग्स उस समय भारत का क्या था?", o: ["गवर्नर जनरल", "सेनापति", "व्यापारी", "न्यायाधीश"], a: 0 },
+            { q: "वारेन हेस्टिंग्स ने सोने के सिक्कों से भरा घड़ा किसे भेज दिया था?", o: ["ईस्ट इंडिया कंपनी के निदेशक मंडल (लंदन) को", "अपनी पत्नी को", "महारानी को", "कलकत्ता बैंक में"], a: 0 },
+            { q: "कंपनी के निदेशकों ने उन ऐतिहासिक सोने के सिक्कों का क्या किया?", o: ["उन्हें संग्रहालय में सुरक्षित रख दिया", "उन्हें साधारण सोना समझकर गला दिया", "उन्हें भारतीयों में बांट दिया", "खोजबीन के लिए रखा"], a: 1 },
+            { q: "सोने के सिक्कों के गलाए जाने की घटना से वारेन हेस्टिंग्स को कैसा लगा?", o: ["वह बहुत खुश हुआ", "उसे गहरा दुख और पछतावा हुआ क्योंकि एक ऐतिहासिक धरोहर नष्ट हो गई", "उसे कोई फर्क नहीं पड़ा", "वह अमीर हो गया"], a: 1 },
+            { q: "दारिस क्या है?", o: ["एक चांदी का सिक्का", "प्राचीन काल का सोने का सिक्का", "एक प्रकार का बर्तन", "एक भाषा"], a: 1 },
+            { q: "लेखक ने युवा अंग्रेज अधिकारियों को किस बात से सचेत किया ताकि वे हेस्टिंग्स जैसी गलती न दोहराएं?", o: ["भारत के ऐतिहासिक और पुरातात्विक महत्व को समझने की", "कार्यालय में बैठने की", "ज्यादा टैक्स वसूलने की", "युद्ध लड़ने की"], a: 0 },
+            { q: "भारत किस भाषा का उद्गम स्थल और सबसे प्राचीन रूप प्रस्तुत करता है?", o: ["लैटिन", "ग्रीक", "संस्कृत", "अंग्रेजी"], a: 2 },
+            { q: "लेखक के अनुसार संस्कृत भाषा का ग्रीक और लैटिन भाषाओं से कैसा संबंध है?", o: ["कोई संबंध नहीं है", "वे सभी एक ही आर्य भाषा परिवार की बहनें हैं", "संस्कृत लैटिन से छोटी है", "ग्रीक संस्कृत की जननी है"], a: 1 },
+            { q: "लैटिन भाषा का शब्द 'इग्निस' (Ignis) संस्कृत के किस शब्द के समान है?", o: ["जल", "अग्नि", "वायु", "पृथ्वी"], a: 1 },
+            { q: "जर्मन भाषा का 'अग्नि' रूप क्या है?", o: ["इग्निस", "अग्निस", "इग्निस्", "अग्निट"], a: 1 },
+            { q: "ग्रीक भाषा में 'पिता' को क्या कहा जाता है?", o: ["फादर", "पतेर (Pater)", "पितृ", "फेटर"], a: 1 },
+            { q: "लैटिन भाषा में 'माता' को क्या कहा जाता है?", o: ["मदर", "मातेर (Mater)", "मातृ", "मुतारे"], a: 1 },
+            { q: "संस्कृत भाषा के अध्ययन से पाश्चात्य जगत में किस नए विज्ञान का जन्म हुआ?", o: ["तुलनात्मक भाषा विज्ञान (Comparative Philology)", "भू-विज्ञान", "खगोल विज्ञान", "वनस्पति विज्ञान"], a: 0 },
+            { q: "शाहनामा का रचनाकाल कब माना जाता है?", o: ["सातवीं-आठवीं सदी", "दसवीं-ग्यारहवीं सदी", "चौथी-पांचवीं सदी", "पंद्रहवीं सदी"], a: 1 },
+            { q: "शाहनामा के लेखक कौन हैं?", o: ["फिरदौसी", "अमीर खुसरो", "कालिदास", "बाणभट्ट"], a: 0 },
+            { q: "पुराने सिक्कों के अध्ययन को क्या कहा जाता है?", o: ["मुद्राशास्त्र (Numismatics)", "शिलालेख शास्त्र", "इतिहास", "भूगोल"], a: 0 },
+            { q: "वनस्पति वैज्ञानिक 'हर्कस' ने भारत के जंगलों के बारे में क्या कहा था?", o: ["यहाँ के जंगल बेकार हैं", "भारत की वनस्पति संपदा इतनी विशाल है कि यह वैज्ञानिकों को अपनी ओर आकर्षित करती है", "यहाँ पेड़ नहीं हैं", "जंगल बहुत छोटे हैं"], a: 1 },
+            { q: "भू-वैज्ञानिक 'प्रिंसिप' और अन्य लोगों के लिए भारत में किसका विशाल क्षेत्र खुला है?", o: ["कागज़ उद्योग का", "जीवाश्मों और परतों के अध्ययन का", "कोयला खनन का", "मछली पालन का"], a: 1 },
+            { q: "नीति कथाओं के क्षेत्र में भारत के कारण किसका नवजीवन हुआ है?", o: ["यूरोप का", "नवजीवन और पुनर्जन्म पाश्चात्य जगत का", "अमेरिका का", "अफ्रीका का"], a: 1 },
+            { q: "पंचतंत्र की कहानियों का अनुवाद विभिन्न विदेशी भाषाओं में किसके माध्यम से हुआ?", o: ["अरब और फारस के व्यापारियों के माध्यम से", "अंग्रेजों के माध्यम से", "चीनियों के माध्यम से", "नाविकों द्वारा"], a: 0 },
+            { q: "भारत की वैदिक धर्मशाला किसका मूल स्रोत है?", o: ["केवल हिंदुओं का", "समस्त आर्य जाति के विचारों और चिंतन का", "ईसाइयों का", "इस्लाम का"], a: 1 },
+            { q: "लेखक के अनुसार, सच्चे भारत का हृदय कहाँ धड़कता है?", o: ["संसद भवन में", "गाँवों के खेतों और खलिहानों में", "महानगरों के बाजारों में", "सिनेमाघरों में"], a: 1 },
+            { q: "मैक्समूलर के अनुसार, संसार का सबसे प्राचीन वेद कौन सा है?", o: ["सामवेद", "यजुर्वेद", "अथर्ववेद", "ऋग्वेद"], a: 3 },
+            { q: "किसे 'वेदांतियों का गुरु' भी कहा जाता है?", o: ["शंकराचार्य को", "मैक्समूलर को (विवेकानंद द्वारा)", "रामकृष्ण परमहंस को", "दयानंद सरस्वती को"], a: 1 },
+            { q: "भारत से व्यापारिक संबंध बनाने के लिए प्राचीन काल में कौन समुद्री मार्ग से आते थे?", o: ["सीरियन और यहूदी व्यापारी", "पुर्तगाली", "डच", "फ्रांसीसी"], a: 0 },
+            { q: "मैक्समूलर का दृष्टिकोण कैसा था?", o: ["संकीर्ण और साम्राज्यवादी", "उदार, विश्व-बंधुत्ववादी और ज्ञान के प्रति समर्पित", "भेदभावपूर्ण", "उदासीन"], a: 1 },
+            { q: "'थियोसॉफी' का संबंध किससे है?", o: ["जीव विज्ञान से", "अध्यात्म और दिव्य ज्ञान से", "नदियों के अध्ययन से", "तारों से"], a: 1 },
+            { q: "अंग्रेज अधिकारियों को भारत में न्याय व्यवस्था और कानून के अध्ययन के लिए किसका अध्ययन करने की सलाह दी गई?", o: ["धर्मशास्त्र और स्मृतियों (जैसे मनुस्मृति) का", "ब्रिटिश कानून का", "रोमन कानून का", "नेपोलियन कोड का"], a: 0 },
+            { q: "मैक्समूलर ने भारत के किस स्वरूप की प्रशंसा की है?", o: ["केवल भौगोलिक स्वरूप की", "आध्यात्मिक, सांस्कृतिक, भाषाई और प्राकृतिक स्वरूप की", "आधुनिक तकनीकी स्वरूप की", "सैन्य शक्ति की"], a: 1 },
+            { q: "भाषण में प्रयुक्त शब्द 'सिकंदर' किसके लिए प्रयुक्त हुआ है?", o: ["महान विजेता राजा सिकंदर और युवा अंग्रेज अधिकारियों को प्रेरित करने के लिए प्रतीक रूप में", "लेखक के मित्र के लिए", "एक आम सिपाही के लिए", "ब्रिटिश प्रधानमंत्री के लिए"], a: 0 },
+            { q: "भारत की नदियाँ और पहाड़ वैज्ञानिकों को क्या प्रदान करते हैं?", o: ["अध्ययन की असीम संभावनाएँ", "केवल बाधाएँ", "खतरा", "कुछ नहीं"], a: 0 },
+            { q: "लेखक के अनुसार मानव जाति का सच्चा इतिहास कहाँ मिलता है?", o: ["यूरोप की लड़ाइयों में", "भारत जैसी प्राचीन सभ्यताओं के विकास और भाषा के इतिहास में", "आधुनिक उपन्यासों में", "अखबारों में"], a: 1 },
+            { q: "संस्कृत की सबसे बड़ी विशेषता क्या है?", o: ["इसकी प्राचीनता और अपरिवर्तित व्याकरण संरचना", "यह बहुत कठिन है", "यह नई भाषा है", "यह केवल भारत में बोली जाती है"], a: 0 },
+            { q: "मैक्समूलर को नाइट की उपाधि कब दी गई थी?", o: ["1868", "1870", "1850", "1890"], a: 0 },
+            { q: "पारसियों के धर्म का क्या नाम है?", o: ["बौद्ध धर्म", "जरथुस्त्र (Zoroastrianism)", "यहूदी धर्म", "जैन धर्म"], a: 1 },
+            { q: "मैक्समूलर के अनुसार, भारत में शासन करने वाले गवर्नर जनरलों को कैसा होना चाहिए था?", o: ["क्रूर", "भारतीय संस्कृति का सम्मान करने वाला और ज्ञानवान", "लालची", "उदासीन"], a: 1 },
+            { q: "भाषण के अंत में मैक्समूलर युवा अधिकारियों से क्या कहते हैं?", o: ["भारत एक ऐसा क्षेत्र है जहाँ आपको बहुत कुछ नया सीखने को मिलेगा", "भारत मत जाओ", "इंग्लैंड वापस आ जाओ", "युद्ध की तैयारी करो"], a: 0 },
+            { q: "संस्कृत में 'मूषक' शब्द ग्रीक में क्या बन जाता है?", o: ["माउस (Mouse)", "मुस (Mus)", "मूस", "माउ"], a: 1 },
+            { q: "पाश्चात्य देशों के विचारकों को अपनी मानसिक शांति के लिए किस ओर देखना पड़ा?", o: ["अमेरिका की ओर", "पूर्वी देशों, विशेषकर भारत के अध्यात्म की ओर", "अफ्रीका की ओर", "रूस की ओर"], a: 1 },
+            { q: "सिक्कों से भरी मटकी को देखकर वारेन हेस्टिंग्स की क्या इच्छा थी?", o: ["वह उसे अपने पास रखना चाहता था", "वह उसे अपनी कंपनी को सौंपकर अपनी प्रतिष्ठा बढ़ाना चाहता था", "वह उसे फेंकना चाहता था", "वह उसे गरीबों में बांटना चाहता था"], a: 1 },
+            { q: "लेखक ने भारत को किसका पालना कहा है?", o: ["सभ्यता और संस्कृति का", "उद्योगों का", "लड़ाइयों का", "आधुनिक शहरों का"], a: 0 },
+            { q: "मैक्समूलर ने गद्य में किस शैली का प्रयोग किया है?", o: ["कठिन और उबाऊ", "संवादात्मक, आदरपूर्ण, विश्लेषणात्मक और ओजस्वी", "व्यंग्यात्मक", "उदासीन"], a: 1 },
+            { q: "भारत की प्राचीन लिपि का क्या नाम है जिसका उल्लेख ऐतिहासिक संदर्भों में मिलता है?", o: ["ब्राह्मी लिपि", "रोमन लिपि", "अरबी लिपि", "चीनी लिपि"], a: 0 },
+            { q: "इस भाषण का मूल संदेश क्या है?", o: ["भारत की महान विरासत को पहचानना और पाश्चात्य-पूर्वी ज्ञान का समन्वय करना", "ब्रिटिश साम्राज्य का विस्तार करना", "भारत की आलोचना करना", "जर्मनी की श्रेष्ठता दिखाना"], a: 0 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #e0f2fe; color: #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">BSEB कक्षा 10वीं हिंदी (गोधूलि)</h1>
+                    <h2 style="font-size: 1.5rem; color: #0284c7; font-weight: 700; margin-bottom: 16px;">अध्याय 3: भारत से हम क्या सीखें</h2>
+                    <p style="color: #4a5568; margin-bottom: 32px; max-width: 600px; font-size: 1.15rem;">मैक्समूलर के ऐतिहासिक भाषण, भारतीय गौरव, भाषा विज्ञान और पुरातात्विक तथ्यों पर आधारित 70 महत्वपूर्ण प्रश्न।</p>
+                    <button onclick="startQuiz()" class="btn-start" style="background: linear-gradient(to right, #0284c7, #0ea5e9);">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #0284c7; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%; background: linear-gradient(to right, #0284c7, #0ea5e9);"></div>
+                    </div>
+                    <!-- Right Profile Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.45rem; font-weight: bold; margin-bottom: 24px; line-height: 1.35;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center;">प्रश्नावली ओवरव्यू (कुल 70 प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #0284c7;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अद्भुत! आपने भारत के प्राचीन गौरव और इतिहास को पूरी तरह आत्मसात कर लिया है!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "उत्कृष्ट! मैक्समूलर के विचारों और ज्ञान पर आपकी पकड़ बेहतरीन है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! भारत की भाषाई और ऐतिहासिक महत्ता को थोड़ा और समझें।"; emoji = "👍"; }
+            else { message = "निराश न हों! इस ज्ञानवर्धक भाषण को फिर से पढ़ें और बेहतर स्कोर लाएँ।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 70</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से खेलें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

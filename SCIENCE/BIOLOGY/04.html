@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>जीव विज्ञान क्विज़ - आनुवंशिकता एवं जैव विकास</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f4;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(230, 92, 0, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #ea580c;
+            background-color: #fff7ed;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #fb923c, #ea580c); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #ea580c, #c2410c); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(234, 88, 12, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #fb923c, #ea580c); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "सजीवों के वे लक्षण जो माता-पिता से उनकी संतानों में पीढ़ी-दर-पीढ़ी संचरित होते हैं, क्या कहलाते हैं?", o: ["उपार्जित लक्षण", "आनुवंशिक लक्षण", "शारीरिक लक्षण", "पर्यावरणीय लक्षण"], a: 1 },
+            { q: "एक पीढ़ी से दूसरी पीढ़ी में आनुवंशिक लक्षणों के संचरण के इस पूरे प्रक्रम को क्या कहते हैं?", o: ["विभिन्नता", "बहुलीकरण", "आनुवंशिकता (Heredity)", "जैव विकास"], a: 2 },
+            { q: "जीव विज्ञान की वह शाखा जिसके अंतर्गत आनुवंशिकता तथा विभिन्नताओं का अध्ययन किया जाता है?", o: ["पारिस्थितिकी", "आनुवंशिकी या जेनेटिक्स (Genetics)", "कोशिका विज्ञान", "उद्विकास"], a: 1 },
+            { q: "आनुवंशिकी का जनक (Father of Genetics) निम्नलिखित में से किस महान वैज्ञानिक को कहा जाता है?", o: ["चार्ल्स डार्विन", "ग्रेगर जॉन मेंडल (Gregor Mendel)", "लामार्क", "वाटसन"], a: 1 },
+            { q: "ग्रेगर जॉन मेंडल ने अपने आनुवंशिकता के ऐतिहासिक प्रयोग किस पौधे पर किए थे?", o: ["गुलाब", "साधारण मटर का पौधा (Pisum sativum)", "मक्के का पौधा", "सूरजमुखी"], a: 1 },
+            { q: "मटर के पौधे का वैज्ञानिक या वानस्पतिक नाम निम्नलिखित में से कौन सा है?", o: ["होमो सेपियंस", "पाइसम सटाइवम (Pisum sativum)", "राना टिग्रिना", "मैंगीफेरा इंडिका"], a: 1 },
+            { q: "मेंडल ने मटर के पौधे में कुल कितने जोड़े विकल्पीय (विरोधी) लक्षणों का चयन अध्ययन के लिए किया था?", o: ["3 जोड़े", "5 जोड़े", "7 जोड़े (7 pairs of traits)", "9 जोड़े"], a: 2 },
+            { q: "मेंडल के अनुसार, लक्षणों को नियंत्रित करने वाली मूल इकाई क्या कहलाती थी जिसे आज 'जीन' कहा जाता है?", o: ["गुणसूत्र", "कारक या फैक्टर (Factor)", "डीएनए", "केन्द्रक"], a: 1 },
+            { q: "एक ही जीन के दो भिन्न रूपों (जैसे लंबा 'T' और बौना 't') को तकनीकी रूप से क्या कहा जाता है?", o: ["समजात", "युग्मविकल्पी या एलील (Allele)", "समरूप", "उत्परिवर्तन"], a: 1 },
+            { q: "लक्षणों का वह रूप जो प्रथम पीढ़ी (F₁ पीढ़ी) में स्पष्ट रूप से दिखाई देता है और दूसरे को दबा देता है?", o: ["अप्रभावी लक्षण", "प्रभावी लक्षण (Dominant Trait)", "मिश्रित लक्षण", "सह-प्रभावी लक्षण"], a: 1 },
+            { q: "लक्षणों का वह रूप जो प्रभावी लक्षण की उपस्थिति में F₁ पीढ़ी में छिप जाता है और प्रकट नहीं हो पाता?", o: ["प्रभावी", "अप्रभावी लक्षण (Recessive Trait)", "मध्यवर्ती", "विकृत लक्षण"], a: 1 },
+            { q: "जब केवल एक जोड़ी विरोधी लक्षणों (जैसे शुद्ध लंबा TT और शुद्ध बौना tt) के बीच संकरण कराया जाता है, तो उसे क्या कहते हैं?", o: ["द्विसंकर संकरण", "एकसंकर संकरण (Monohybrid Cross)", "बहुसंकर संकरण", "बैक क्रॉस"], a: 1 },
+            { q: "एकसंकर संकरण की F₂ पीढ़ी में प्राप्त बाह्य लक्षणों का अनुपात (लक्षणप्ररूपी या Phenotypic Ratio) क्या होता है?", o: ["1:2:1", "3:1 (3 लंबा : 1 बौना)", "9:3:3:1", "9:7"], a: 1 },
+            { q: "एकसंकर संकरण की F₂ पीढ़ी में प्राप्त जीन संरचना का अनुपात (जीनरूपी या Genotypic Ratio) क्या होता है?", o: ["3:1", "1:2:1 (1TT : 2Tt : 1tt)", "9:3:3:1", "1:1"], a: 1 },
+            { q: "जब दो जोड़े विरोधी लक्षणों (जैसे गोल-पीला बीज और झुर्रीदार-हरा बीज) के बीच संकरण कराया जाता है, तो उसे क्या कहते हैं?", o: ["एकसंकर संकरण", "द्विसंकर संकरण (Dihybrid Cross)", "परीक्षण संकरण", "व्युत्क्रम संकरण"], a: 1 },
+            { q: "मेंडल के द्विसंकर संकरण (Dihybrid Cross) की F₂ पीढ़ी में प्राप्त बाह्य लक्षणप्ररूपी अनुपात (Phenotypic Ratio) क्या होता है?", o: ["3:1", "1:2:1", "9:3:3:1", "15:1"], a: 2 },
+            { q: "मेंडल का वह नियम जिसके अनुसार युग्मक बनते समय कारकों के जोड़े के सदस्य अलग होकर अलग-अलग युग्मकों में जाते हैं?", o: ["प्रभाविता का नियम", "पृथक्करण या संयोजन का नियम (Law of Segregation)", "स्वतंत्र अपव्यूहन का नियम", "सहलग्रता"], a: 1 },
+            { q: "मेंडल का वह नियम जो यह स्पष्ट करता है कि दो जोड़ी लक्षणों का संचरण एक-दूसरे से पूरी तरह स्वतंत्र होता है?", o: ["पृथक्करण का नियम", "स्वतंत्र अपव्यूहन का नियम (Law of Independent Assortment)", "प्रभाविता का नियम", "मिश्रण का नियम"], a: 1 },
+            { q: "कोशिका के केन्द्रक में पाई जाने वाली धागे जैसी संरचनाएं जो आनुवंशिक कोड या डीएनए को वहन करती हैं, क्या कहलाती हैं?", o: ["लाइसोसोम", "गुणसूत्र या क्रोमोसोम (Chromosomes)", "राइबोसोम", "तारककाय"], a: 1 },
+            { q: "मानव शरीर की प्रत्येक सामान्य कायिक कोशिका में कुल कितने गुणसूत्र (Chromosomes) पाए जाते हैं?", o: ["23 गुणसूत्र", "46 गुणसूत्र (या 23 जोड़े)", "44 गुणसूत्र", "22 गुणसूत्र"], a: 1 },
+            { q: "मानव में पुरुषों और महिलाओं में समान पाए जाने वाले 22 जोड़े गुणसूत्रों को क्या कहा जाता है?", o: ["लिंग गुणसूत्र", "अलिंग गुणसूत्र या ऑटोसोम (Autosomes)", "विषम गुणसूत्र", "समरूप"], a: 1 },
+            { q: "मानव में लिंग का निर्धारण करने वाले 23वें जोड़े के गुणसूत्रों को क्या नाम दिया गया है?", o: ["ऑटोसोम", "लिंग गुणसूत्र (Sex Chromosomes)", "समजात गुणसूत्र", "कायिक क्रोमोसोम"], a: 1 },
+            { q: "एक सामान्य मानव स्त्री (Female) में 23वें जोड़े के लिंग गुणसूत्रों का विन्यास कैसा होता है?", o: ["XY", "XX", "YY", "XO"], a: 1 },
+            { q: "एक सामान्य मानव पुरुष (Male) में लिंग गुणसूत्रों का विन्यास कैसा होता है?", o: ["XX", "XY", "YY", "XXY"], a: 1 },
+            { q: "मानव शिशु के लिंग का निर्धारण (लड़का या लड़की होना) पूरी तरह से किसके गुणसूत्र पर निर्भर करता है?", o: ["माता के अंडाणु पर", "पिता के शुक्राणु (Sperm) के गुणसूत्र पर", "पर्यावरण के तापमान पर", "दादी की इच्छा पर"], a: 1 },
+            { q: "यदि पिता से शिशु को 'Y' गुणसूत्र प्राप्त होता है, तो उत्पन्न होने वाली संतान क्या होगी?", o: ["लड़की", "लड़का (Male Child)", "जुड़वाँ लड़कियाँ", "कोई नहीं"], a: 1 },
+            { q: "यदि पिता से शिशु को 'X' गुणसूत्र प्राप्त होता है, तो होने वाली संतान की प्रकृति क्या होगी?", o: ["लड़का", "लड़की (Female Child)", "उभयलिंगी", "सामान्य लड़का"], a: 1 },
+            { q: "एक ही माता-पिता की संतानों या एक ही प्रजाति के विभिन्न जीवों के बीच पाए जाने वाले अंतरों को क्या कहते हैं?", o: ["समानता", "विभिन्नता (Variations)", "जीन प्रारूप", "अपररूपता"], a: 1 },
+            { q: "लक्षणों के आनुवंशिक नियंत्रण की मूल क्रियाविधि क्या है? जीन किसका संश्लेषण करने का कोड रखता है?", o: ["वसा का", "विशिष्ट प्रोटीन (Enzymes) का", "कार्बोहाइड्रेट का", "विटामिन का"], a: 1 },
+            { q: "मेंडल ने अपने प्रयोगों के निष्कर्षों को किस वर्ष वैज्ञानिक समाज के सामने प्रस्तुत किया था?", o: ["1865-1866", "1900", "1953", "1809"], a: 0 },
+            { q: "किसी जीव के बाहरी रूप-रंग या दिखाई देने वाले शारीरिक लक्षणों को क्या कहा जाता है?", o: ["जीनोटाइप", "लक्षणप्ररूप या फिनोटाइप (Phenotype)", "समजात", "म्यूटेशन"], a: 1 },
+            { q: "किसी जीव की आंतरिक आनुवंशिक संरचना या जीनी संगठन को क्या कहा जाता है?", o: ["फिनोटाइप", "जीनप्ररूप या जीनोटाइप (Genotype)", "एलील", "विभिन्नता"], a: 1 },
+            { q: "डीएनए (DNA) का वह छोटा विशिष्ट खंड जो किसी एक आनुवंशिक लक्षण की पूरी जानकारी रखता है, क्या कहलाता है?", o: ["गुणसूत्र", "जीन (Gene)", "आरएनए", "केंद्रक द्रव"], a: 1 },
+            { q: "वैसे लक्षण जो कोई जीव अपने जीवनकाल में पर्यावरण से सीखता या अर्जित करता है और वे जनन कोशिकाओं के डीएनए में नहीं बदलते?", o: ["आनुवंशिक लक्षण", "उपार्जित लक्षण (Acquired Traits)", "प्राकृतिक लक्षण", "जीन लक्षण"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा एक उपार्जित लक्षण (Acquired Trait) का सटीक उदाहरण है जो अगली पीढ़ी में स्थानांतरित नहीं होता?", o: ["आँखों का रंग", "त्वचा का रंग", "क्रिकेट खेलने का कौशल या कटी पूंछ (Skill / Mutilation)", "बालों का घुंघरालापन"], a: 2 },
+            { q: "निम्नलिखित में से कौन सा एक पूरी तरह से आनुवंशिक लक्षण है जो माता-पिता से विरासत में मिलता है?", o: ["शरीर का वजन कम होना", "साइकिल चलाने की कला", "आँखों की पुतली का रंग (Eye Color)", "चेहरे पर चोट का निशान"], a: 2 },
+            { q: "मेंडल के प्रयोगों की सन 1900 में दोबारा स्वतंत्र रूप से खोज करने वाले वैज्ञानिकों में कौन शामिल नहीं था?", o: ["ह्यूगो डी ब्रीज", "कार्ल कोरेंस", "एरिच शेर्मार्क", "चार्ल्स डार्विन (Charles Darwin)"], a: 3 },
+            { q: "मेंडल ने मटर के पौधों के सात जोड़े लक्षणों में तने की लंबाई के लिए किन दो रूपों का चयन किया था?", o: ["गोल और झुर्रीदार", "पीला और हरा", "लंबा और बौना (Tall & Dwarf)", "बैंगनी और सफेद"], a: 2 },
+            { q: "डीएनए (DNA) की दोहरी कुंडलित संरचना (Double Helix Model) का प्रतिपादन 1953 में किसने किया था?", o: ["मेंडल", "वाटसन एवं क्रिक (Watson & Crick)", "डार्विन", "लामार्क"], a: 1 },
+            { q: "किसी समष्टि (Population) में किसी जीन के विभिन्न रूपों की आवृत्ति का समय के साथ बदलना क्या कहलाता है?", o: ["आनुवंशिक विचलन या जीन प्रवाह (Genetic Drift / Microevolution)", "बहुलीकरण", "निषेचन", "स्थिरता"], a: 0 },
+            { q: "प्राकृतिक वरण द्वारा जैव विकास (Evolution by Natural Selection) का महान सिद्धांत किस वैज्ञानिक ने दिया था?", o: ["ग्रेगर मेंडल", "लामार्क", "चार्ल्स डार्विन (Charles Darwin)", "ह्यूगो डी ब्रीज"], a: 2 },
+            { q: "चार्ल्स डार्विन की उस विश्वप्रसिद्ध पुस्तक का नाम क्या है जो 1859 में प्रकाशित हुई और जैव विकास का आधार बनी?", o: ["फिलोसोफिक जूलॉजिक", "ऑरिजिन ऑफ स्पीशीज (The Origin of Species)", "सिस्टेमा नैचुरी", "जेनेटिक्स"], a: 1 },
+            { q: "डार्विन के सिद्धांत के अनुसार, प्रकृति केवल उन्हीं जीवों का चयन करती है जो वातावरण के प्रति अनुकूलित होते हैं, इसे क्या कहते हैं?", o: ["उपार्जित अधिकारों का नियम", "योग्यतम की उत्तरजीविता या प्राकृतिक चयन (Survival of the Fittest)", "अष्टक नियम", "कारक पृथक्करण"], a: 1 },
+            { q: "अंगों के उपयोग और अनुपयोग का सिद्धांत (Theory of Use and Disuse) तथा उपार्जित लक्षणों की वंशागति का सिद्धांत किसने दिया था?", o: ["डार्विन", "जीन बैप्टिस्ट लामार्क (Lamarck)", "मेंडल", "डी ब्रीज"], a: 1 },
+            { q: "लामार्क के सिद्धांत का प्रसिद्ध उदाहरण कौन सा है जिसके अनुसार ऊंचे पेड़ों की पत्तियां खाने के कारण उसकी गर्दन लंबी हो गई?", o: ["चींटी", "जिराफ (Giraffe)", "हाथी", "कंगारू"], a: 1 },
+            { q: "अचानक होने वाले बड़े जीनी परिवर्तनों को क्या कहा जाता है जो नई विभिन्नताओं को जन्म देते हैं, जिसका सिद्धांत ह्यूगो डी ब्रीज ने दिया?", o: ["जीन प्रवाह", "उत्परिवर्तन या म्यूटेशन (Mutation)", "संकरण", "पृथक्करण"], a: 1 },
+            { q: "उत्परिवर्तन (Mutation) सिद्धांत का प्रतिपादन किस वैज्ञानिक ने किया था?", o: ["चार्ल्स डार्विन", "ह्यूगो डी ब्रीज (Hugo de Vries)", "लामार्क", "मेंडल"], a: 1 },
+            { q: "वैसे अंग जिनकी आधारभूत संरचना और उत्पत्ति समान होती है, लेकिन वे भिन्न-भिन्न कार्य करते हैं, क्या कहलाते हैं?", o: ["समरूप अंग", "समजात अंग (Homologous Organs)", "अवशेषी अंग", "कृत्रिम अंग"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा जोड़ा समजात अंगों (Homologous Organs) का एक सटीक उदाहरण प्रस्तुत करता है?", o: ["चमगादड़ के पंख और कीट के पंख", "मनुष्य के हाथ तथा मेंढक/पक्षी के अग्रपाद (Forelimbs)", "पक्षी के पंख और तितली के पंख", "घास और आलू"], a: 1 },
+            { q: "वैसे अंग जो दिखने में समान होते हैं और समान कार्य करते हैं, परंतु उनकी उत्पत्ति और मूल संरचना भिन्न होती है?", o: ["समजात अंग", "समरूप या समवृत्ति अंग (Analogous Organs)", "अवशेषी अंग", "मिश्रित अंग"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा जोड़ा समरूप अंगों (Analogous Organs) का सटीक उदाहरण है?", o: ["मनुष्य का हाथ और बिल्ली का अग्रपाद", "चमगादड़ के पंख और पक्षी/कीट के पंख (Wings of bat and bird/insect)", "मेंढक का पैर और मनुष्य का पैर", "आलू और गाजर"], a: 1 },
+            { q: "जीवों के शरीर में पाए जाने वाले वे अंग जो पूर्वजों में कार्यात्मक थे परंतु अब विकास के कारण कार्यहीन हो गए हैं?", o: ["समजात अंग", "समरूप अंग", "अवशेषी अंग (Vestigial Organs)", "सक्रिय अंग"], a: 2 },
+            { q: "मानव शरीर में पाया जाने वाला कौन सा अंग एक प्रसिद्ध अवशेषी अंग (Vestigial Organ) का उदाहरण है?", o: ["हृदय", "फेफड़े", "अपेंडिक्स या कृमिरूप परिशेषिका (Appendix)", "वृक्क"], a: 2 },
+            { q: "प्राचीन काल के सजीवों के उन परिरक्षित अवशेषों या छापों को क्या कहते हैं जो पृथ्वी की परतों में दबे पाए जाते हैं?", o: ["खनिज", "जीवाश्म (Fossils)", "चट्टानें", "अयस्क"], a: 1 },
+            { q: "जीवाश्मों की आयु का निर्धारण करने के लिए किस आधुनिक वैज्ञानिक पद्धति का उपयोग व्यापक रूप से किया जाता है?", o: ["थर्मामीटर विधि", "फॉसिल डेटिंग या कार्बन डेटिंग (Carbon-14 Dating)", "विसरण विधि", "एक्स-रे तकनीक"], a: 1 },
+            { q: "एक अत्यंत प्रसिद्ध जीवाश्म पक्षी का नाम क्या है जो सरीसृप (Reptile) और पक्षी के बीच की विकासात्मक कड़ी माना जाता है?", o: ["डोडो", "आर्कियोप्टेरिक्स (Archaeopteryx)", "डायनासोर", "कीवी"], a: 1 },
+            { q: "आर्कियोप्टेरिक्स में सरीसृप के समान पूंछ और दांत थे, तथा पक्षी के समान पंख थे। यह क्या सिद्ध करता है?", o: ["पक्षी स्वतंत्र जीव हैं", "पक्षियों का विकास सरीसृपों (Reptiles) से हुआ है", "डायनासोर उड़ सकते थे", "सब गलत"], a: 1 },
+            { q: "पृथ्वी पर विशालकाय सरीसृप 'डायनासोर' किस काल (Era) में राज करते थे जो अब पूरी तरह विलुप्त हो चुके हैं?", o: ["सिनोजोइक", "मेसोजोइक काल (Mesozoic Era)", "पैलियोजोइक", "आधुनिक काल"], a: 1 },
+            { q: "अनेक पीढ़ियों के बाद आनुवंशिक विचलन और प्राकृतिक चयन के कारण एक नई जीव प्रजाति का बनना क्या कहलाता है?", o: ["प्रजातीकरण या जाति-उद्भवन (Speciation)", "संकरण", "निषेचन", "क्लोनिंग"], a: 0 },
+            { q: "भौगोलिक अलगाव या पृथक्करण (Geographical Isolation) किस प्रकार के जीवों में जाति-उद्भवन का मुख्य कारण बनता है?", o: ["स्व-परागण करने वाले पौधों में", "लैंगिक जनन करने वाले जीवों (Sexually reproducing organisms) में", "अमीबा में", "यीस्ट में"], a: 1 },
+            { q: "जैव विकास के दृष्टिकोण से हमारी शारीरिक संरचना निम्नलिखित में से किससे सबसे अधिक मिलती-जुलती है?", o: ["चिंपैंजी (Chimpanzee)", "मकड़ी", "जीवाणु", "चींटी"], a: 0 },
+            { q: "आधुनिक मानव (Human being) का जैविक या वैज्ञानिक नाम निम्नलिखित में से कौन सा है?", o: ["रायन टिग्रिना", "होमो सेपियंस (Homo sapiens)", "पैन ट्रोग्लोडाइट्स", "कैनिस ल्यूपस"], a: 1 },
+            { q: "आनुवंशिक अध्ययनों के अनुसार, आधुनिक मानव 'होमो सेपियंस' का मूल उद्गम स्थान (मूल घर) कौन सा महाद्वीप है?", o: ["एशिया", "यूरोप", "अफ़्रीका (Africa)", "ऑस्ट्रेलिया"], a: 2 },
+            { q: "मनुष्यों द्वारा जंगली गोभी (Wild Cabbage) का कृत्रिम चयन करके कृत्रिम रूप से कौन सी सब्जियां विकसित की गईं?", o: ["केवल ब्रोकली", "केवल फूलगोभी और पत्तागोभी", "गोभी, ब्रोकली, कलीफ्लेवर, केल, गांठगोभी (All forms of Cabbage)", "गाजर"], a: 2 },
+            { q: "जंगली गोभी से केवल पुष्पों की वृद्धि को रोककर कौन सी सब्जी विकसित की गई?", o: ["ब्रोकली", "फूलगोभी (Cauliflower)", "पत्तागोभी", "केल"], a: 1 },
+            { q: "जंगली गोभी से पत्तियों के बीच की दूरी को कम करके कौन सी प्रसिद्ध सब्जी इंसानों ने बनाई?", o: ["ब्रोकली", "पत्तागोभी या बंदगोभी (Cabbage)", "गांठगोभी", "फूलगोभी"], a: 1 },
+            { q: "जीन के रासायनिक संगठन में स्थायी रूप से होने वाले परिवर्तन को क्या कहते हैं?", o: ["प्रभाविता", "उत्परिवर्तन (Mutation)", "पृथक्करण", "संयोजन"], a: 1 },
+            { q: "मेंडल के मटर के प्रयोगों में झुर्रीदार (Wrinkled) और हरा बीज होना किस प्रकार का लक्षण था?", o: ["प्रभावी लक्षण", "अप्रभावी लक्षण (Recessive Traits)", "मध्यवर्ती", "सब गलत"], a: 1 },
+            { q: "मेंडल के प्रयोगों में गोल (Round) और पीला (Yellow) बीज होना किस प्रकार का लक्षण था?", o: ["अप्रभावी", "प्रभावी लक्षण (Dominant Traits)", "दुर्बल लक्षण", "मिश्रित"], a: 1 },
+            { q: "गुणसूत्रों के उस जोड़े को क्या कहते हैं जो जीवों के आकार और शारीरिक क्रियाओं को तय करते हैं परंतु लिंग तय नहीं करते?", o: ["सेक्स क्रोमोसोम", "ऑटोसोम (Autosomes)", "जीन", "डीएनए"], a: 1 },
+            { q: "एकसंकर संकरण में F₁ पीढ़ी के सभी पौधे कैसे प्राप्त हुए थे जब शुद्ध लंबे और शुद्ध बौने का क्रॉस कराया गया?", o: ["सभी बौने", "सभी मध्यम", "सभी लंबे (Tt - संकर लंबे)", "आधे लंबे, आधे बौने"], a: 2 },
+            { q: "F₁ पीढ़ी के संकर लंबे पौधों (Tt) में बौनेपन का लक्षण छिप गया था, यह मेंडल के किस नियम को सिद्ध करता है?", o: ["पृथक्करण का नियम", "प्रभाविता का नियम (Law of Dominance)", "स्वतंत्र अपव्यूहन का नियम", "सहलग्रता"], a: 1 },
+            { q: "क्या उपार्जित लक्षणों का वंशागति होना डार्विन के मूल विकासवाद का हिस्सा था?", o: ["हाँ", "नहीं (यह लामार्क का विचार था जिसे आधुनिक विज्ञान नहीं मानता)", "कह नहीं सकते", "दोनों का था"], a: 1 },
+            { q: "जीवाश्मों की परत की गहराई से उनकी आयु का क्या अनुमान लगाया जाता है?", o: ["जो सतह के करीब हैं वे नए हैं और जो गहरे हैं वे अधिक प्राचीन हैं", "गहरे जीवाश्म नए होते हैं", "गहराई का आयु से कोई संबंध नहीं है", "सब गलत"], a: 0 },
+            { q: "विकास केवल शारीरिक जटिलता बढ़ना नहीं है, बल्कि यह पर्यावरण के प्रति ढलना है। इसका प्रमाण यह है कि सबसे सरल संरचना वाले कौन से जीव आज भी हर कठिन पर्यावरण में जीवित हैं?", o: ["मनुष्य", "चिंपैंजी", "जीवाणु या बैक्टीरिया (Bacteria)", "डायनासोर"], a: 2 },
+            { q: "पक्षियों के पंख और चमगादड़ के पंख उड़ने का कार्य करते हैं, परंतु चमगादड़ के पंख त्वचा के फैलाव से बनते हैं और पक्षी के पंख अग्रपाद पर परों से। ये अंग क्या दर्शाते हैं?", o: ["समजातता", "समरूपता या समवृत्ति (Analogy)", "अवशेषी प्रकृति", "आनुवंशिकता"], a: 1 },
+            { q: "कीटों के पंख और पक्षी के पंख किस प्रकार के अंगों की श्रेणी में आते हैं?", o: ["समजात अंग", "समरूप अंग (Analogous Organs)", "अवशेषी अंग", "शारीरिक अंग"], a: 1 },
+            { q: "आनुवंशिक पदार्थ 'डीएनए' का पूरा नाम क्या है?", o: ["राइबोन्यूक्लिक अम्ल", "डीऑक्सीराइबोन्यूक्लिक अम्ल (Deoxyribonucleic Acid)", "डाइऑक्सी आरएनए", "प्रोटीन अम्ल"], a: 1 },
+            { q: "जीवों में लैंगिक जनन के दौरान अर्धसूत्री विभाजन (Meiosis) होने का क्या मुख्य उद्देश्य है?", o: ["गुणसूत्र दोगुना करना", "पीढ़ी दर पीढ़ी गुणसूत्रों की संख्या को स्थिर बनाए रखना (To maintain chromosome number)", "गुणसूत्र घटाना", "जीन नष्ट करना"], a: 1 },
+            { q: "एक युग्मक (Gamete) जैसे शुक्राणु या अंडाणु में गुणसूत्रों की संख्या कायिक कोशिका की तुलना में कितनी होती है?", o: ["दोगुनी", "आधी (Haploid - n)", "समान", "चार गुनी"], a: 1 },
+            { q: "मेंडल ने अपने प्रयोगों के लिए मटर के कितने जोड़ी विरोधी लक्षणों में 'फूल का रंग' चुना था?", o: ["लाल और पीला", "बैंगनी और सफेद (Violet & White)", "काला और नीला", "गुलाबी और हरा"], a: 1 },
+            { q: "मटर के फली का आकार (Pod Shape) मेंडल के अनुसार कौन से दो रूपों में था?", o: ["लंबा और छोटा", "फूला हुआ और संकीर्णित (Inflated & Constricted)", "गोल और झुर्रीदार", "बैंगनी और सफेद"], a: 1 },
+            { q: "यदि एक जीन संरचना 'Tt' है, तो वह पौधा बाहर से कैसा दिखाई देगा?", o: ["बौना", "लंबा (Tall - क्योंकि T प्रभावी है)", "मध्यम", "नष्ट हो जाएगा"], a: 1 },
+            { q: "जीन संरचना 'tt' वाला मटर का पौधा कैसा होगा?", o: ["लंबा", "बौना (Dwarf - क्योंकि दोनों अप्रभावी जीन साथ हैं)", "अत्यधिक लंबा", "संकर"], a: 1 },
+            { q: "आनुवंशिक विचलन (Genetic Drift) का सबसे अधिक प्रभाव किस प्रकार की समष्टि पर पड़ता है?", o: ["बहुत बड़ी आबादी पर", "छोटी समष्टि (Small Population) पर जहाँ संयोग से जीन गायब हो सकते हैं", "शहरी आबादी पर", "सब पर समान"], a: 1 },
+            { q: "जैव विकास (Evolution) की प्रक्रिया कैसी प्रक्रिया है?", o: ["अत्यंत तीव्र और अचानक", "अत्यंत धीमी और क्रमिक रूप से होने वाली (Slow & Continuous)", "एक पीढ़ी में होने वाली", "केवल कृत्रिम"], a: 1 },
+            { q: "निम्नलिखित में से कौन सी घटना जैव विकास में नई विभिन्नताओं का प्राथमिक कारण बनती है?", o: ["केवल भोजन बदलना", "डीएनए प्रतिकृति में त्रुटियाँ और लैंगिक जनन में जीन पुनर्संयोजन (Mutations & Recombination)", "व्यायाम करना", "कपड़े बदलना"], a: 1 },
+            { q: "जीवाश्म 'नाइटिया' (Knightia) वास्तव में क्या है जिसका जीवाश्म दबी चट्टानों से मिला है?", o: ["एक प्राचीन वृक्ष", "एक प्राचीन मछली (Fossil Fish)", "एक डायनासोर", "एक सरीसृप"], a: 1 },
+            { q: "जीवाश्म 'राजसॉरस' (Rajasaurus) भारत में खोजा गया किसका जीवाश्म है?", o: ["एक प्राचीन हाथी", "एक डायनासोर (Rajasaurus narmadensis)", "एक पक्षी", "एक पौधा"], a: 1 },
+            { q: "अंडप के अंडाशय में स्थित बीजांड में कौन सी मुख्य मादा कोशिका होती है?", o: ["परागकण", "मादा युग्मक या अंड कोशिका (Egg Cell)", "नर युग्मक", "युग्मनज"], a: 1 },
+            { q: "मानव में गुणसूत्रों के 23वें जोड़े को छोड़कर शेष 22 जोड़े गुणसूत्र क्या तय करते हैं?", o: ["लिंग", "शारीरिक और अन्य लक्षण (Somatic Traits)", "केवल आँखों का रंग", "केवल रक्त समूह"], a: 1 },
+            { q: "समजात संरचनाएं (Homologous Structures) जीवों के बीच किस प्रकार के उद्विकास या संबंध को दर्शाती हैं?", o: ["भिन्न पूर्वज", "समान पूर्वज या साझा पूर्वज (Common Ancestry)", "कोई संबंध नहीं", "कृत्रिम संबंध"], a: 1 },
+            { q: "मेंडल ने अपने नियमों के प्रतिपादन के लिए सांख्यिकी (Statistics) और गणित का उपयोग किया था, जो उनके समय के वैज्ञानिकों के लिए क्या था?", o: ["बहुत आसान था", "नया और समझने में कठिन था (जिसके कारण उनके नियमों को तुरंत मान्यता नहीं मिली)", "अमान्य था", "सब जानते थे"], a: 1 },
+            { q: "आधुनिक जैव विकास के सिद्धांत को क्या कहा जाता है जिसमें डार्विनवाद और आनुवंशिकी का मिश्रण है?", o: ["लामार्कवाद", "संश्लेषणात्मक सिद्धांत या नव-डार्विनवाद (Synthetic Theory of Evolution)", "अष्टक सिद्धांत", "कारक नियम"], a: 1 },
+            { q: "जीन का आदान-प्रदान या क्रॉसिंग ओवर (Crossing Over) अर्धसूत्री विभाजन की किस अवस्था में होता है जिससे विभिन्नता बढ़ती है?", o: ["प्रोफ़ेज़ I (Pachynema)", "मेटाफ़ेज़", "एनाफ़ेज़", "टीलोफ़ेज़"], a: 0 },
+            { q: "अक्षमता या बीमारी के कारण शरीर के अंगों का छोटा हो जाना किस प्रकार का लक्षण है?", o: ["आनुवंशिक लक्षण", "उपार्जित लक्षण (Acquired Trait)", "प्राकृतिक लक्षण", "जीन लक्षण"], a: 1 },
+            { q: "क्या दो अलग-अलग प्रजातियों के जीव आपस में लैंगिक जनन करके उपजाऊ (Fertile) संतान पैदा कर सकते हैं?", o: ["हाँ, हमेशा", "सामान्यतः नहीं (प्रजातियों का अलग होना जनन पृथक्करण तय करता है)", "केवल प्रयोगशाला में", "कह नहीं सकते"], a: 1 },
+            { q: "आनुवंशिकता के नियमों का ज्ञान कृषि में किस कार्य के लिए अत्यंत महत्वपूर्ण है?", o: ["फसलों की पैदावार घटाने", "उच्च गुणवत्ता वाली उन्नत और प्रतिरोधी संकर किस्में (Hybrid Varieties) विकसित करने हेतु", "मिट्टी हटाने", "पानी सुखाने"], a: 1 },
+            { q: "जीवाश्म 'अमोनाइट' (Ammonite) किस प्रकार के प्राचीन जीव का जीवाश्म है जो समुद्र की तली में पाए जाते थे?", o: ["एक मछली", "एक अकशेरुकी जीव या इनवर्टिब्रेड (Invertebrate Mollusk)", "एक सरीसृप", "एक पौधा"], a: 1 },
+            { q: "आनुवंशिकता एवं जैव विकास (Heredity and Evolution) के इस संपूर्ण अध्याय का अंतिम वैज्ञानिक निष्कर्ष क्या है?", o: ["जीवों की संरचना हमेशा स्थिर रहती है", "पीढ़ी-दर-पीढ़ी डीएनए के माध्यम से लक्षणों का संचरण, आनुवंशिक विचलन व विभिन्नताओं का संचय तथा प्राकृतिक चयन ही पृथ्वी पर जीवों की विविधता और जैव विकास का मूल आधार है", "मेंडेलियन कारक कभी अलग नहीं होते", "मानव का विकास अन्य जीवों से बिल्कुल अलग हुआ है"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #ffedd5; color: #ea580c; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2.5 3.19-2.5 5.5s1 4.24 2.5 5.5M19.5 16.5c1.5 1.26 2.5 3.19 2.5 5.5s-1 4.24-2.5 5.5M12 2v20M2 12h20"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">आनुवंशिकता एवं जैव विकास (Heredity & Evolution)</h1>
+                    <p style="color: #4a5568; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (अध्याय 9)</p>
+                    <p style="color: #6b7280; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">मेंडल के नियम, लिंग निर्धारण, समजात-समरूप अंग तथा जीवाश्म के 100 वैचारिक प्रश्नों का महा-संकलन। लाइव स्कोरिंग और प्रोग्रेस ट्रैकिंग के साथ अभ्यास शुरू करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #ea580c; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1a202c;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #2d3748;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #fb923c;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #ea580c;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अतुलनीय! आनुवंशिकता एवं जैव विकास अध्याय पर आपका पूरा नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! मेंडल के नियमों और विकासवादी जीव विज्ञान पर आपकी समझ बेहतरीन है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! स्कोर को और बेहतर करने के लिए थोड़ा और रिवीजन करें।"; emoji = "👍"; }
+            else { message = "निराश न हों! विकासवाद और जेनेटिक्स के सिद्धांतों को दोबारा समझें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>

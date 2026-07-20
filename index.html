@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB Class 10th Quiz Portal</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="./icon.png">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            950: '#090d16',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts & Custom Smooth Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        .animate-fade-in {
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(4px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between overflow-x-hidden antialiased bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer group" onclick="resetToSubjects()">
+                <div class="bg-gradient-to-tr from-brand-500 to-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-all duration-300">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-400 bg-clip-text text-transparent">QUIZ PORTAL</h1>
+                    <p class="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Select Subject & Test</p>
+                </div>
+            </div>
+            
+            <button id="back-btn" onclick="resetToSubjects()" class="hidden px-4 py-1.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white rounded-xl transition flex items-center space-x-1 shadow-md">
+                <span>⬅ Back</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD WRAPPER -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 flex flex-col justify-start relative">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <!-- HEADER DESCRIPTION SECTION -->
+        <section class="space-y-4 text-center max-w-3xl mx-auto pt-6 pb-6 relative z-10">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/20 uppercase tracking-wide">
+                📚 Active Quiz Modules Live
+            </span>
+            <h2 id="dashboard-title" class="text-3xl md:text-4xl font-black tracking-tight text-white leading-tight">
+                Choose a <span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-violet-500 bg-clip-text text-transparent">Subject</span> to Begin
+            </h2>
+            <p id="dashboard-desc" class="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
+                अपनी पसंद का विषय चुनें, फिर उपलब्ध चैप्टर्स या सेक्शन्स में से किसी भी टेस्ट फ़ाइल को तुरंत रन करने के लिए उस पर क्लिक करें।
+            </p>
+        </section>
+
+        <hr class="border-slate-900 mb-8">
+
+        <!-- DYNAMIC CARDS CONTAINER (Compact 4-Column Layout) -->
+        <div id="quiz-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-4xl w-full mx-auto relative z-10 animate-fade-in">
+            <!-- JavaScript data will load cards here dynamically -->
+        </div>
+    </main>
+
+    <!-- MODERN DEVELOPMENT POPUP MODAL -->
+    <div id="dev-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-slate-900/90 border border-slate-800 rounded-3xl p-6 text-center space-y-5 shadow-2xl animate-fade-in">
+            <div class="w-16 h-16 mx-auto rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-2xl animate-pulse">
+                ⚙️
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-xl font-extrabold text-white">प्रोजेक्ट पर कार्य जारी है!</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    हमारे डेवलपर द्वारा इस प्रोजेक्ट पर वर्क हो रहा है, हम जल्द ही इसे अपडेट कर देंगे। तब तक के लिए कृपया अन्य उपलब्ध टेस्ट का अभ्यास करें।
+                </p>
+            </div>
+            <button onclick="closeDevModal()" class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 font-bold text-xs text-white rounded-xl transition shadow-lg shadow-indigo-600/20">
+                ठीक है, वापस जाएँ
+            </button>
+        </div>
+    </div>
+
+    <!-- GLOBAL FOOTER -->
+    <footer class="border-t border-slate-900 py-6 text-center text-slate-600 text-[11px] font-medium tracking-wide">
+        &copy; 2026 Quiz App Portal. Designed for High Performance UI.
+    </footer>
+
+ <script>
+// ==========================================
+// 🚀 बिहार बोर्ड कक्षा 10वीं (भारती भवन एवं संपूर्ण पाठ्यक्रम आधारित डेटा)
+// ==========================================
+const quizData = [
+    {
+        subjectName: "HINDI (हिंदी)",
+        icon: "📔",
+        description: "कक्षा 10वीं बिहार बोर्ड हिंदी (गोधूलि भाग-2) के सभी पाठों के टेस्ट सेट।",
+        chapters: [
+            { name: "चैप्टर 01 (श्रम विभाजन और जाति प्रथा)", path: "./HINDI/01.html" },
+            { name: "चैप्टर 02 (विष के दांत)", path: "./HINDI/02.html" },
+            { name: "चैप्टर 03 (भारत से हम क्या सीखें)", path: "./HINDI/03.html" },
+            { name: "चैप्टर 04 (नाखून क्यों बढ़ते हैं)", path: "./HINDI/04.html" },
+            { name: "चैप्टर 05 (नागरी लिपि)", path: "./HINDI/05.html" },
+            { name: "चैप्टर 06 (बहादुर)", path: "./HINDI/06.html" },
+            { name: "चैप्टर 07 (परंपरा का मूल्यांकन)", path: "./HINDI/07.html" },
+            { name: "चैप्टर 08 (जीत-जीत मैं निरखत हूँ)", path: "./HINDI/08.html" },
+            { name: "चैप्टर 09 (अविन्यों)", path: "./HINDI/09.html" },
+            { name: "चैप्टर 10 (मछली)", path: "./HINDI/10.html" },
+            { name: "चैप्टर 11 (नौबतखाने में इबादत)", path: "./HINDI/11.html" },
+            { name: "चैप्टर 12 (शिक्षा और संस्कृति)", path: "./HINDI/12.html" }
+        ]
+    },
+    {
+        subjectName: "SCIENCE (विज्ञान)",
+        icon: "🧪",
+        description: "भौतिकी (भारती भवन), रसायनशास्त्र और जीवविज्ञान के संपूर्ण ऑब्जेक्टिव प्रश्न।",
+        sections: [
+            {
+                sectionName: "PHYSICS (भौतिक विज्ञान - भारती भवन)",
+                icon: "⚡",
+                chapters: [
+                    { name: "अध्याय 01 (प्रकाश का परावर्तन)", path: "./SCIENCE/PHYSICS/01.html" },
+                    { name: "अध्याय 02 (प्रकाश का अपवर्तन)", path: "./SCIENCE/PHYSICS/02.html" },
+                    { name: "अध्याय 03 (मानव नेत्र और रंगबिरंगा संसार)", path: "./SCIENCE/PHYSICS/03.html" },
+                    { name: "अध्याय 04 (विद्युत धारा)", path: "./SCIENCE/PHYSICS/04.html" },
+                    { name: "अध्याय 05 (विद्युत धारा का चुंबकीय प्रभाव)", path: "./SCIENCE/PHYSICS/05.html" },
+                    { name: "अध्याय 06 (ऊर्जा के स्रोत)", path: "./SCIENCE/PHYSICS/06.html" }
+                ]
+            },
+            {
+                sectionName: "CHEMISTRY (रसायन विज्ञान)",
+                icon: "⚗️",
+                chapters: [
+                    { name: "अध्याय 01 (रासायनिक अभिक्रियाएं एवं समीकरण)", path: "./SCIENCE/CHEMISTRY/01.html" },
+                    { name: "अध्याय 02 (अम्ल, क्षारक एवं लवण)", path: "./SCIENCE/CHEMISTRY/02.html" },
+                    { name: "अध्याय 03 (धातु एवं अधातु)", path: "./SCIENCE/CHEMISTRY/03.html" },
+                    { name: "अध्याय 04 (कार्बन एवं इसके यौगिक)", path: "./SCIENCE/CHEMISTRY/04.html" },
+                    { name: "अध्याय 05 (तत्वों का आवर्त वर्गीकरण)", path: "./SCIENCE/CHEMISTRY/05.html" },
+                    { name: "अध्याय 06 (प्राकृतिक संसाधनों का प्रबंधन)", path: "./SCIENCE/CHEMISTRY/06.html" }
+                ]
+            },
+            {
+                sectionName: "BIOLOGY (जीव विज्ञान)",
+                icon: "🧬",
+                chapters: [
+                    { name: "अध्याय 01 (जैव प्रक्रम / पोषण)", path: "./SCIENCE/BIOLOGY/01.html" },
+                    { name: "अध्याय 02 (श्वसन)", path: "./SCIENCE/BIOLOGY/02.html" },
+                    { name: "अध्याय 03 (परिवहन)", path: "./SCIENCE/BIOLOGY/03.html" },
+                    { name: "अध्याय 04 (उत्सर्जन)", path: "./SCIENCE/BIOLOGY/04.html" },
+                    { name: "अध्याय 05 (नियंत्रण और समन्वय)", path: "./SCIENCE/BIOLOGY/05.html" },
+                    { name: "अध्याय 06 (जीव जनन कैसे करते हैं)", path: "./SCIENCE/BIOLOGY/06.html" },
+                    { name: "अध्याय 07 (आनुवंशिकता एवं जैव विकास)", path: "./SCIENCE/BIOLOGY/07.html" },
+                    { name: "अध्याय 08 (हमारा पर्यावरण)", path: "./SCIENCE/BIOLOGY/08.html" }
+                ]
+            }
+        ]
+    },
+    {
+        subjectName: "SOCIAL SCIENCE (सामाजिक विज्ञान)",
+        icon: "🌍",
+        description: "इतिहास, भूगोल, राजनीति विज्ञान, अर्थशास्त्र एवं आपदा प्रबंधन।",
+        sections: [
+            {
+                sectionName: "HISTORY (इतिहास)",
+                icon: "📜",
+                chapters: [
+                    { name: "पाठ 01 (यूरोप में राष्ट्रवाद)", path: "./SOCIAL SCIENCE/HISTORY/01.html" },
+                    { name: "पाठ 02 (समाजवाद एवं साम्यवाद)", path: "./SOCIAL SCIENCE/HISTORY/02.html" },
+                    { name: "पाठ 03 (हिन्द-चीन में राष्ट्रवादी आंदोलन)", path: "./SOCIAL SCIENCE/HISTORY/03.html" },
+                    { name: "पाठ 04 (भारत में राष्ट्रवाद)", path: "./SOCIAL SCIENCE/HISTORY/04.html" },
+                    { name: "पाठ 05 (अर्थव्यवस्था और आजीविका)", path: "./SOCIAL SCIENCE/HISTORY/05.html" },
+                    { name: "पाठ 06 (शहरीकरण एवं शहरी जीवन)", path: "./SOCIAL SCIENCE/HISTORY/06.html" },
+                    { name: "पाठ 07 (व्यापार और भूमंडलीकरण)", path: "./SOCIAL SCIENCE/HISTORY/07.html" },
+                    { name: "पाठ 08 (प्रेस-संस्कृति और राष्ट्रवाद)", path: "./SOCIAL SCIENCE/HISTORY/08.html" }
+                ]
+            },
+            {
+                sectionName: "GEOGRAPHY (भूगोल)",
+                icon: "🗺️",
+                chapters: [
+                    { name: "पाठ 01 (भारत : संसाधन एवं उपयोग)", path: "./SOCIAL SCIENCE/GEOGRAPHY/01.html" },
+                    { name: "पाठ 02 (कृषि)", path: "./SOCIAL SCIENCE/GEOGRAPHY/02.html" },
+                    { name: "पाठ 03 (निर्माण उद्योग)", path: "./SOCIAL SCIENCE/GEOGRAPHY/03.html" },
+                    { name: "पाठ 04 (परिवहन, संचार एवं व्यापार)", path: "./SOCIAL SCIENCE/GEOGRAPHY/04.html" },
+                    { name: "पाठ 05 (बिहार : कृषि एवं वन संसाधन)", path: "./SOCIAL SCIENCE/GEOGRAPHY/05.html" },
+                    { name: "पाठ 06 (मानचित्र अध्ययन)", path: "./SOCIAL SCIENCE/GEOGRAPHY/06.html" }
+                ]
+            },
+            {
+                sectionName: "POLITICAL SCIENCE (राजनीति विज्ञान)",
+                icon: "⚖️",
+                chapters: [
+                    { name: "पाठ 01 (लोकतंत्र में द्वंद्व/साझेदारी)", path: "./SOCIAL SCIENCE/POLITICS/01.html" },
+                    { name: "पाठ 02 (सत्ता में साझेदारी की कार्यप्रणाली)", path: "./SOCIAL SCIENCE/POLITICS/02.html" },
+                    { name: "पाठ 03 (लोकतंत्र की प्रतिस्पर्धा एवं संघर्ष)", path: "./SOCIAL SCIENCE/POLITICS/03.html" },
+                    { name: "पाठ 04 (लोकतंत्र की उपलब्धियां)", path: "./SOCIAL SCIENCE/POLITICS/04.html" },
+                    { name: "पाठ 05 (लोकतंत्र की चुनौतियां)", path: "./SOCIAL SCIENCE/POLITICS/05.html" }
+                ]
+            },
+            {
+                sectionName: "ECONOMICS (अर्थशास्त्र)",
+                icon: "💰",
+                chapters: [
+                    { name: "पाठ 01 (अर्थव्यवस्था एवं इसके विकास का इतिहास)", path: "./SOCIAL SCIENCE/ECONOMICS/01.html" },
+                    { name: "पाठ 02 (राज्य एवं राष्ट्र की आय)", path: "./SOCIAL SCIENCE/ECONOMICS/02.html" },
+                    { name: "पाठ 03 (मुद्रा, बचत एवं साख)", path: "./SOCIAL SCIENCE/ECONOMICS/03.html" },
+                    { name: "पाठ 04 (हमारी वित्तीय संस्थाएं)", path: "./SOCIAL SCIENCE/ECONOMICS/04.html" },
+                    { name: "पाठ 05 (रोजगार एवं सेवाएँ)", path: "./SOCIAL SCIENCE/ECONOMICS/05.html" },
+                    { name: "पाठ 06 (वैश्वीकरण)", path: "./SOCIAL SCIENCE/ECONOMICS/06.html" },
+                    { name: "पाठ 07 (उपभोक्ता जागरण एवं संरक्षण)", path: "./SOCIAL SCIENCE/ECONOMICS/07.html" }
+                ]
+            },
+            {
+                sectionName: "DISASTER MANAGEMENT (आपदा प्रबंधन)",
+                icon: "🚨",
+                chapters: [
+                    { name: "पाठ 01 (प्राकृतिक आपदा : एक परिचय)", path: "./SOCIAL SCIENCE/DISASTER/01.html" },
+                    { name: "पाठ 02 (प्राकृतिक आपदा एवं प्रबंधन : बाढ़ और सुखाड़)", path: "./SOCIAL SCIENCE/DISASTER/02.html" },
+                    { name: "पाठ 03 (भूकंप एवं सुनामी)", path: "./SOCIAL SCIENCE/DISASTER/03.html" },
+                    { name: "पाठ 04 (जीवन रक्षक आकस्मिक प्रबंधन)", path: "./SOCIAL SCIENCE/DISASTER/04.html" }
+                ]
+            }
+        ]
+    }
+];
+
+const gridContainer = document.getElementById('quiz-grid');
+const mainTitle = document.getElementById('dashboard-title');
+const mainDesc = document.getElementById('dashboard-desc');
+const backBtn = document.getElementById('back-btn');
+const devModal = document.getElementById('dev-modal');
+
+let currentViewState = { stage: "subjects", subjectIndex: null };
+
+window.onload = function() {
+    renderSubjects();
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log("PWA Service Worker Registered Successfully!"))
+        .catch(err => console.log("Service Worker Registration Failed", err));
+    }
+};
+
+function renderSubjects() {
+    gridContainer.innerHTML = '';
+    gridContainer.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-4xl w-full mx-auto animate-fade-in";
+    mainTitle.innerHTML = `Choose a <span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-violet-500 bg-clip-text text-transparent">Subject</span> to Begin`;
+    mainDesc.innerText = "अपनी पसंद का विषय चुनें, फिर उपलब्ध चैप्टर्स या सेक्शन्स में से किसी भी टेस्ट फ़ाइल को तुरंत रन करने के लिए उस पर क्लिक करें।";
+    backBtn.classList.add('hidden');
+    currentViewState = { stage: "subjects", subjectIndex: null };
+
+    quizData.forEach((sub, subIndex) => {
+        const card = document.createElement('div');
+        card.className = "p-5 bg-slate-900/40 border border-slate-800/80 rounded-2xl flex flex-col justify-between hover:border-indigo-500/50 hover:bg-slate-900/60 transition-all duration-300 cursor-pointer group transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-black/20";
+        card.setAttribute('onclick', `handleSubjectClick(${subIndex})`);
+        
+        let countText = sub.sections ? `${sub.sections.length} Sections` : `${sub.chapters.length} Chapters`;
+
+        card.innerHTML = `
+            <div class="space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xl font-bold group-hover:bg-indigo-500/20 group-hover:text-indigo-300 transition-all duration-300 shadow-md">
+                    ${sub.icon}
+                </div>
+                <h3 class="text-sm font-bold text-slate-100 group-hover:text-indigo-300 transition-colors duration-200">${sub.subjectName}</h3>
+                <p class="text-[11px] text-slate-400 leading-relaxed line-clamp-2">${sub.description}</p>
+            </div>
+            <div class="pt-3 border-t border-slate-850 mt-3 flex items-center justify-between text-[10px] font-extrabold tracking-wider text-indigo-400/90 uppercase group-hover:text-indigo-400 transition-colors duration-200">
+                <span>${countText}</span>
+                <span class="transform group-hover:translate-x-1 transition-transform">Open ➔</span>
+            </div>
+        `;
+        gridContainer.appendChild(card);
+    });
+}
+
+function handleSubjectClick(subIndex) {
+    const sub = quizData[subIndex];
+    if (sub.sections) {
+        renderSections(subIndex);
+    } else {
+        renderChapters(sub.chapters, sub.subjectName, "subjects");
+    }
+}
+
+function renderSections(subIndex) {
+    const currentSub = quizData[subIndex];
+    gridContainer.innerHTML = '';
+    gridContainer.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-4xl w-full mx-auto animate-fade-in";
+    
+    mainTitle.innerHTML = `<span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-violet-500 bg-clip-text text-transparent">${currentSub.subjectName}</span> Sections`;
+    mainDesc.innerText = "अपना पसंदीदा सेक्शन चुनें जिसके टेस्ट आप देना चाहते हैं।";
+    backBtn.classList.remove('hidden');
+    currentViewState = { stage: "sections", subjectIndex: subIndex };
+
+    currentSub.sections.forEach((sec, secIndex) => {
+        const card = document.createElement('div');
+        card.className = "p-5 bg-slate-900/40 border border-slate-800/80 rounded-2xl flex flex-col justify-between hover:border-indigo-500/50 hover:bg-slate-900/60 transition-all duration-300 cursor-pointer group transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-black/20";
+        card.setAttribute('onclick', `renderSectionChapters(${subIndex}, ${secIndex})`);
+        
+        card.innerHTML = `
+            <div class="space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xl font-bold group-hover:bg-indigo-500/20 group-hover:text-indigo-300 transition-all duration-300 shadow-md">
+                    ${sec.icon || '📁'}
+                </div>
+                <h3 class="text-sm font-bold text-slate-100 group-hover:text-indigo-300 transition-colors duration-200">${sec.sectionName}</h3>
+                <p class="text-[11px] text-slate-400 leading-relaxed">बिहार बोर्ड परीक्षा विशेष ऑब्जेक्टिव टेस्ट सेट।</p>
+            </div>
+            <div class="pt-3 border-t border-slate-850 mt-3 flex items-center justify-between text-[10px] font-extrabold tracking-wider text-indigo-400/90 uppercase group-hover:text-indigo-400 transition-colors duration-200">
+                <span>${sec.chapters.length} Chapters</span>
+                <span class="transform group-hover:translate-x-1 transition-transform">View ➔</span>
+            </div>
+        `;
+        gridContainer.appendChild(card);
+    });
+}
+
+function renderSectionChapters(subIndex, secIndex) {
+    const sec = quizData[subIndex].sections[secIndex];
+    renderChapters(sec.chapters, sec.sectionName, "sections", subIndex);
+}
+
+function renderChapters(chaptersList, titleName, backToStage, subIndex = null) {
+    gridContainer.innerHTML = '';
+    gridContainer.className = "grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl w-full mx-auto animate-fade-in";
+    
+    mainTitle.innerHTML = `<span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-violet-500 bg-clip-text text-transparent">${titleName}</span> Chapters`;
+    mainDesc.innerText = "चैप्टर का चुनाव करें। क्लिक करते ही उस चैप्टर की HTML क्विज़ फ़ाइल लोड हो जाएगी।";
+    backBtn.classList.remove('hidden');
+    
+    currentViewState = { stage: "chapters", backTo: backToStage, subjectIndex: subIndex };
+
+    chaptersList.forEach((chap) => {
+        const card = document.createElement('div');
+        card.className = "p-4 bg-slate-900/40 border border-slate-800/80 rounded-2xl flex items-center justify-between hover:border-emerald-500/50 hover:bg-slate-900/60 transition-all duration-200 cursor-pointer group shadow-md";
+        card.setAttribute('onclick', `runQuizFile('${chap.path}')`);
+        
+        card.innerHTML = `
+            <div class="space-y-1 pr-4">
+                <h3 class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider group-hover:text-emerald-400 transition-colors duration-200">Test Module</h3>
+                <p class="text-sm font-bold text-slate-200 group-hover:text-white transition-colors duration-200">${chap.name}</p>
+            </div>
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-slate-950 flex items-center justify-center font-bold text-sm transition-all duration-300 shrink-0 shadow-inner">
+                ▶
+            </div>
+        `;
+        gridContainer.appendChild(card);
+    });
+}
+
+// Smart File Verifier Engine
+function runQuizFile(filePath) {
+    // फ़ाइल उपलब्ध है या नहीं, यह चेक करने के लिए Fetch Request
+    fetch(filePath, { method: 'HEAD' })
+    .then(response => {
+        if (response.ok) {
+            // फ़ाइल मिलने पर सीधे रीडायरेक्ट करें
+            window.location.href = filePath;
+        } else {
+            // 404 या अन्य एरर आने पर पॉप-अप दिखाएं
+            showDevModal();
+        }
+    })
+    .catch(() => {
+        // लोकल टेस्टिंग या ब्लॉक होने पर भी सुरक्षित पॉप-अप ट्रिगर
+        showDevModal();
+    });
+}
+
+function showDevModal() {
+    devModal.classList.remove('hidden');
+}
+
+function closeDevModal() {
+    devModal.classList.add('hidden');
+}
+
+function resetToSubjects() {
+    if (currentViewState.stage === "chapters" && currentViewState.backTo === "sections") {
+        renderSections(currentViewState.subjectIndex);
+    } else {
+        renderSubjects();
+    }
+}
+ </script>
+</body>
+</html>

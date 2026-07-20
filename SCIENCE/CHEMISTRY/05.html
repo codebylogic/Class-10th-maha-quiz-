@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>रसायन विज्ञान क्विज़ - तत्वों का आवर्त वर्गीकरण</title>
+    <style>
+        /* Base Offline Styles replacing Tailwind */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdf4;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(13, 148, 136, 0.15);
+            width: 100%;
+            max-width: 896px;
+            height: 90vh;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0d9488;
+            background-color: #f0fdfa;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Layout Utilities */
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        /* Header & Elements */
+        .quiz-header { padding: 32px 32px 16px 32px; border-bottom: 1px solid #f1f5f9; background: rgba(255,255,255,0.5); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
+        .progress-bar-fill { background: linear-gradient(to right, #2dd4bf, #0d9488); height: 12px; border-radius: 9999px; transition: all 0.5s ease-out; }
+        .profile-icon { position: absolute; top: 24px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Buttons */
+        .btn-start { padding: 16px 40px; background: linear-gradient(to right, #0d9488, #0f766e); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(13, 148, 136, 0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 32px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; margin-left: 8px; font-size: 1rem; }
+        .btn-next { background-color: #111827; color: white; }
+        .btn-skip { background-color: #e2e8f0; color: #4a5568; }
+        
+        /* Overview Panel */
+        .overview-panel { position: absolute; inset: 0; background: white; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 12px; padding: 16px 0; flex-1; overflow-y: auto; }
+        .q-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+        
+        /* Circle States */
+        .state-default { background: linear-gradient(135deg, #2dd4bf, #0d9488); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        /* Circular Progress Chart */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-gray-800">
+
+    <div id="app" class="glass-panel">
+        <!-- Screens will be injected here by JS -->
+    </div>
+
+    <script>
+        const questions = [
+            { q: "तत्वों के वर्गीकरण का सबसे पहला प्रयास निम्नलिखित में से किस वैज्ञानिक ने किया था?", o: ["मेंडलीव", "डोबेराइनर", "न्यूलैंड्स", "मोसले"], a: 1 },
+            { q: "डोबेराइनर ने समान गुणधर्म वाले तत्वों को कितने-कितने तत्वों के समूहों में वर्गीकृत किया था?", o: ["दो", "तीन (त्रिक)", "सात", "आठ"], a: 1 },
+            { q: "डोबेराइनर के त्रिक सिद्धांत के अनुसार, बीच वाले तत्व का परमाणु द्रव्यमान शेष दो तत्वों के परमाणु द्रव्यमान का क्या होता है?", o: ["गुणनफल", "औसत (लगभग माध्य)", "अंतर", "दोगुना"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा समूह डोबेराइनर का एक वास्तविक त्रिक (Triad) प्रदर्शित करता है?", o: ["Na, Mg, Al", "Li, Na, K", "F, Cl, Br", "C, N, O"], a: 1 },
+            { q: "तत्वों के वर्गीकरण के लिए 'अष्टक सिद्धांत' (Law of Octaves) का प्रतिपादन किसने किया था?", o: ["डोबेराइनर", "जॉन न्यूलैंड्स", "लोथर मेयर", "मेंडलीव"], a: 1 },
+            { q: "न्यूलैंड्स का अष्टक सिद्धांत किस वर्ष में प्रतिपादित किया गया था?", o: ["1817", "1866", "1869", "1913"], a: 1 },
+            { q: "न्यूलैंड्स के अष्टक नियम के अनुसार, प्रत्येक आठवें तत्व का गुणधर्म किस तत्व के समान होता है?", o: ["प्रथम तत्व के", "दूसरे तत्व के", "अंतिम तत्व के", "सातवें तत्व के"], a: 0 },
+            { q: "न्यूलैंड्स के समय प्रकृति में कुल कितने तत्वों की खोज हो चुकी थी, जिन्हें उन्होंने वर्गीकृत किया था?", o: ["30", "56", "63", "118"], a: 1 },
+            { q: "न्यूलैंड्स का अष्टक नियम केवल किस हल्के तत्व तक ही सही रूप से लागू हो पाता था?", o: ["सोडियम", "कैल्शियम (Calcium)", "लोहा", "सल्फर"], a: 1 },
+            { q: "तत्वों के वर्गीकरण में 'आवर्त सारणी' (Periodic Table) का मुख्य जन्मदाता किसे माना जाता है?", o: ["न्यूलैंड्स", "दिमित्री मेंडलीव", "हेनरी मोसले", "डोबेराइनर"], a: 1 },
+            { q: "मेंडलीव की आवर्त सारणी किस मूल रासायनिक आवर्त नियम पर आधारित थी?", o: ["तत्वों के गुणधर्म उनके परमाणु संख्या के आवर्ती फलन होते हैं", "तत्वों के गुणधर्म उनके परमाणु द्रव्यमान (Atomic Mass) के आवर्ती फलन होते हैं", "तत्वों के गुणधर्म उनकी संयोजकता के आवर्ती फलन होते हैं", "अष्टक नियम पर"], a: 1 },
+            { q: "मेंडलीव ने जब अपनी आवर्त सारणी पर कार्य प्रारंभ किया, तब कुल ज्ञात तत्वों की संख्या कितनी थी?", o: ["56", "63", "92", "118"], a: 1 },
+            { q: "मेंडलीव की आवर्त सारणी में क्षैतिज कतारों (Horizontal Rows) को तकनीकी रूप से क्या कहा जाता है?", o: ["वर्ग", "आवर्त (Periods)", "समूह", "ब्लॉक"], a: 1 },
+            { q: "मेंडलीव की आवर्त सारणी में ऊर्ध्वाधर स्तंभों (Vertical Columns) को क्या नाम दिया गया था?", o: ["आवर्त", "वर्ग या समूह (Groups)", "कक्षा", "श्रृंखला"], a: 1 },
+            { q: "मेंडलीव ने अपनी सारणी में कुछ खाली स्थान छोड़े थे। बाद में खोजे गए 'एका-बोरॉन' तत्व को क्या नाम मिला?", o: ["स्कैंडियम (Scandium)", "गैलियम", "जर्मेनियम", "पोलोनियम"], a: 0 },
+            { q: "मेंडलीव द्वारा छोड़े गए खाली स्थान 'एका-एल्युमिनियम' को बाद में किस तत्व से प्रतिस्थापित किया गया?", o: ["स्कैंडियम", "गैलियम (Gallium)", "जर्मेनियम", "सिलिकॉन"], a: 1 },
+            { q: "मेंडलीव की आवर्त सारणी में 'एका-सिलिकॉन' के स्थान पर बाद में कौन सा तत्व खोजा गया?", o: ["स्कैंडियम", "गैलियम", "जर्मेनियम (Germanium)", "टिन"], a: 2 },
+            { q: "मेंडलीव की आवर्त सारणी का सबसे प्रमुख दोष या विसंगति निम्नलिखित में से क्या थी?", o: ["धातुओं का स्थान", "हाइड्रोजन का स्थान और समस्थानिकों की स्थिति स्पष्ट न होना", "अक्रिय गैसों का न होना", "हल्के तत्वों का वर्गीकरण"], a: 1 },
+            { q: "1913 में किसने यह सिद्ध किया कि तत्व का परमाणु नंबर (Atomic Number) उसके परमाणु द्रव्यमान की तुलना में अधिक आधारभूत गुण है?", o: ["मेंडलीव", "हेनरी मोसले (Henry Moseley)", "नील्स बोर", "रदरफोर्ड"], a: 1 },
+            { q: "आधुनिक आवर्त नियम (Modern Periodic Law) का सही कथन क्या है?", o: ["तत्वों के गुणधर्म उनके परमाणु द्रव्यमान के आवर्ती फलन होते हैं", "तत्वों के भौतिक और रासायनिक गुणधर्म उनकी परमाणु संख्या (自由度) के आवर्ती फलन होते हैं", "तत्वों के गुण उनकी संयोजकता के समानुपाती होते हैं", "कोई नहीं"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी (Modern Periodic Table) में कुल कितने ऊर्ध्वाधर स्तंभ (Vertical Columns) या वर्ग हैं?", o: ["7", "8", "9", "18"], a: 3 },
+            { q: "आधुनिक आवर्त सारणी में कुल क्षैतिज कतारों यानी आवर्तों (Periods) की संख्या कितनी है?", o: ["7", "8", "10", "18"], a: 0 },
+            { q: "आधुनिक आवर्त सारणी के प्रथम आवर्त (First Period) में कुल कितने तत्व उपस्थित हैं?", o: ["2 (H और He)", "8", "18", "32"], a: 0 },
+            { q: "आधुनिक आवर्त सारणी के दूसरे और तीसरे आवर्त में प्रत्येक में कितने-कितने तत्व होते हैं?", o: ["2", "8 (लघु आवर्त)", "18", "32"], a: 1 },
+            { q: "चौथे और पाँचवें आवर्त में तत्वों की संख्या क्रमशः कितनी होती है?", o: ["8", "18 (दीर्घ आवर्त)", "32", "56"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी के छठे आवर्त में कुल कितने तत्व पाए जाते हैं, जो सबसे बड़ा आवर्त है?", o: ["18", "32", "50", "28"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी में तत्वों को किस क्रम में व्यवस्थित किया गया है?", o: ["घटते परमाणु द्रव्यमान", "बढ़ते परमाणु द्रव्यमान", "बढ़ती परमाणु संख्या (Increasing Atomic Number)", "संयोजकता के घटते क्रम"], a: 2 },
+            { q: "किसी तत्व की परमाणु संख्या (Z) परमाणु के नाभिक में उपस्थित किसकी संख्या के बराबर होती है?", o: ["न्यूट्रॉन", "प्रोटॉन (Protons)", "इलेक्ट्रॉन और न्यूट्रॉन", "केवल पॉज़िट्रॉन"], a: 1 },
+            { q: "एक ही वर्ग (Group) में स्थित सभी तत्वों के बाह्यतम कोश में क्या समानता होती है?", o: ["परमाणु का आकार समान होता है", "संयोजी इलेक्ट्रॉनों की संख्या समान होती है (Same Valence Electrons)", "परमाणु द्रव्यमान समान होता है", "कक्षाओं की संख्या समान होती है"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी के वर्ग 1 के तत्वों को सामान्यतः किस नाम से जाना जाता है?", o: ["क्षारीय मृदा धातुएं", "क्षार धातुएं (Alkali Metals)", "हैलोजन", "उत्कृष्ट गैसें"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी के वर्ग 2 के तत्वों को क्या कहा जाता है?", o: ["क्षार धातुएं", "क्षारीय मृदा धातुएं (Alkaline Earth Metals)", "संक्रमण तत्व", "सिक्का धातुएं"], a: 1 },
+            { q: "वर्ग 17 के तत्वों (F, Cl, Br, I) को आवर्त सारणी में किस नाम से पुकारा जाता है?", o: ["चालकोजन", "हैलोलोजन (Halogens)", "उत्कृष्ट गैसें", "क्षार धातुएं"], a: 1 },
+            { q: "वर्ग 18 के तत्वों (He, Ne, Ar, Kr, Xe, Rn) को क्या कहा जाता है क्योंकि ये अत्यधिक अक्रिय होते हैं?", o: ["हैलोलोजन", "संक्रमण तत्व", "उत्कृष्ट या अक्रिय गैसें (Noble Gases)", "प्रतिनिधि तत्व"], a: 2 },
+            { q: "आवर्त सारणी के वर्ग 3 से 12 तक के तत्वों को किस श्रेणी के अंतर्गत रखा गया है?", o: ["लेंथेनाइड", "संक्रमण तत्व (Transition Elements)", "अधातुएं", "क्षार धातुएं"], a: 1 },
+            { q: "आवर्त सारणी के नीचे दो अलग-अलग कतारों में रखे गए 14-14 तत्वों की श्रेणियों को क्या कहते हैं?", o: ["संक्रमण तत्व", "लैंथेनाइड और एक्टीनाइड श्रेणियां (Inner Transition Elements)", "हैलोलोजन", "उपधातुएं"], a: 1 },
+            { q: "परमाणु के नाभिक से उसके सबसे बाहरी इलेक्ट्रॉन कोश की दूरी को क्या कहा जाता है?", o: ["परमाणु द्रव्यमान", "परमाणु त्रिज्या या आकार (Atomic Radius)", "आयनीकरण ऊर्जा", "संयोजकता"], a: 1 },
+            { q: "किसी आवर्त (Period) में बाईं से दाईं ओर (Left to Right) जाने पर परमाणु त्रिज्या में क्या परिवर्तन होता है?", o: ["परमाणु आकार बढ़ता है", "परमाणु आकार घटता है (Decreases)", "अपरिवर्तित रहता है", "पहले घटता है फिर बढ़ता है"], a: 1 },
+            { q: "आवर्त में बाईं से दाईं ओर जाने पर परमाणु आकार क्यों घटता है?", o: ["नाभिकीय आवेश में कमी के कारण", "नाभिकीय आवेश (Nuclear Charge) बढ़ने से नाभिक इलेक्ट्रॉनों को अंदर खींचता है", "कक्षाओं की संख्या घटने के कारण", "द्रव्यमान घटने के कारण"], a: 1 },
+            { q: "किसी वर्ग (Group) में ऊपर से नीचे (Top to Bottom) जाने पर परमाणु के आकार में क्या बदलाव आता है?", o: ["आकार घटता है", "आकार बढ़ता है (Increases)", "समान रहता है", "अनियमित रूप से बदलता है"], a: 1 },
+            { q: "वर्ग में ऊपर से नीचे जाने पर परमाणु का आकार क्यों बढ़ता है?", o: ["परमाणु संख्या घटने के कारण", "नई इलेक्ट्रॉनिक कक्षाओं (New Shells) के जुड़ने के कारण", "नाभिकीय आवेश बहुत अधिक होने के कारण", "इलेक्ट्रॉन घटने के कारण"], a: 1 },
+            { q: "तत्वों की संयोजकता (Valency) आवर्त में बाईं से दाईं ओर जाने पर किस प्रकार बदलती है?", o: ["लगातार बढ़ती है", "लगातार घटती है", "1 से 4 तक बढ़ती है और फिर घटकर 0 हो जाती है", "0 रहती है"], a: 2 },
+            { q: "किसी वर्ग में ऊपर से नीचे जाने पर तत्वों की रासायनिक संयोजकता कैसी रहती है?", o: ["बढ़ती है", "घटती है", "स्थिर या समान रहती है (Remains Same)", "पहले बढ़ती है फिर घटती है"], a: 2 },
+            { q: "तत्वों का धात्विक गुण (Metallic Character या इलेक्ट्रॉन त्यागने की क्षमता) आवर्त में बाईं से दाईं ओर जाने पर क्या होता है?", o: ["बढ़ता है", "घटता है (Decreases)", "समान रहता है", "शून्य हो जाता है"], a: 1 },
+            { q: "किसी वर्ग में ऊपर से नीचे जाने पर तत्वों का धात्विक गुण किस प्रकार परिवर्तित होता है?", o: ["घटता है", "बढ़ता है (Increases - क्योंकि इलेक्ट्रॉन त्यागना आसान होता है)", "स्थिर रहता है", "शून्य हो जाता है"], a: 1 },
+            { q: "अधात्विक गुण (Non-metallic Character या इलेक्ट्रॉन ग्रहण करने की क्षमता) आवर्त में बाईं से दाईं ओर जाने पर क्या होती है?", o: ["घटती है", "बढ़ती है (Increases)", "समान रहती है", "पहले बढ़ती है फिर घटती है"], a: 1 },
+            { q: "किसी वर्ग में ऊपर से नीचे जाने पर तत्वों का अधात्विक गुणधर्म क्या होता है?", o: ["बढ़ता है", "घटता है (Decreases)", "कोई बदलाव नहीं होता", "पहले घटता है फिर बढ़ता है"], a: 1 },
+            { q: "आवर्त सारणी में धातुओं और अधातुओं को अलग करने वाली टेढ़ी-मेढ़ी रेखा (Zig-zag Line) पर स्थित तत्वों को क्या कहते हैं?", o: ["सक्रिय धातुएं", "अक्रिय गैसें", "उपधातुएं या अर्धधातुएं (Metalloids)", "संक्रमण तत्व"], a: 2 },
+            { q: "निम्नलिखित में से कौन सा तत्व एक प्रसिद्ध उपधातु (Metalloid) का उदाहरण है?", o: ["सोडियम", "सिलिकॉन (Silicon) या जर्मेनियम", "लोहा", "ऑक्सीजन"], a: 1 },
+            { q: "तत्वों की विद्युत ऋणात्मकता (Electronegativity) आवर्त में बाईं से दाईं ओर जाने पर क्या होती है?", o: ["घटती है", "बढ़ती है (Increases)", "समान रहती है", "शून्य हो जाती है"], a: 1 },
+            { q: "किसी वर्ग में ऊपर से नीचे जाने पर तत्वों की विद्युत ऋणात्मकता का मान आमतौर पर क्या होता है?", o: ["बढ़ता है", "घटता है (Decreases)", "स्थिर रहता है", "शून्य हो जाता है"], a: 1 },
+            { q: "संपूर्ण आवर्त सारणी में सर्वाधिक विद्युत ऋणात्मक तत्व (Most Electronegative Element) कौन सा है?", o: ["ऑक्सीजन", "क्लोरीन", "फ्लोरीन (Fluorine - F)", "नाइट्रोजन"], a: 2 },
+            { q: "आधुनिक आवर्त सारणी में तत्वों के इलेक्ट्रॉनिक विन्यास (Electronic Configuration) के आधार पर कुल कितने ब्लॉक हैं?", o: ["2", "3", "4 (s, p, d, f Block)", "7"], a: 2 },
+            { q: "किसी उदासीन गैसीय परमाणु से सबसे ढीले बंधे इलेक्ट्रॉन को बाहर निकालने के लिए आवश्यक न्यूनतम ऊर्जा क्या कहलाती है?", o: ["इलेक्ट्रॉन बंधुता", "आयनीकरण ऊर्जा या विभव (Ionization Energy)", "विद्युत ऋणात्मकता", "नाभिकीय बल"], a: 1 },
+            { q: "आवर्त में बाईं से दाईं ओर बढ़ने पर आयनीकरण ऊर्जा का मान सामान्यतः क्या होता है?", o: ["घटता है", "बढ़ता है (Increases)", "समान रहता है", "तीव्रता से गिरता है"], a: 1 },
+            { q: "किसी वर्ग में ऊपर से नीचे जाने पर आयनीकरण विभव (Ionization Potential) का मान क्या होता है?", o: ["बढ़ता है", "घटता है (Decreases)", "पहले घटता है फिर बढ़ता है", "शून्य हो जाता है"], a: 1 },
+            { q: "सोडियम (Na) आवर्त सारणी के किस आवर्त और किस वर्ग का सदस्य है?", o: ["आवर्त 2, वर्ग 1", "आवर्त 3, वर्ग 1", "आवर्त 3, वर्ग 2", "आवर्त 1, वर्ग 1"], a: 1 },
+            { q: "क्लोरीन (Cl) की परमाणु संख्या 17 है, यह आवर्त सारणी के किस वर्ग में आता है?", o: ["वर्ग 1", "वर्ग 15", "वर्ग 16", "वर्ग 17"], a: 3 },
+            { q: "हीलियम (He) का परमाणु आकार अपने आवर्त के अन्य तत्वों की तुलना में छोटा क्यों होता है?", o: ["पूर्णतः भरे कोश के कारण नाभिकीय आकर्षण बल अधिकतम होने से", "इसमें कक्षाएं नहीं होतीं", "यह एक धातु है", "कोई नहीं"], a: 0 },
+            { q: "मेंडलीव की आवर्त सारणी में कोबाल्ट (Co) और निकेल (Ni) के स्थान को लेकर क्या विसंगति थी?", o: ["दोनों अधातु थे", "अधिक परमाणु द्रव्यमान वाले कोबाल्ट को कम द्रव्यमान वाले निकेल से पहले रखा गया था", "उन्हें उत्कृष्ट गैस मान लिया गया था", "कोई विसंगति नहीं थी"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी में समस्थानिकों (Isotopes) को एक ही स्थान पर क्यों रखा गया है?", o: ["क्योंकि उनका परमाणु द्रव्यमान समान होता है", "क्योंकि उनकी परमाणु संख्या (Atomic Number) समान होती है", "क्योंकि वे रेडियोधर्मी होते हैं", "वे गैसें होते हैं"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा तत्व सबसे कम क्रियाशील उत्कृष्ट गैस है जिसका उपयोग बल्बों में किया जाता है?", o: ["हाइड्रोजन", "नाइट्रोजन", "आर्गन (Argon)", "ऑक्सीजन"], a: 2 },
+            { q: "किसी तत्व के परमाणु में 2, 8, 3 इलेक्ट्रॉनिक विन्यास है, इसकी परमाणु संख्या और वर्ग क्या होगा?", o: ["13, वर्ग 3", "13, वर्ग 13", "10, वर्ग 2", "15, वर्ग 15"], a: 1 },
+            { q: "आवर्त सारणी में क्षारीय धातुओं (वर्ग 1) के ऑक्साइड्स की जलीय प्रकृति कैसी होती है?", o: ["प्रबल अम्लीय", "प्रबल क्षारीय (Strongly Basic)", "उदासीन", "उभयधर्मी"], a: 1 },
+            { q: "आवर्त सारणी के दाईं ओर स्थित अधातुओं के ऑक्साइड्स की रासायनिक प्रकृति कैसी होती है?", o: ["क्षारीय", "अम्लीय (Acidic)", "उदासीन", "उभयधर्मी"], a: 1 },
+            { q: "आवर्त सारणी के किस वर्ग को 'शून्य वर्ग' (Zero Group) भी कहा जाता था?", o: ["वर्ग 1", "वर्ग 7", "वर्ग 17", "वर्ग 18 (उत्कृष्ट गैसों का वर्ग)"], a: 3 },
+            { q: "किस आवर्त को अति दीर्घ आवर्त (Very Long Period) कहा जाता है क्योंकि इसमें 32 तत्व होते हैं?", o: ["चौथा", "पांचवां", "छठा (6th Period)", "सातवां"], a: 2 },
+            { q: "परमाणु संख्या 57 से 71 तक के तत्वों को जो छठे आवर्त का हिस्सा हैं, क्या कहा जाता है?", o: ["एक्टिनाइड श्रेणी", "लैंथेनाइड श्रेणी (Lanthanides)", "संक्रमण तत्व", "क्षार धातुएं"], a: 1 },
+            { q: "परमाणु संख्या 89 से 103 तक के तत्वों को जो सातवें आवर्त के नीचे स्थित हैं, क्या कहते हैं?", o: ["लैंथेनाइड", "एक्टिनाइड श्रेणी (Actinides)", "उपधातुएं", "हैलोजन"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी में हाइड्रोजन को वर्ग 1 के ऊपर रखने का मुख्य कारण क्या है?", o: ["यह एक क्षार धातु है", "इसका इलेक्ट्रॉनिक विन्यास (1s¹) क्षार धातुओं के समान होता है", "यह एक उत्कृष्ट गैस है", "यह ठोस है"], a: 1 },
+            { q: "किसी तत्व के परमाणु आकार को मापने की इकाई क्या होती है?", o: ["किलोमीटर", "मीटर", "पिकोमीटर (pm) या एंगस्ट्रॉम (Å)", "ग्राम"], a: 2 },
+            { q: "आवर्त 2 के तत्वों (Li, Be, B, C, N, O, F, Ne) में संयोजी इलेक्ट्रॉनों की अधिकतम संख्या कितनी हो सकती है?", o: ["2", "4", "8", "18"], a: 2 },
+            { q: "एक वर्ग में ऊपर से नीचे जाने पर नाभिकीय आवेश बढ़ता है, फिर भी परमाणु का आकार क्यों बढ़ता है?", o: ["क्योंकि इलेक्ट्रॉन घटते हैं", "क्योंकि नई कक्षाओं के जुड़ने का प्रभाव नाभिकीय आकर्षण से अधिक प्रभावशाली होता है", "कक्षाएं स्थिर रहती हैं", "द्रव्यमान घटता है"], a: 1 },
+            { q: "निम्नलिखित में से कौन सी धातु सबसे हल्की धातु मानी जाती है जो वर्ग 1 में है?", o: ["हाइड्रोजन", "लिथियम (Lithium)", "सोडियम", "पोटेशियम"], a: 1 },
+            { q: "किस हैलोजन तत्व की इलेक्ट्रॉन बंधुता (Electron Affinity) पूरी आवर्त सारणी में सबसे उच्च होती है?", o: ["फ्लोरीन", "क्लोरीन (Chlorine)", "ब्रोमीन", "आयोडीन"], a: 1 },
+            { q: "आवर्त सारणी में बाएं से दाएं जाने पर तत्वों की विद्युत धनात्मकता (Electropositivity) पर क्या प्रभाव पड़ता है?", o: ["बढ़ती है", "घटती है (Decreases)", "समान रहती है", "पहले घटती है फिर बढ़ती है"], a: 1 },
+            { q: "किसी वर्ग में ऊपर से नीचे जाने पर तत्वों की विद्युत धनात्मकता (लक्षण) क्या होती है?", o: ["घटती है", "बढ़ती है (Increases)", "शून्य हो जाती है", "स्थिर रहती है"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी की सबसे प्रमुख विशेषता यह है कि यह सीधे तौर पर तत्वों के किस गुण को दर्शाती है?", o: ["परमाणु भार", "इलेक्ट्रॉनिक विन्यास (Electronic Configuration)", "घनत्व", "रंग"], a: 1 },
+            { q: "मेंडलीव ने अपनी आवर्त सारणी में तत्वों के वर्गीकरण के लिए किन दो यौगिकों के सूत्रों को आधार बनाया था?", o: ["हाइड्राइड और ऑक्साइड (Hydrides & Oxides)", "क्लोराइड और सल्फेट", "नाइट्रेट और कार्बोनेट", "हाइड्रॉक्साइड"], a: 0 },
+            { q: "डोबेराइनर के वर्गीकरण की सबसे बड़ी सीमा क्या थी?", o: ["उन्होंने परमाणु द्रव्यमान को आधार बनाया", "वे उस समय ज्ञात सभी तत्वों में से केवल कुछ ही त्रिक ढूंढ पाए थे", "उन्होंने गैसों को छोड़ दिया", "कोई नहीं"], a: 1 },
+            { q: "न्यूलैंड्स का अष्टक नियम किस वर्ष के वैज्ञानिक विकास की सीमा को दर्शाता है जब उत्कृष्ट गैसों की खोज:", o: ["हो चुकी थी", "नहीं हुई थी (खोज के बाद यह नियम पूरी तरह फेल हो गया)", "चल रही थी", "सब गलत"], a: 1 },
+            { q: "यदि किसी तत्व का परमाणु विन्यास 2, 8, 8 है, तो वह आवर्त सारणी के किस आवर्त का सदस्य होगा?", o: ["दूसरे", "तीसरे (3rd Period)", "चौथे", "अठारहवें"], a: 1 },
+            { q: "तत्वों की रासायनिक क्रियाशीलता आवर्त में बाएं से दाएं जाने पर:", o: ["लगातार बढ़ती है", "लगातार घटती है", "पहले घटती है और फिर बढ़ती है", "स्थिर रहती है"], a: 2 },
+            { q: "किसी तत्व का परमाणु क्रमांक 20 है, यह किस आवर्त और किस वर्ग में स्थित होगा?", o: ["आवर्त 3, वर्ग 2", "आवर्त 4, वर्ग 2", "आवर्त 4, वर्ग 20", "आवर्त 2, वर्ग 4"], a: 1 },
+            { q: "निम्नलिखित में से कौन सा तत्व सर्वाधिक धात्विक प्रकृति (Most Metallic) का होगा?", o: ["Li", "Na", "K (पोटेशियम)", "Rb"], a: 2 },
+            { q: "आवर्त सारणी के किसी वर्ग में नीचे जाने पर घनत्व (Density) पर क्या प्रभाव पड़ता है?", o: ["घटता है", "सामान्यता बढ़ता है (Increases)", "स्थिर रहता है", "शून्य हो जाता है"], a: 1 },
+            { q: "संक्रमण तत्वों (Transition Elements) को किस ब्लॉक के अंतर्गत रखा गया है?", o: ["s-ब्लॉक", "p-ब्लॉक", "d-ब्लॉक (d-Block)", "f-ब्लॉक"], a: 2 },
+            { q: "लेंथेनाइड और एक्टीनाइड श्रेणियों के तत्वों को संयुक्त रूप से किस ब्लॉक में रखा गया है?", o: ["d-ब्लॉक", "f-ब्लॉक (f-Block)", "s-ब्लॉक", "p-ब्लॉक"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी में कुल अधातुओं (Non-metals) की स्थिति किस ओर है?", o: ["बाईं ओर", "दाईं ओर (Right Side)", "नीचे अलग से", "मध्य में"], a: 1 },
+            { q: "आवर्त सारणी के किस भाग में सभी धातुएं केंद्रित हैं?", o: ["बाईं और मध्य भाग में (Left and Middle)", "केवल दाईं ओर", "केवल नीचे", "शून्य वर्ग में"], a: 0 },
+            { q: "बोरॉन (B), सिलिकॉन (Si), और जर्मेनियम (Ge) रासायनिक वर्गीकरण के अनुसार क्या हैं?", o: ["प्रबल धातुएं", "अक्रिय गैसें", "उपधातुएं (Metalloids)", "प्रबल अधातुएं"], a: 2 },
+            { q: "परमाणु क्रमांक 9 वाले तत्व के रासायनिक गुण किस तत्व के समान होंगे जिसकी परमाणु क्रमांक है?", o: ["7", "17 (हैलोजन वर्ग - F और Cl)", "19", "35"], a: 1 },
+            { q: "आधुनिक आवर्त सारणी में तत्वों की आवर्तिता (Periodicity) का मूल कारण क्या है?", o: ["परमाणु द्रव्यमान का बढ़ना", "निश्चित अंतराल के बाद समान बाह्यतम इलेक्ट्रॉनिक विन्यास की पुनरावृत्ति", "नाभिक में न्यूट्रॉन बढ़ना", "कक्षाओं का घटना"], a: 1 },
+            { q: "किसी तत्व का परमाणु क्रमांक 16 है, इसके संयोजी इलेक्ट्रॉनों (Valence Electrons) की संख्या कितनी होगी?", o: ["2", "4", "6 (विन्यास: 2, 8, 6)", "8"], a: 2 },
+            { q: "पोटेशियम (K) का परमाणु आकार सोडियम (Na) से बड़ा क्यों होता है?", o: ["K में प्रोटॉन कम हैं", "K में कक्षाओं की संख्या सोडियम से एक अधिक (4 कक्षाएं) होती है", "Na में इलेक्ट्रॉन अधिक हैं", "कोई नहीं"], a: 1 },
+            { q: "आवर्त सारणी में वर्ग 18 के तत्वों की संयोजकता (Valency) कितनी मानी जाती है?", o: ["1", "4", "8", "0 (शून्य - पूर्ण अष्टक के कारण)"], a: 3 },
+            { q: "लघु आवर्त (Short Periods) आवर्त सारणी के किस आवर्त को कहा जाता है?", o: ["प्रथम आवर्त को", "दूसरे और तीसरे आवर्त को (8-8 तत्व)", "छठे आवर्त को", "सातवें आवर्त को"], a: 1 },
+            { q: "आवर्त सारणी के वर्ग में नीचे जाने पर रासायनिक क्रियाशीलता धातुओं के लिए क्या होती है?", o: ["घटती है", "बढ़ती है (Increases)", "समान रहती है", "शून्य हो जाती है"], a: 1 },
+            { q: "आवर्त सारणी के वर्ग में नीचे जाने पर रासायनिक क्रियाशीलता अधातुओं (जैसे हैलोजन) के लिए क्या होती है?", o: ["बढ़ती है", "घटती है (Decreases)", "समान रहती है", "पहले बढ़ती है फिर घटती है"], a: 1 },
+            { q: "परमाणु संख्या 118 वाले नवनिर्मित तत्व को आवर्त सारणी के किस वर्ग में स्थान दिया गया है?", o: ["वर्ग 1", "वर्ग 11", "वर्ग 17", "वर्ग 18 (उत्कृष्ट गैसों का वर्ग)"], a: 3 },
+            { q: "तत्वों का आवर्त वर्गीकरण (Periodic Classification) के इस संपूर्ण अध्याय का मूल वैज्ञानिक निष्कर्ष क्या है?", o: ["सभी तत्व प्रकृति में समान मात्रा में उपलब्ध हैं", "तत्वों के परमाणु क्रमांक और उनके इलेक्ट्रॉनिक विन्यास के आधार पर आवर्त सारणी में उनका स्थान और उनके भौतिक व रासायनिक गुणों की आवर्तिता पूरी तरह से निर्धारित होती है", "मेंडलीव की आवर्त सारणी आधुनिक से बेहतर थी", "तत्वों के गुणों का कोई निश्चित नियम नहीं होता है"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 96px; height: 96px; background: #ccfbf1; color: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 16px;">तत्वों का आवर्त वर्गीकरण (Periodic Classification)</h1>
+                    <p style="color: #4a5568; margin-bottom: 8px; font-size: 1.25rem; font-weight: bold;">कक्षा 10वीं + प्रतियोगी परीक्षा स्तर (अध्याय 5)</p>
+                    <p style="color: #6b7280; margin-bottom: 32px; max-width: 512px; font-size: 1.1rem;">पूरे 100 चुनिंदा वैचारिक प्रश्नों का अंतिम महा-संग्रह। आधुनिक इंटरफ़ेस, लाइव स्कोरिंग और प्रोग्रेस बार के साथ अभी मूल्यांकन शुरू करें।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ शुरू करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <!-- Header -->
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #0d9488; text-transform: uppercase;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.875rem; font-weight: bold; color: #4a5568; background: #e2e8f0; padding: 4px 12px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <!-- Right Menu Icon for Navigation -->
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली ओवरव्यू">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 32px;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 32px; line-height: 1.4; color: #1a202c;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="flex justify-between items-center" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; min-height: 90px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #16a34a; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #dc2626; width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #2d3748;">प्रश्नावली ओवरव्यू</h3>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: 0.85rem; font-weight: bold;">
+                    <span style="color: #2dd4bf;">■ बिना प्रयास</span>
+                    <span style="color: #22c55e;">■ सही</span>
+                    <span style="color: #ef4444;">■ गलत</span>
+                    <span style="color: #eab308;">■ स्किप किया</span>
+                </div>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid #e2e8f0; background: #fff;">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">ओवरव्यू बंद करें</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px; background-color: #0d9488;">क्विज़ सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "अद्भुत! तत्वों के वर्गीकरण अध्याय पर आपका पूरा नियंत्रण है।"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "बहुत बढ़िया! आवर्त गुणों और वर्गीकरण के सिद्धांतों पर आपकी पकड़ मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! स्कोर को और सुधारने के लिए अध्यायों का पुनः अध्ययन करें।"; emoji = "👍"; }
+            else { message = "निराश न हों! एक बार आवर्त सारणी के नियमों को ठीक से समझें और दोबारा खेलें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#10b981' : percentage >= 50 ? '#f59e0b' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 192px; height: 192px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900;">${score}</span>
+                            <span style="font-size: 0.875rem; font-weight: bold; color: #9ca3af;">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">${percentage}% अंक</p>
+                    <p style="font-size: 1.125rem; color: #6b7280; margin-bottom: 40px; max-width: 448px;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="background: white; border: 2px solid #e2e8f0; color: #4a5568; padding: 16px 32px; border-radius: 12px; font-size: 1.125rem;">
+                        फिर से प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>
