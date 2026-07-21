@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 1(ख): कृषि संसाधन क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const questions = [
+            { q: "भारत की लगभग कितनी आबादी आजीविका के लिए कृषि पर निर्भर है?", o: ["एक तिहाई", "दो तिहाई", "तीन चौथाई", "आधा भाग"], a: 1 },
+            { q: "निम्नलिखित में से कौन सी एक खरीफ फसल है?", o: ["गेहूँ", "सरसों", "धान", "चना"], a: 2 },
+            { q: "निम्नलिखित में से कौन सी रबी फसल है?", o: ["चावल", "मक्का", "गेहूँ", "जूट"], a: 2 },
+            { q: "भारत में किस प्रकार की कृषि की प्रधानता पाई जाती है?", o: ["व्यापारिक कृषि", "जीविकोपार्जन कृषि", "रोपण कृषि", "बागवानी कृषि"], a: 1 },
+            { q: "भारत की मुख्य खाद्य फसल निम्नलिखित में से कौन सी है?", o: ["गेहूँ", "धान", "मक्का", "बाजरा"], a: 1 },
+            { q: "धान के उत्पादन में विश्व में भारत का कौन सा स्थान है?", o: ["प्रथम", "द्वितीय", "तृतीय", "चतुर्थ"], a: 1 },
+            { q: "धान के उत्पादन में विश्व में पहला स्थान किस देश का है?", o: ["भारत", "जापान", "चीन", "अमेरिका"], a: 2 },
+            { q: "भारत में सबसे अधिक चावल उत्पादन करने वाला राज्य कौन सा है?", o: ["बिहार", "पश्चिम बंगाल", "पंजाब", "उत्तर प्रदेश"], a: 1 },
+            { q: "गेहूँ उत्पादन में भारत का विश्व में कौन सा स्थान है?", o: ["पहला", "दूसरा", "तीसरा", "चौथा"], a: 1 },
+            { q: "भारत में सबसे अधिक गेहूँ उत्पादन करने वाला राज्य कौन सा है?", o: ["पंजाब", "हरियाणा", "उत्तर प्रदेश", "बिहार"], a: 2 },
+            { q: "गेहूँ किस प्रकार की फसल का उदाहरण है?", o: ["खरीफ", "रबी", "जाईद", "नकदी"], a: 1 },
+            { q: "रबी फसलों की बुआई मुख्य रूप से किस महीने में की जाती है?", o: ["जून से जुलाई", "अक्टूबर से नवंबर", "मार्च से अप्रैल", "जनवरी से फरवरी"], a: 1 },
+            { q: "खरीफ फसलों की बुआई किस ऋतु में शुरू की जाती है?", o: ["शीत ऋतु", "मानसून आगमन पर", "ग्रीष्म ऋतु", "वसन्त ऋतु"], a: 1 },
+            { q: "रबी फसलों की कटाई किस महीने में की जाती है?", o: ["सितंबर-अक्टूबर", "मार्च-अप्रैल", "नवंबर-दिसंबर", "जुलाई-अगस्त"], a: 1 },
+            { q: "खरीफ फसल की कटाई किस अवधि में की जाती है?", o: ["मार्च से अप्रैल", "सितंबर से अक्टूबर", "मई से जून", "जनवरी से फरवरी"], a: 1 },
+            { q: "रबी और खरीफ के बीच की छोटी ग्रीष्म ऋतु में उगाई जाने वाली फसल क्या कहलाती है?", o: ["नकदी फसल", "जायद फसल", "रोपण फसल", "रेषेदार फसल"], a: 1 },
+            { q: "निम्नलिखित में से कौन जायद फसल का उदाहरण है?", o: ["तरबूज", "गेहूँ", "धान", "सरसों"], a: 0 },
+            { q: "दालें किस पोषक तत्व का मुख्य स्रोत होती हैं?", o: ["कार्बोहाइड्रेट", "प्रोटीन", "वसा", "विटामिन"], a: 1 },
+            { q: "विश्व में दालों का सबसे बड़ा उत्पादक देश कौन सा है?", o: ["चीन", "भारत", "ब्राजील", "अमेरिका"], a: 1 },
+            { q: "भारत में दालों का सबसे बड़ा उत्पादक राज्य कौन सा है?", o: ["उत्तर प्रदेश", "राजस्थान", "मध्य प्रदेश", "बिहार"], a: 2 },
+            { q: "ज्वार, बाजरा और रागी को किस अनाज के रूप में जाना जाता है?", o: ["बारीक अनाज", "मोटे अनाज", "खाद्य तेल", "नगदी फसल"], a: 1 },
+            { q: "भारत में मोटे अनाज का सबसे बड़ा उत्पादक राज्य कौन सा है?", o: ["महाराष्ट्र", "कर्नाटक", "राजस्थान", "उत्तर प्रदेश"], a: 0 },
+            { q: "बाजरा का सबसे अधिक उत्पादन किस राज्य में होता है?", o: ["राजस्थान", "उत्तर प्रदेश", "गुजरात", "हरियाणा"], a: 0 },
+            { q: "रागी का सबसे बड़ा उत्पादक राज्य कौन सा है?", o: ["तमिलनाडु", "कर्नाटक", "हिमाचल प्रदेश", "उत्तराखंड"], a: 1 },
+            { q: "मक्का किस प्रकार की फसल मानी जाती है?", o: ["केवल खाद्यान्न", "केवल चारा", "खाद्यान्न और चारा दोनों", "केवल रेशेदार"], a: 2 },
+            { q: "मक्का उत्पादन के लिए औसतन कितना तापमान उपयुक्त माना जाता है?", o: ["10°C से 15°C", "21°C से 27°C", "35°C से 40°C", "5°C से 10°C"], a: 1 },
+            { q: "मक्का उत्पादन में अग्रणी राज्य कौन सा है?", o: ["बिहार", "कर्नाटक", "आंध्र प्रदेश", "उत्तर प्रदेश"], a: 1 },
+            { q: "बिहार में किस क्षेत्र में मक्का की खेती बड़े पैमाने पर होती है?", o: ["उत्तरी बिहार", "दक्षिणी बिहार", "पश्चिमी भाग", "पहाड़ी भाग"], a: 0 },
+            { q: "मूंगफली किस प्रकार की फसल का उदाहरण है?", o: ["रबी फसल", "खरीफ फसल", "जायद फसल", "रेषेदार फसल"], a: 1 },
+            { q: "भारत में मूंगफली का सबसे बड़ा उत्पादक राज्य कौन सा है?", o: ["महाराष्ट्र", "गुजरात", "राजस्थान", "तमिलनाडु"], a: 1 },
+            { q: "सरसों किस प्रकार की तिलहन फसल है?", o: ["खरीफ", "रबी", "जायद", "सदाबहार"], a: 1 },
+            { q: "सोयाबीन का सबसे प्रमुख उत्पादक राज्य कौन सा है?", o: ["महाराष्ट्र", "मध्य प्रदेश", "राजस्थान", "गुजरात"], a: 1 },
+            { q: "चाय किस प्रकार की कृषि फसल का प्रमुख उदाहरण है?", o: ["स्थानांतरित कृषि", "रोपण कृषि", "गहन कृषि", "शुष्क कृषि"], a: 1 },
+            { q: "भारत में चाय का सबसे प्रमुख उत्पादक राज्य कौन सा है?", o: ["पश्चिम बंगाल", "असम", "केरल", "तमिलनाडु"], a: 1 },
+            { q: "चाय के पौधे की वृद्धि के लिए कैसी जलवायु उपयुक्त होती है?", o: ["ठंडी एवं शुष्क", "उष्ण एवं आर्द्र", "अत्यधिक शुष्क", "बर्फबारी वाली"], a: 1 },
+            { q: "भारत में काफी (कॉफी) की खेती की शुरुआत किस पहाड़ी से हुई थी?", o: ["नीलगिरी", "बाबा बूदन पहाड़ी", "अरावली", "गारो पहाड़ी"], a: 1 },
+            { q: "भारत में अरेबिका किस्म की काफी किस देश से लाई गई थी?", o: ["ईरान", "यमन", "ब्राजील", "इराक"], a: 1 },
+            { q: "कॉफी का सबसे बड़ा उत्पादक राज्य कौन सा है?", o: ["केरल", "कर्नाटक", "तमिलनाडु", "आंध्र प्रदेश"], a: 1 },
+            { q: "सब्जियों और फलों के उत्पादन को क्या कहा जाता है?", o: ["सेरीकल्चर", "हॉर्टिकल्चर", "पिसीकल्चर", "विटीकल्चर"], a: 1 },
+            { q: "रबड़ किस प्रकार की जलवायु का पौधा है?", o: ["मानसूनी", "विषुवतीय (भूमध्यरेखीय)", "शुष्क", "टुंड्रा"], a: 1 },
+            { q: "भारत में रबड़ का सबसे बड़ा उत्पादक राज्य कौन सा है?", o: ["तमिलनाडु", "केरल", "कर्नाटक", "त्रिपुरा"], a: 1 },
+            { q: "कपास की खेती के लिए कौन सी मिट्टी सबसे उपयुक्त मानी जाती है?", o: ["जलोढ़ मिट्टी", "काली मिट्टी", "लाल मिट्टी", "लैटेराइट मिट्टी"], a: 1 },
+            { q: "कपास के उत्पादन के लिए कितने पाला रहित दिनों की आवश्यकता होती है?", o: ["100 दिन", "210 दिन", "150 दिन", "300 दिन"], a: 1 },
+            { q: "कपास उत्पादन में भारत का कौन सा राज्य अग्रणी है?", o: ["महाराष्ट्र", "गुजरात", "तेलंगाना", "आंध्र प्रदेश"], a: 1 },
+            { q: "जूट को किस अन्य नाम से भी जाना जाता है?", o: ["उजला सोना", "सुनहरा रेशा", "काला सोना", "हरी धातु"], a: 1 },
+            { q: "भारत में जूट का सर्वाधिक उत्पादन किस राज्य में होता है?", o: ["बिहार", "पश्चिम बंगाल", "असम", "ओडिशा"], a: 1 },
+            { q: "बिहार के किस जिले में जूट का उत्पादन अत्यधिक होता है?", o: ["पूर्णिया", "पटना", "गया", "मुजफ्फरपुर"], a: 0 },
+            { q: "रेशम प्राप्त करने के लिए रेशम के कीड़ों का पालन क्या कहलाता है?", o: ["एपीकल्चर", "सेरीकल्चर", "पिसीकल्चर", "फ्लोरीकल्चर"], a: 1 },
+            { q: "गन्ना किस प्रकार की फसल का उदाहरण है?", o: ["उष्ण एवं उपोष्ण कटिबंधीय", "शीतोष्ण कटिबंधीय", "ध्रुवीय फसल", "शुष्क फसल"], a: 0 },
+            { q: "गन्ना उत्पादन में विश्व में पहला स्थान किस देश का है?", o: ["भारत", "ब्राजील", "चीन", "क्यूबा"], a: 1 },
+            { q: "भारत में गन्ने का सबसे बड़ा उत्पादक राज्य कौन सा है?", o: ["महाराष्ट्र", "उत्तर प्रदेश", "कर्नाटक", "तमिलनाडु"], a: 1 },
+            { q: "हरित क्रांति का सबसे अधिक प्रभाव किस फसल पर पड़ा?", o: ["धान", "गेहूँ", "मक्का", "दलहन"], a: 1 },
+            { q: "भारत में हरित क्रांति की शुरुआत मुख्य रूप से किस दशक में हुई थी?", o: ["1950 के दशक में", "1960 के दशक में", "1980 के दशक में", "1990 के दशक में"], a: 1 },
+            { q: "भारत में हरित क्रांति के जनक के रूप में किसे जाना जाता है?", o: ["डॉ. वर्गीज कुरियन", "एम. एस. स्वामीनाथन", "अमर्त्य सेन", "सुंदरलाल बहुगुणा"], a: 1 },
+            { q: "श्वेत क्रांति का संबंध निम्नलिखित में से किससे है?", o: ["मछली उत्पादन", "दूध उत्पादन", "अंडा उत्पादन", "कपास उत्पादन"], a: 1 },
+            { q: "श्वेत क्रांति को किस अन्य नाम से भी जाना जाता है?", o: ["ऑपरेशन फ्लड", "ऑपरेशन ग्रीन", "ऑपरेशन ब्लू", "ऑपरेशन गोल्ड"], a: 0 },
+            { q: "भारत में 'ऑपरेशन फ्लड' के सूत्रधार कौन थे?", o: ["एम. एस. स्वामीनाथन", "डॉ. वर्गीज कुरियन", "संदीप पांडे", "मेधा पाटकर"], a: 1 },
+            { q: "नीली क्रांति का संबंध किस क्षेत्र से है?", o: ["दुग्ध उत्पादन", "मत्स्य (मछली) पालन", "कृषि उत्पादन", "तिलहन उत्पादन"], a: 1 },
+            { q: "पीली क्रांति का संबंध किससे माना जाता है?", o: ["सूरजमुखी", "तिलहन उत्पादन", "धान उत्पादन", "दलहन उत्पादन"], a: 1 },
+            { q: "भूरी क्रांति का संबंध निम्नलिखित में से किससे है?", o: ["उर्वरक उत्पादन", "चमड़ा उद्योग", "ऊन उत्पादन", "चाय उत्पादन"], a: 0 },
+            { q: "स्थानांतरित कृषि को पूर्वोत्तर भारत (असम, मेघालय) में क्या कहा जाता है?", o: ["रोपण कृषि", "झूम कृषि", "गहन कृषि", "वेवार"], a: 1 },
+            { q: "झूम खेती में वनों को काटकर क्या किया जाता है?", o: ["छोड़ दिया जाता है", "जला दिया जाता है", "बेच दिया जाता है", "सड़ा दिया जाता है"], a: 1 },
+            { q: "कर्तन-दहन प्रणाली कृषि को मध्य प्रदेश में किस नाम से जाना जाता है?", o: ["झूम", "बेवर या डहिया", "पोडू", "कुमारी"], a: 1 },
+            { q: "मेक्सिको में स्थानांतरित कृषि को क्या कहा जाता है?", o: ["रोका", "मिलपा", "लदांग", "कोनुको"], a: 1 },
+            { q: "ब्राजील में स्थानांतरित कृषि को किस नाम से जाना जाता है?", o: ["मिलपा", "रोका", "लदांग", "रे"], a: 1 },
+            { q: "इंडोनेशिया में स्थानांतरित कृषि को क्या कहा जाता है?", o: ["लदांग", "रोका", "मिलपा", "झूम"], a: 0 },
+            { q: "ऑपरेशन फ्लड का मुख्य उद्देश्य क्या बढ़ाना था?", o: ["खाद्यान्न उत्पादन", "दूध की उपलब्धता", "सिंचाई सुविधा", "फल उत्पादन"], a: 1 },
+            { q: "भारत में कृषि का मुख्य आधार क्या है?", o: ["नहरें", "मानसूनी वर्षा", "ट्यूबवेल", "तालाब"], a: 1 },
+            { q: "सकल बोए गए क्षेत्र का कितना प्रतिशत भाग भारत में सिंचित है?", o: ["लगभग 20%", "लगभग 45%", "लगभग 80%", "लगभग 10%"], a: 1 },
+            { q: "निम्नलिखित में से कौन सी फसल रेशेदार फसल नहीं है?", o: ["कपास", "जूट", "गन्ना", "सन"], a: 2 },
+            { q: "प्राकृतिक रेशम किस प्रकार प्राप्त किया जाता है?", o: ["केमिकल प्रक्रिया से", "रेशम के कीड़े के कोकून से", "पेड़ों की छाल से", "मिट्टी से"], a: 1 },
+            { q: "अन्न का कटोरा भारत के किस राज्य को कहा जाता है?", o: ["पंजाब", "उत्तर प्रदेश", "पश्चिम बंगाल", "हरियाणा"], a: 0 },
+            { q: "मसालों का घर या मसालों का राज्य भारत के किस राज्य को कहते हैं?", o: ["कर्नाटक", "केरल", "तमिलनाडु", "आंध्र प्रदेश"], a: 1 },
+            { q: "काजू का सबसे बड़ा उत्पादक राज्य कौन सा है?", o: ["केरल", "महाराष्ट्र", "गोवा", "ओडिशा"], a: 1 },
+            { q: "भारत में किस फल का उत्पादन सबसे अधिक होता है?", o: ["आम", "केला", "सेब", "अंगूर"], a: 1 },
+            { q: "नागपुर किस फल के उत्पादन के लिए प्रसिद्ध है?", o: ["सेब", "संतरा", "अंगूर", "लीची"], a: 1 },
+            { q: "बिहार का मुजफ्फरपुर जिला किस फल के लिए प्रसिद्ध है?", o: ["आम", "लीची", "केला", "अमरूद"], a: 1 },
+            { q: "बिहार का हाजीपुर किस फल के लिए जाना जाता है?", o: ["लीची", "केला", "आम", "पपीता"], a: 1 },
+            { q: "सघन (गहन) कृषि किस प्रकार के क्षेत्रों में की जाती है?", o: ["जहाँ जनसंख्या कम हो", "जहाँ भूमि पर जनसंख्या दबाव अधिक हो", "पहाड़ी ढालों पर", "रेगिस्तानी भागों में"], a: 1 },
+            { q: "व्यापारिक कृषि का मुख्य उद्देश्य क्या होता है?", o: ["खुद का पेट भरना", "बाजार में बिक्री कर लाभ कमाना", "भूमि की सुरक्षा", "केवल पशुपालन"], a: 1 },
+            { q: "रोपण कृषि की मुख्य विशेषता क्या है?", o: ["बड़े पैमाने पर एक ही फसल उगाना", "विभिन्न प्रकार की फसलें उगाना", "बिना खाद के खेती", "केवल हाथों से काम करना"], a: 0 },
+            { q: "निम्नलिखित में से कौन सी रोपण फसल का उदाहरण है?", o: ["गेहूँ", "चाय", "चना", "सरसों"], a: 1 },
+            { q: "अन्नानास के उत्पादन में भारत का कौन सा राज्य प्रसिद्ध है?", o: ["मेघालय", "असम", "केरल", "त्रिपुरा"], a: 0 },
+            { q: "अंगूर की खेती के लिए कौन सा राज्य प्रसिद्ध है?", o: ["महाराष्ट्र", "हिमाचल प्रदेश", "उत्तराखंड", "पंजाब"], a: 0 },
+            { q: "सेब का सबसे बड़ा उत्पादक केंद्र कौन सा राज्य/केंद्र शासित प्रदेश है?", o: ["जम्मू और कश्मीर", "उत्तराखंड", "सिक्किम", "अरुणाचल प्रदेश"], a: 0 },
+            { q: "शाकाहारी भोजन में प्रोटीन का सबसे मुख्य स्रोत क्या है?", o: ["चावल", "दालें", "सब्जियाँ", "फल"], a: 1 },
+            { q: "चने का सबसे बड़ा उत्पादक राज्य कौन सा है?", o: ["मध्य प्रदेश", "उत्तर प्रदेश", "राजस्थान", "बिहार"], a: 0 },
+            { q: "सूरजमुखी किस प्रकार की तिलहन फसल है?", o: ["खरीफ एवं रबी", "केवल रबी", "केवल जायद", "केवल शुष्क"], a: 0 },
+            { q: "अरंडी (कैस्टर) का सबसे बड़ा उत्पादक राज्य कौन सा है?", o: ["गुजरात", "राजस्थान", "आंध्र प्रदेश", "कर्नाटक"], a: 0 },
+            { q: "भारत में कृषि विकास के लिए किस संस्था की स्थापना की गई थी?", o: ["भारतीय कृषि अनुसंधान परिषद", "रिजर्व बैंक", "रेलवे बोर्ड", "नीति आयोग"], a: 0 },
+            { q: "कृषि योग्य भूमि का क्षरण रोकने के लिए क्या आवश्यक है?", o: ["अत्यधिक सिंचाई", "संतुलित उर्वरक एवं मृदा संरक्षण", "कीटनाशकों का अधिक प्रयोग", "वनों की कटाई"], a: 1 },
+            { q: "किसान क्रेडिट कार्ड (KCC) योजना किस वर्ष शुरू की गई थी?", o: ["1998 में", "2005 में", "1990 में", "2010 में"], a: 0 },
+            { q: "राष्ट्रीय कृषि बीमा योजना भारत में कब लागू की गई थी?", o: ["1999-2000 में", "1990-1991 में", "2005-2006 में", "2014-2015 में"], a: 0 },
+            { q: "भारत के किस राज्य में जैविक खेती (ऑर्गेनिक फार्मिंग) सबसे पहले पूर्णतः लागू हुई?", o: ["सिक्किम", "केरल", "पंजाब", "उत्तराखंड"], a: 0 },
+            { q: "भूदान-ग्रामदान आंदोलन की शुरुआत किसने की थी?", o: ["विनोबा भावे", "महात्मा गांधी", "जवाहरलाल नेहरू", "जयप्रकाश नारायण"], a: 0 },
+            { q: "विनोबा भावे के भूदान आंदोलन को किस क्रांति के नाम से भी जाना जाता है?", o: ["रक्तहीन क्रांति", "श्वेत क्रांति", "हरित क्रांति", "सदाबहार क्रांति"], a: 0 },
+            { q: "वैश्वीकरण का भारतीय कृषि पर क्या प्रभाव पड़ा है?", o: ["अंतर्राष्ट्रीय प्रतिस्पर्धा बढ़ी है", "उत्पादन बंद हो गया", "केवल नुकसान हुआ", "कोई प्रभाव नहीं पड़ा"], a: 0 },
+            { q: "भारत में सकल घरेलू उत्पाद (GDP) में कृषि का योगदान समय के साथ क्या हुआ है?", o: ["लगातार बढ़ा है", "धीरे-धीरे घटा है", "स्थिर रहा है", "शून्य हो गया है"], a: 1 },
+            { q: "भारत में कृषि को मानसून का क्या कहा जाता है?", o: ["वरदान", "जुआ", "आधार", "दुश्मन"], a: 1 },
+            { q: "पर्यावरण के अनुकूल और बिना रसायनों के की जाने वाली खेती को क्या कहते हैं?", o: ["जैविक कृषि", "झूम कृषि", "गहन कृषि", "व्यापारिक कृषि"], a: 0 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 1(ख): कृषि संसाधन (महा-क्विज़)</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">कृषि के प्रकार, फसलों, हरित क्रांति एवं उत्पादन से संबंधित 100 महत्वपूर्ण वस्तुनिष्ठ (Objective) प्रश्नों का इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने कृषि अध्याय के सभी प्रश्नों के सही उत्तर दिए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! आपकी बोर्ड परीक्षा की तैयारी बेहतरीन दिशा में है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और ध्यान से पढ़ें।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक का पुनरावलोकन करें और फिर प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

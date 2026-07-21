@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 6: मानचित्र अध्ययन क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "उच्चावच प्रदर्शन के लिए हैश्यूर (Hachure) विधि का विकास किसने किया था?", o: ["लेहमान", "गुटेनबर्ग", "हम्बोल्ट", "रिटर"], a: 0 },
+            { q: "हैश्यूर विधि के प्रतिपादक लेहमान किस देश के ऑस्ट्रियन सैन्य अधिकारी थे?", o: ["ऑस्ट्रिया", "जर्मनी", "फ्रांस", "ब्रिटेन"], a: 0 },
+            { q: "हैश्यूर विधि में ढाल की दिशा में खींची गई रेखाएँ कैसी होती हैं?", o: ["छोटी और महीन रेखाएँ", "मोटी और लंबी रेखाएँ", "समानांतर वृत्त", "वर्ग आकार की रेखाएँ"], a: 0 },
+            { q: "हैश्यूर विधि में तीव्र ढाल को प्रदर्शित करने के लिए रेखाएँ कैसी बनाई जाती हैं?", o: ["मोटी और पास-पास", "पतली और दूर-दूर", "टूटी हुई रेखाएँ", "सफेद रंग की रेखाएँ"], a: 0 },
+            { q: "हैश्यूर विधि में मंद ढाल को प्रदर्शित करने के लिए रेखाएँ कैसी होती हैं?", o: ["पतली और दूर-दूर", "मोटी और पास-पास", "काली और घनी", "चौकोर आकृति"], a: 0 },
+            { q: "हैश्यूर विधि में किस क्षेत्र या आकृति को पूरी तरह सफेद छोड़ दिया जाता है?", o: ["समतल या पठारी शीर्ष भाग", "अत्यधिक तीव्र ढाल", "नदी का मुहाना", "समुद्री भाग"], a: 0 },
+            { q: "मानचित्र पर समान उच्चता वाले स्थानों को मिलाने वाली काल्पनिक रेखा को क्या कहते हैं?", o: ["समोच्च रेखा (Contour Line)", "समदाब रेखा", "समताप रेखा", "अक्षांश रेखा"], a: 0 },
+            { q: "समोच्च रेखाओं को मानचित्र पर सामान्यतः किस रंग से दिखाया जाता है?", o: ["बादामी (भूरा) रंग", "नीला रंग", "हरा रंग", "लाल रंग"], a: 0 },
+            { q: "यदि समोच्च रेखाएँ एक-दूसरे के बहुत पास-पास खींची गई हों, तो वह किस ढाल को दर्शाती हैं?", o: ["तीव्र ढाल", "मंद ढाल", "समतल मैदान", "सीढ़ीदार ढाल"], a: 0 },
+            { q: "यदि समोच्च रेखाएँ परस्पर काफी दूर-दूर हों, तो वह किस प्रकार के ढाल को प्रदर्शित करती हैं?", o: ["मंद ढाल", "तीव्र ढाल", "खड़ा ढाल", "जलप्रपात"], a: 0 },
+            { q: "समोच्च रेखाओं द्वारा किसी शंकुाकार पहाड़ी का प्रदर्शन किस प्रकार के वृत्तों से होता है?", o: ["संकेन्द्री वृत्तों द्वारा", "चौकोर रेखाओं द्वारा", "त्रिभुजाकार रेखाओं द्वारा", "सीधी समानांतर रेखाओं द्वारा"], a: 0 },
+            { q: "स्तर रंजन (Layer Tinting) विधि में मानचित्र पर जल/समुद्र को किस रंग से दिखाया जाता है?", o: ["नीला रंग", "हरा रंग", "भूरा रंग", "सफेद रंग"], a: 0 },
+            { q: "स्तर रंजन विधि में मैदानी भाग को किस रंग से प्रदर्शित किया जाता है?", o: ["हरा रंग", "पीला रंग", "नीला रंग", "लाल रंग"], a: 0 },
+            { q: "स्तर रंजन विधि में पठारी भाग को सामान्यतः किस रंग से दर्शाया जाता है?", o: ["पीला रंग", "हरा रंग", "नीला रंग", "गुलाबी रंग"], a: 0 },
+            { q: "स्तर रंजन विधि में पर्वतीय एवं उच्च भू-भागों को किस रंग से दिखाया जाता है?", o: ["भूरा (बादामी) रंग", "हरा रंग", "सफेद रंग", "काला रंग"], a: 0 },
+            { q: "स्तर रंजन विधि में बर्फ से ढके बर्फीले शिखरों को किस रंग से दर्शाया जाता है?", o: ["सफेद रंग", "नीला रंग", "हरा रंग", "पीला रंग"], a: 0 },
+            { q: "मानचित्र में पर्वतीय छायाकरण (Hill Shading) विधि में प्रकाश की किरणें किस दिशा से आती मानी जाती हैं?", o: ["उत्तर-पश्चिम दिशा", "दक्षिण-पूर्व दिशा", "उत्तर-पूर्व दिशा", "दक्षिण-पश्चिम दिशा"], a: 0 },
+            { q: "पर्वतीय छायाकरण विधि में प्रकाश की विपरीत दिशा वाले ढालों को कैसा दिखाया जाता है?", o: ["गहरा या छायादार (काला)", "सफेद", "हरा", "नीला"], a: 0 },
+            { q: "किसी निश्चित स्थान की समुद्र तल से मापी गई ऊँचाई को क्या कहते हैं?", o: ["स्थानिक ऊँचाई (Spot Height)", "त्रिकोणमितीय स्टेशन", "तलमार्ग", "समोच्च रेखा"], a: 0 },
+            { q: "मानचित्र पर स्थानिक ऊँचाई को प्रदर्शित करने के लिए कौन सा प्रतीक प्रयोग किया जाता है?", o: ["एक बिंदु और संख्या (उदा. .200)", "त्रिभुज", "वर्ग", "वृत्त"], a: 0 },
+            { q: "सर्वेक्षण के आधार पर दीवार या खंभे पर अंकित की गई निश्चित ऊँचाई को क्या कहते हैं?", o: ["तलमार्ग (Bench Mark)", "स्थानिक ऊँचाई", "त्रिकोणमितीय स्टेशन", "समोच्च रेखा"], a: 0 },
+            { q: "तलमार्ग को मानचित्र या दीवारों पर संक्षेप में किस अक्षर से दर्शाया जाता है?", o: ["BM", "SH", "TS", "CL"], a: 0 },
+            { q: "त्रिभुज बनाकर उसके बगल में लिखी गई ऊँचाई को क्या कहा जाता है?", o: ["त्रिकोणमितीय स्टेशन (Trig Station)", "स्थानिक ऊँचाई", "तलमार्ग", "समोच्च मान"], a: 0 },
+            { q: "V-आकार की घाटी को प्रदर्शित करने के लिए समोच्च रेखाएँ अंग्रेजी के किस अक्षर जैसी होती हैं?", o: ["V अक्षर (उल्टा)", "U अक्षर", "O अक्षर", "S अक्षर"], a: 0 },
+            { q: "जलप्रपात (Waterfall) को दर्शाने के लिए समोच्च रेखाएँ कैसी होती हैं?", o: ["एक ही स्थान पर अत्यंत पास या मिलती हुई", "दूर-दूर फैली हुई", "गोल वृत्त जैसी", "समानांतर सीधी"], a: 0 },
+            { q: "समोच्च रेखा विधि में यदि केंद्र में सबसे अधिक मान हो, तो वह आकृति क्या दर्शाती है?", o: ["पहाड़ी या पर्वत", "झील", "गहरी घाटी", "मैदान"], a: 0 },
+            { q: "यदि समोच्च रेखाओं में बाहर का मान अधिक और केंद्र का मान कम हो, तो वह क्या दर्शाती है?", o: ["गड्ढा या बेसिन/झील", "पहाड़ी", "पठार", "शिखर"], a: 0 },
+            { q: "धरातल पर मापी गई दूरी और मानचित्र पर मापी गई दूरी के अनुपात को क्या कहते हैं?", o: ["मापक (Scale)", "समोच्च रेखा", "अक्षांश", "देशांतर"], a: 0 },
+            { q: "निरूपक भिन्न (RF) में अंश (Numerator) का मान सदैव कितना होता है?", o: ["एक (1)", "सौ (100)", "दस (10)", "शून्य (0)"], a: 0 },
+            { q: "मानचित्र की दिशा में सदैव ऊपर की ओर कौन सी दिशा दर्शाई जाती है?", o: ["उत्तर दिशा", "दक्षिण दिशा", "पूर्व दिशा", "पश्चिम दिशा"], a: 0 },
+            { q: "मानचित्र में उत्तर दिशा का ज्ञान कराने वाले तीर के निशान को क्या कहते हैं?", o: ["उत्तर रेखा (North Line)", "समोच्च रेखा", "अक्षांश रेखा", "मापक रेखा"], a: 0 },
+            { q: "समोच्च रेखाओं द्वारा ढाल के कटाव को दिखाने के लिए क्या उपयोग किया जाता है?", o: ["समोच्च रेखाओं की निकटता", "रंगों का प्रयोग", "सफेद स्थान", "छायाकरण"], a: 0 },
+            { q: "मानचित्र में तल रूप या उच्चावच को त्रिविमीय (3D) रूप में देखने की विधि कौन सी है?", o: ["पर्वतीय छायाकरण", "स्थानिक ऊँचाई", "तलमार्ग", "अक्षांश रेखा"], a: 0 },
+            { q: "मानचित्र बनाने की कला और विज्ञान को क्या कहा जाता है?", o: ["कार्टोग्राफी (Cartography)", "जियोग्राफी", "टोपोग्राफी", "जियोलॉजी"], a: 0 },
+            { q: "भारत में मानचित्र बनाने वाला सर्वोच्च राष्ट्रीय संगठन कौन सा है?", o: ["भारतीय सर्वेक्षण विभाग (Survey of India)", "इंसरो", "नीति आयोग", "रेलवे बोर्ड"], a: 0 },
+            { q: "भारतीय सर्वेक्षण विभाग का मुख्यालय कहाँ स्थित है?", o: ["देहरादून", "नई दिल्ली", "कोलकाता", "शीलोंग"], a: 0 },
+            { q: "धरातल की प्राकृतिक और सांस्कृतिक आकृतियों को दर्शाने वाले मानचित्र को क्या कहते हैं?", o: ["स्थलाकृतिक मानचित्र (Topographical Map)", "राजनीतिक मानचित्र", "मौसम मानचित्र", "भूगर्भिक मानचित्र"], a: 0 },
+            { q: "स्थलाकृतिक मानचित्रों पर मानव निर्मित संरचनाओं (जैसे सड़क, घर) को किस रंग से दिखाया जाता है?", o: ["लाल या काला रंग", "हरा रंग", "नीला रंग", "पीला रंग"], a: 0 },
+            { q: "स्थलाकृतिक मानचित्र पर वनस्पति और जंगलों को किस रंग से दिखाया जाता है?", o: ["हरा रंग", "भूरा रंग", "नीला रंग", "पीला रंग"], a: 0 },
+            { q: "स्थलाकृतिक मानचित्र में कृषि योग्य भूमि को किस रंग से भरा जाता है?", o: ["पीला रंग", "हरा रंग", "लाल रंग", "सफेद रंग"], a: 0 },
+            { q: "समोच्च रेखाओं के बीच की लंबवत दूरी को क्या कहते हैं?", o: ["समोच्च अंतरांश (Contour Interval)", "क्षैतिज दूरी", "स्थानिक दूरी", "ढाल कोण"], a: 0 },
+            { q: "यदि समोच्च रेखाएँ एक समान दूरी पर खींची गई हों, तो ढाल कैसा होता है?", o: ["एकसमान ढाल", "असम ढाल", "सीढ़ीदार ढाल", "खड़ा ढाल"], a: 0 },
+            { q: "उत्तल ढाल (Convex Slope) प्रदर्शित करने वाली समोच्च रेखाएँ कैसी होती हैं?", o: ["निचले भाग में पास और ऊपरी भाग में दूर", "ऊपरी भाग में पास और निचले में दूर", "समान दूरी पर", "आपस में कटी हुई"], a: 0 },
+            { q: "अवतल ढाल (Concave Slope) प्रदर्शित करने में समोच्च रेखाएँ कहाँ पास-पास होती हैं?", o: ["ऊपरी भाग में पास और निचले भाग में दूर", "निचले भाग में पास", "सभी जगह दूर", "वृत्ताकार"], a: 0 },
+            { q: "सपाट शीर्ष वाले पठार को समोच्च रेखाओं द्वारा कैसे दिखाया जाता है?", o: ["चौड़े और सपाट केंद्र वाले समोच्च द्वारा", "तीखे संकेन्द्री वृत्तों द्वारा", "सीधी रेखाओं द्वारा", "बिंदुओं द्वारा"], a: 0 },
+            { q: "मानचित्र पर ढाल प्रदर्शित करने की सबसे सटीक और वैज्ञानिक विधि कौन सी है?", o: ["समोच्च रेखा विधि", "हैश्यूर विधि", "पर्वतीय छायाकरण", "स्तर रंजन"], a: 0 },
+            { q: "हैश्यूर विधि का सबसे बड़ा दोष क्या है?", o: ["मानचित्र धुंधला और पढ़ने में कठिन होता है", "यह बहुत आसान है", "सफेद रंग अधिक होता है", "इसमें कोई रेखा नहीं होती"], a: 0 },
+            { q: "स्तर रंजन विधि का उपयोग मुख्य रूप से किस प्रकार के मानचित्रों में होता है?", o: ["एटलस एवं दीवार मानचित्रों में", "टोपोशीट में", "सड़क मानचित्र में", "नगर योजना में"], a: 0 },
+            { q: "समुद्र तल से धरातल की वास्तविक ऊँचाई मापने का संदर्भ तल क्या माना जाता है?", o: ["औसत समुद्र तल (Mean Sea Level)", "नदी का तल", "पहाड़ की चोटी", "मैदान का स्तर"], a: 0 },
+            { q: "भारत में औसत समुद्र तल (MSL) का मापन कहाँ से किया जाता है?", o: ["चेन्नई तट से", "मुंबई तट से", "कोलकाता से", "कोच्चि से"], a: 0 },
+            { q: "समोच्च रेखाओं का मान किस इकाई में लिखा जाता है?", o: ["मीटर या फीट में", "किलोमीटर में", "डिग्री में", "प्रतिशत में"], a: 0 },
+            { q: "यदि मानचित्र पर समोच्च रेखा पर 500 लिखा है, तो इसका क्या अर्थ है?", o: ["समुद्र तल से 500 मीटर ऊँचाई", "500 किमी दूरी", "500 डिग्री तापमान", "500 मिमी वर्षा"], a: 0 },
+            { q: "समोच्च रेखाएँ कभी भी एक-दूसरे को क्या नहीं करतीं?", o: ["काटती नहीं हैं", "छूती नहीं हैं", "देखती नहीं हैं", "मोड़ती नहीं हैं"], a: 0 },
+            { q: "किस विशेष परिस्थिति में समोच्च रेखाएँ एक-दूसरे को काटती हुई प्रतीत होती हैं?", o: ["भ्रंश या लटकती चट्टान (Overhanging Cliff)", "समतल मैदान", "नदी द्रोणी", "रेगिस्तान"], a: 0 },
+            { q: "सड़कों और रेलमार्गों के किनारे खंभों पर लिखी ऊँचाई क्या कहलाती है?", o: ["तलमार्ग (Bench Mark)", "समोच्च मान", "अक्षांश", "देशांतर"], a: 0 },
+            { q: "रूढ़ चिह्न (Conventional Signs) का उपयोग मानचित्र में क्यों किया जाता है?", o: ["विभिन्न भू-आकृतियों व मानव निर्मित वस्तुओं को दिखाने हेतु", "केवल रंग भरने हेतु", "दूरी मापने हेतु", "दिशा बताने हेतु"], a: 0 },
+            { q: "मानचित्र पर पक्की सड़क को किस प्रकार की रेखा से दिखाया जाता है?", o: ["दो लाल समानांतर रेखाएँ", "टूटी हुई काली रेखा", "नीली सीधी रेखा", "काली बिंदी"], a: 0 },
+            { q: "मानचित्र पर कच्ची सड़क को दर्शाने के लिए कौन सी रेखा प्रयोग होती है?", o: ["लाल टूटी हुई रेखाएँ", "दोहरी लाल लाइन", "मोटी नीली लाइन", "काली चौकोर रेखा"], a: 0 },
+            { q: "मानचित्र पर रेलवे लाइन को किस रंग और प्रतीक से प्रदर्शित करते हैं?", o: ["काली रेखा पर छोटी आड़ी पटरियाँ", "लाल रेखा", "नीली रेखा", "हरा वृत्त"], a: 0 },
+            { q: "मानचित्र पर मंदिर को दर्शाने के लिए किस प्रतीक का उपयोग होता है?", o: ["लाल गुंबद और ध्वज", "काला वर्ग", "नीला वृत्त", "पीला त्रिभुज"], a: 0 },
+            { q: "मानचित्र पर चर्च (गिरजाघर) को किस प्रतीक द्वारा दिखाया जाता है?", o: ["क्रॉस (+) के चिह्न वाला भवन", "ध्वज", "मिनार", "त्रिकोण"], a: 0 },
+            { q: "मानचित्र पर मस्जिद को प्रदर्शित करने के लिए क्या बनाया जाता है?", o: ["गुंबद और मीनार वाला प्रतीक", "क्रॉस चिह्न", "लाल ध्वज", "वृत्त"], a: 0 },
+            { q: "मानचित्र पर नदी के प्रवाह की दिशा का ज्ञान किससे होता है?", o: ["समोच्च रेखाओं के ढाल एवं जल प्रवाह दिशा से", "रंग से", "मापक से", "उत्तर रेखा से"], a: 0 },
+            { q: "भू-आकृति विज्ञान में उच्चावच (Relief) का क्या अर्थ है?", o: ["धरातल की ऊँचाई-निचाई का अंतर", "केवल धरातल की समतलता", "समुद्र की गहराई", "वायुमंडलीय दाब"], a: 0 },
+            { q: "समोच्च रेखाओं द्वारा कटिबंधीय या पठारी ढाल का निरूपण कैसा होता है?", o: ["किनारों पर घनी और बीच में विरल रेखाएँ", "पूर्ण वृत्ताकार", "त्रिभुजाकार", "सीधी खड़ी रेखाएँ"], a: 0 },
+            { q: "यदि समोच्च रेखाएँ एक बंद आकृति बनाती हैं, तो वह किसे निरूपित करती हैं?", o: ["टीला, पहाड़ी या गर्त", "सड़क", "रेलवे लाइन", "नदी"], a: 0 },
+            { q: "समोच्च रेखाओं का अंतराल किस पर निर्भर करता है?", o: ["मानचित्र के मापक और भू-आकृति की जटिलता पर", "केवल कागज़ के आकार पर", "केवल रंग पर", "कलम की स्याही पर"], a: 0 },
+            { q: "मापक के मुख्य रूप से कितने प्रकार होते हैं?", o: ["कथनात्मक, आलेखीय और निरूपक भिन्न", "केवल दो", "केवल पांच", "दस प्रकार"], a: 0 },
+            { q: "कथनात्मक मापक का उदाहरण कौन सा है?", o: ["1 सेंटीमीटर = 1 किलोमीटर", "1:100000", "ग्राफिकल लाइन", "समोच्च मान"], a: 0 },
+            { q: "निरूपक भिन्न (RF) का सबसे बड़ा लाभ क्या है?", o: ["यह अंतर्राष्ट्रीय स्तर पर सर्वमान्य है", "यह केवल भारत में चलता है", "इसमें शब्द होते हैं", "यह रंगीन होता है"], a: 0 },
+            { q: "मानचित्र को बड़ा या छोटा करने पर कौन सा मापक स्वतः परिवर्तित हो जाता है?", o: ["आलेखीय (रेखीय) मापक", "कथनात्मक मापक", "निरूपक भिन्न", "संख्यात्मक मापक"], a: 0 },
+            { q: "डिजिटल मानचित्रण में किसका उपयोग करके मानचित्र बनाए जाते हैं?", o: ["जीआईएस (GIS) और कंप्यूटर", "केवल हाथ से", "केवल धागे से", "पेंसिल से"], a: 0 },
+            { q: "जीआईएस (GIS) का पूर्ण रूप क्या है?", o: ["जियोग्राफिक इंफॉर्मेशन सिस्टम", "ग्लोबल इंडियन सर्वे", "जियोलॉजिकल इंस्पेक्शन संस्था", "जनरल इंफॉर्मेशन सिस्टम"], a: 0 },
+            { q: "जीपीएस (GPS) का पूर्ण रूप क्या है?", o: ["ग्लोबल पोजिशनिंग सिस्टम", "ग्लोबल पॉकेट स्केल", "जनरल पाथ सिस्टम", "जियोग्राफिक मैप सिस्टम"], a: 0 },
+            { q: "उपग्रह से प्राप्त चित्रों को क्या कहा जाता है?", o: ["उपग्रह संवेदी चित्र (Satellite Imagery)", "हाथ का चित्र", "पेंटिंग", "टोपोशीट"], a: 0 },
+            { q: "सुदूर संवेदन (Remote Sensing) तकनीक में सूचनाएं कैसे एकत्र होती हैं?", o: ["बिना प्रत्यक्ष संपर्क के उपग्रह/सेंसर द्वारा", "केवल पैदल चलकर", "टेप से नापकर", "पूछताछ करके"], a: 0 },
+            { q: "उच्चावच प्रदर्शन की किस विधि में प्रकाश और छाया का खेल होता है?", o: ["पर्वतीय छायाकरण विधि", "स्तर रंजन", "समोच्च रेखा", "तलमार्ग"], a: 0 },
+            { q: "उच्चावच प्रदर्शन की किस विधि में रेखाओं की मोटाई का महत्व होता है?", o: ["हैश्यूर विधि", "स्तर रंजन", "स्थानिक ऊँचाई", "तलमार्ग"], a: 0 },
+            { q: "उच्चावच निरूपण की सबसे आधुनिक और सटीक तकनीक कौन सी है?", o: ["डिजिटल एलिवेशन मॉडल (DEM)", "हैश्यूर विधि", "हाथ से चित्र बनाना", "कथनात्मक विधि"], a: 0 },
+            { q: "समोच्च रेखाओं का आविष्कार सर्वप्रथम किस वैज्ञानिक/मानचित्रकार ने किया था?", o: ["एन. क्रुकियस", "लेहमान", "हम्बोल्ट", "टॉलेमी"], a: 0 },
+            { q: "एन. क्रुकियस ने किस वर्ष समोच्च रेखा विधि का प्रयोग जल की गहराई हेतु किया था?", o: ["1730 में", "1800 में", "1850 में", "1905 में"], a: 0 },
+            { q: "मानचित्र पर दिशा सूचक प्रतीक (North Arrow) किस ओर संकेत करता है?", o: ["भौगोलिक उत्तर दिशा", "दक्षिण दिशा", "पूर्व दिशा", "पश्चिम दिशा"], a: 0 },
+            { q: "मानचित्र में नीला रंग मुख्य रूप से किस भू-आकृति को दर्शाता है?", o: ["जलाशय एवं नदियाँ", "पहाड़", "जंगल", "सड़क"], a: 0 },
+            { q: "मानचित्र में भूरा रंग किसका प्रतीक है?", o: ["पर्वत एवं समोच्च रेखाएँ", "मैदान", "समुद्र", "वन"], a: 0 },
+            { q: "मानचित्र में हरा रंग किसे प्रदर्शित करता है?", o: ["वनस्पति एवं मैदान", "जल निकाय", "रेगिस्तान", "बर्फ"], a: 0 },
+            { q: "मानचित्र में पीला रंग मुख्य रूप से किसे दर्शाता है?", o: ["कृषि क्षेत्र या पठार", "गहरा समुद्र", "सदाबहार वन", "बर्फीली चोटी"], a: 0 },
+            { q: "मानचित्र में लाल रंग का प्रयोग किसलिए होता है?", o: ["सड़कें और मानव आबादी/बस्तियाँ", "नदियाँ", "जंगल", "बर्फ"], a: 0 },
+            { q: "मानचित्र में काला रंग किस संरचना हेतु प्रयुक्त होता है?", o: ["रेलवे लाइन, सीमाएँ और टेलीफोन तार", "समुद्र", "कृषि", "पहाड़"], a: 0 },
+            { q: "टोपोग्राफिक शीट में समोच्च अंतरांश (Contour Interval) कैसा रखा जाता है?", o: ["पूरे मानचित्र में एकसमान (नियत)", "बदलता हुआ", "अनिश्चित", "शून्य"], a: 0 },
+            { q: "यदि किसी समोच्च रेखा पर 0 मीटर लिखा हो, तो वह किसे प्रदर्शित करती है?", o: ["समुद्र तट (Sea Level)", "पहाड़ की चोटी", "गहरी खाई", "पठार"], a: 0 },
+            { q: "दो समोच्च रेखाओं के बीच की क्षैतिज दूरी किस पर निर्भर करती है?", o: ["धरातल के ढाल की तीव्रता पर", "कागज़ के रंग पर", "स्याही पर", "चित्रकार की इच्छा पर"], a: 0 },
+            { q: "खड़ी ढाल (Cliff) पर समोच्च रेखाएँ कैसी दिखती हैं?", o: ["एक-दूसरे के ऊपर या आपस में मिली हुई", "बहुत दूर", "वृत्ताकार", "गायब"], a: 0 },
+            { q: "समोच्च रेखाओं की सहायता से किस प्रकार की भू-आकृतियों को समझा जा सकता है?", o: ["पहाड़, घाटी, पठार और ढाल", "केवल मौसम", "केवल भाषा", "केवल जनसंख्या"], a: 0 },
+            { q: "उच्चावच प्रदर्शन के लिए एटलस में सबसे अधिक किस विधि का प्रयोग होता है?", o: ["स्तर रंजन (रंग विधि)", "हैश्यूर विधि", "स्थानिक ऊँचाई", "तलमार्ग"], a: 0 },
+            { q: "उच्चावच प्रदर्शन की कौन सी विधि मानचित्र को अधिक स्पष्ट और आकर्षक बनाती है?", o: ["स्तर रंजन विधि", "हैश्यूर विधि", "केवल बिंदु विधि", "केवल काली रेखाएँ"], a: 0 },
+            { q: "मानचित्र अध्ययन का मुख्य उद्देश्य क्या होता है?", o: ["धरातलीय विशेषताओं और विवरणों को सही समझना", "केवल रंग देखना", "केवल दीवार पर टांगना", "कागज़ की जाँच करना"], a: 0 },
+            { q: "कक्षा 10वीं के पाठ्यक्रम में उच्चावच प्रदर्शन किस अध्याय के अंतर्गत पढ़ा जाता है?", o: "मानचित्र अध्ययन", o: ["मानचित्र अध्ययन एवं निरूपण", "कृषि", "परिवहन", "खनिज"], a: 0 },
+            { q: "समोच्च रेखाओं द्वारा निर्मित 'U' आकार की घाटी की विशेषता क्या है?", o: ["चौड़े पेंदे वाली हिमानी या नदी घाटी", "अत्यंत तीखी घाटी", "जलप्रपात", "पहाड़ी चोटी"], a: 0 },
+            { q: "यदि समोच्च रेखाएँ गोल-गोल चक्करदार हों और केंद्र में मान अधिक हो, तो वह क्या है?", o: ["शंकुाकार पहाड़ी", "झील", "मैदान", "नदी द्रोणी"], a: 0 },
+            { q: "भूगोल में मानचित्रों को क्या माना जाता है?", o: ["भूगोलवेत्ता का सबसे महत्त्वपूर्ण उपकरण", "केवल एक चित्र", "अनावश्यक वस्तु", "केवल खेल का साधन"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions & Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 6: मानचित्रांकन (मानचित्र अध्ययन एवं निरूपण)</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">हैश्यूर विधि, समोच्च रेखाएँ, स्तर रंजन, पर्वतीय छायाकरण, स्थानिक ऊँचाई एवं तलमार्ग पर आधारित 100 ऑटो-रैंडमाइज्ड प्रश्नों का महा-क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने अध्याय 6 (मानचित्र अध्ययन) के सभी प्रश्नों के सही उत्तर दिए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! मानचित्र अध्ययन पर आपकी पकड़ बहुत मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! समोच्च रेखाओं एवं उच्चावच विधियों का पुनः अभ्यास करें।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

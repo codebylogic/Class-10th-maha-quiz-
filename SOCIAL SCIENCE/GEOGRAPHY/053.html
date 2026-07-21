@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 5(ग): बिहार - उद्योग एवं परिवहन क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "बिहार का सबसे प्रमुख और प्राचीन कृषि-आधारित उद्योग कौन सा है?", o: ["चीनी उद्योग", "जूट उद्योग", "कागज उद्योग", "सूती वस्त्र उद्योग"], a: 0 },
+            { q: "बिहार में चीनी की पहली मिल किस स्थान पर स्थापित की गई थी?", o: ["मढ़ौरा", "मोतिहारी", "बगहा", "समस्तीपुर"], a: 0 },
+            { q: "बिहार के मढ़ौरा में पहली चीनी मिल किस वर्ष स्थापित की गई थी?", o: ["1904", "1854", "1912", "1921"], a: 0 },
+            { q: "मढ़ौरा बिहार के किस जिले में स्थित एक ऐतिहासिक केंद्र है?", o: ["सारण (छपरा)", "सिवान", "गोपालगंज", "वैशाली"], a: 0 },
+            { q: "स्वतंत्रता के समय भारत के कुल चीनी उत्पादन का कितना भाग बिहार से प्राप्त होता था?", o: ["लगभग एक तिहाई", "आधा भाग", "दस प्रतिशत", "पांच प्रतिशत"], a: 0 },
+            { q: "बिहार में चीनी मिलें मुख्य रूप से किस क्षेत्र में केंद्रित हैं?", o: ["उत्तर-पश्चिमी भाग (चंपारण-गोपालगंज)", "दक्षिणी मैदानी भाग", "पूर्वी तराई भाग", "गंगा का दियारा क्षेत्र"], a: 0 },
+            { q: "बिहार में चीनी उद्योग के विकास के लिए किस निगम की स्थापना की गई थी?", o: ["बिहार राज्य चीनी निगम", "बिहार औद्योगिक बोर्ड", "कृषि विकास निगम", "सहकारी चीनी संघ"], a: 0 },
+            { q: "बिहार में जूट का पहला कारखाना कहाँ स्थापित किया गया था?", o: ["कटिहार", "पूर्णिया", "किशनगंज", "दरभंगा"], a: 0 },
+            { q: "बिहार में जूट उद्योग का मुख्य केंद्र कौन सा जिला माना जाता है?", o: ["पूर्णिया और कटिहार", "रोहतास और कैमूर", "गया और नवादा", "सिवान और सारण"], a: 0 },
+            { q: "बिहार में रेशमी वस्त्र उत्पादन का सबसे प्रसिद्ध केंद्र कौन सा नगर है?", o: ["भागलपुर", "पटना", "गया", "मुजफ्फरपुर"], a: 0 },
+            { q: "भागलपुर को किस उपनाम से जाना जाता है?", o: ["सिल्क सिटी", "कॉटन सिटी", "शुगर सिटी", "स्टील सिटी"], a: 0 },
+            { q: "बिहार में तसर और शहतूती रेशम का उत्पादन मुख्य रूप से कहाँ होता है?", o: ["भागलपुर और बांका", "पश्चिम चंपारण", "रोहतास", "सीवान"], a: 0 },
+            { q: "बिहार में सूती कपड़ा उद्योग के प्रमुख केंद्र कौन से हैं?", o: ["गया, पटना और भागलपुर", "पूर्णिया और कटिहार", "बक्सर और अरवल", "सहरसा और मधेपुरा"], a: 0 },
+            { q: "बिहार के किस जिले में सूती वस्त्र का प्रसिद्ध मानपुर केंद्र स्थित है?", o: ["गया", "नवादा", "औरंगाबाद", "रोहतास"], a: 0 },
+            { q: "बिहार में तंबाकू उद्योग का प्रसिद्ध केंद्र कहाँ स्थित है?", o: ["मुंगेर", "भागलपुर", "बेगूसराय", "दरभंगा"], a: 0 },
+            { q: "मुंगेर का सिगरेट कारखाना किस प्रसिद्ध कंपनी द्वारा संचालित है?", o: ["आईटीसी (ITC)", "डाबर", "गोदरेज", "हिंदुस्तान यूनिलीवर"], a: 0 },
+            { q: "बिहार में बीड़ी उद्योग मुख्य रूप से किस जिले में कुटीर उद्योग के रूप में विकसित है?", o: ["जमुई और मुंगेर", "पश्चिम चंपारण", "गोपालगंज", "किशनगंज"], a: 0 },
+            { q: "बिहार में बीड़ी बनाने के लिए किस पेड़ के पत्तों का प्रयोग किया जाता है?", o: ["तेंदू के पत्ते", "शीशम के पत्ते", "बरगद के पत्ते", "केले के पत्ते"], a: 0 },
+            { q: "बिहार में रासायनिक उर्वरक (फर्टिलाइजर) का कारखाना कहाँ स्थित है?", o: ["बरौनी", "पटना", "हाजीपुर", "कटिहार"], a: 0 },
+            { q: "बरौनी उर्वरक कारखाना किस राज्य की मदद से पुनर्स्थापित किया जा रहा है?", o: ["केंद्र सरकार (हिंदुस्तान फर्टिलाइजर)", "राज्य सरकार", "विदेशी कंपनी", "सहकारी समिति"], a: 0 },
+            { q: "बिहार का एकमात्र तेल शोधक कारखाना कहाँ स्थित है?", o: ["बरौनी", "कहलगांव", "कांटी", "मोकामा"], a: 0 },
+            { q: "बरौनी तेल शोधक कारखाने की स्थापना किस वर्ष हुई थी?", o: ["1964", "1950", "1972", "1985"], a: 0 },
+            { q: "बरौनी तेल शोधक कारखाना किस देश के तकनीकी सहयोग से बनाया गया था?", o: ["रूस (सोवियत संघ)", "अमेरिका", "जर्मनी", "फ्रांस"], a: 0 },
+            { q: "बिहार में सीमेंट उद्योग का सबसे प्रमुख कारखाना किस स्थान पर है?", o: ["डालमियानगर (बंजारी)", "बरौनी", "हाजीपुर", "फतुहा"], a: 0 },
+            { q: "डालमियानगर बिहार के किस जिले में स्थित है?", o: ["रोहतास", "भोजपुर", "बक्सर", "कैमूर"], a: 0 },
+            { q: "बिहार में कांच (ग्लास) उद्योग का विकास किन स्थानों पर हुआ है?", o: ["पटना और वैशाली (हाजीपुर)", "पूर्णिया और कटिहार", "बगहा और बेटिया", "जमुई और बांका"], a: 0 },
+            { q: "बिहार में पटाखा और आतिशबाजी उद्योग का प्रमुख केंद्र कौन सा है?", o: ["पटना (सिटी)", "गया", "मुजफ्फरपुर", "भागलपुर"], a: 0 },
+            { q: "बिहार में प्लाईवुड उद्योग का विशाल कारखाना कहाँ स्थापित है?", o: ["हाजीपुर", "बरौनी", "मुंगेर", "मोकामा"], a: 0 },
+            { q: "हाजीपुर किस जिले का मुख्यालय है जो प्लाईवुड उद्योग के लिए प्रसिद्ध है?", o: ["वैशाली", "मुजफ्फरपुर", "समस्तीपुर", "सारण"], a: 0 },
+            { q: "बिहार में चमड़ा उद्योग का प्रमुख केंद्र कौन सा नगर माना जाता है?", o: ["मोकामा और मुजफ्फरपुर", "पूर्णिया", "किशनगंज", "मधुबनी"], a: 0 },
+            { q: "बाटा (Bata) जूता कारखाना बिहार में किस स्थान पर स्थित है?", o: ["मोकामा (बाटागंज, पटना)", "हाजीपुर", "गया", "भागलपुर"], a: 0 },
+            { q: "बिहार में बर्तन उद्योग का पारंपरिक केंद्र कौन सा माना जाता है?", o: ["सिवान और बिहटा", "कटिहार", "अररिया", "बक्सर"], a: 0 },
+            { q: "बिहार में काष्ठ (लकड़ी) फर्नीचर उद्योग कहाँ अधिक विकसित है?", o: ["पटना, मुजफ्फरपुर और बेतिया", "पूर्णिया", "रोहतास", "शेखपुरा"], a: 0 },
+            { q: "बिहार में कागज उद्योग का प्रमुख कारखाना कहाँ स्थित रहा है?", o: ["समस्तीपुर और डालमियानगर", "भागलपुर", "गया", "मुंगेर"], a: 0 },
+            { q: "ठाकुर पेपर मिल बिहार के किस जिले में स्थित है?", o: ["समस्तीपुर", "दरभंगा", "मुजफ्फरपुर", "सहरसा"], a: 0 },
+            { q: "रेलवे वर्कशॉप (रेलवे कार्यशाला) बिहार में कहाँ स्थित है?", o: ["जमालपुर", "मोकामा", "पटना", "गया"], a: 0 },
+            { q: "जमालपुर रेलवे वर्कशॉप किस जिले में स्थित है?", o: ["मुंगेर", "भागलपुर", "लखीसराय", "बेगूसराय"], a: 0 },
+            { q: "जमालपुर रेलवे वर्कशॉप की स्थापना किस वर्ष हुई थी?", o: ["1862", "1905", "1947", "1853"], a: 0 },
+            { q: "जमालपुर वर्कशॉप एशिया का कैसा वर्कशॉप माना जाता है?", o: ["सबसे पहला और पुराना", "सबसे बड़ा आधुनिक", "सबसे छोटा", "इलेक्ट्रिक केवल"], a: 0 },
+            { q: "भारत-वेगन एंड इंजीनियरिंग कंपनी लिमिटेड कहाँ स्थित है?", o: ["मोकामा", "जमालपुर", "हाजीपुर", "फतुहा"], a: 0 },
+            { q: "मोकामा स्थित भारत-वेगन कंपनी में मुख्य रूप से किसका निर्माण होता है?", o: ["रेलवे के मालगाड़ी डिब्बे (वेगन)", "बस बॉडी", "जहाज", "ट्रैक्टर"], a: 0 },
+            { q: "बिहार के मढ़ौरा में आधुनिक डीजल रेल इंजन कारखाना किस कंपनी द्वारा निर्मित है?", o: ["General Electric (GE)", "Siemens", "BHEL", "Tata"], a: 0 },
+            { q: "बिहार के मधेपुरा में किस प्रकार के रेल इंजन का कारखाना स्थापित हुआ है?", o: ["शक्तिशाली इलेक्ट्रिक रेल इंजन", "डीजल इंजन", "भाप इंजन", "मेट्रो डिब्बे"], a: 0 },
+            { q: "हरनौत (नालंदा) में रेलवे का कौन सा कारखाना स्थित है?", o: ["रेल सवारी डिब्बा मरम्मत कारखाना (Carriage Repair Workshop)", "इंजन कारखाना", "पहिया कारखाना", "सिग्नल कारखाना"], a: 0 },
+            { q: "छपरा के बेला में किस प्रकार का रेलवे कारखाना स्थापित किया गया है?", o: ["रेल व्हील प्लांट (पहिया कारखाना)", "कोच कारखाना", "इंजन कारखाना", "स्लीपर कारखाना"], a: 0 },
+            { q: "बिहार में औद्योगिक विकास की गति धीमी होने का सबसे मुख्य कारण क्या है?", o: ["कच्चे माल व पूंजी की कमी एवं बाढ़", "मजदूरों की कमी", "भूमि की कमी", "मौसम की खराबी"], a: 0 },
+            { q: "बिहार में औद्योगिक नीति के तहत किस प्रोत्साहन पर बल दिया गया है?", o: ["सिंगल विंडो सिस्टम एवं एग्रो-प्रोसेसिंग", "केवल विदेशी आयात", "कृषि बंद करना", "केवल सरकारी नौकरी"], a: 0 },
+            { q: "बिहार में खाद्य प्रसंस्करण (Food Processing) उद्योगों की भारी संभावना क्यों है?", o: ["फलों और सब्जियों का प्रचुर उत्पादन", "भारी खनिज की उपस्थिति", "समुद्र तट की उपस्थिति", "सस्ती बिजली"], a: 0 },
+            { q: "बिहार में एथेनॉल नीति लागू करने वाला भारत का पहला राज्य कौन सा है?", o: ["बिहार", "उत्तर प्रदेश", "महाराष्ट्र", "पंजाब"], a: 0 },
+            { q: "बिहार में एथेनॉल संयंत्र मुख्य रूप से किस कच्चे माल से बनाया जा रहा है?", o: ["मक्का, टूटे चावल और गन्ना", "गेहूँ", "सब्जियाँ", "लकड़ी"], a: 0 },
+            { q: "पूर्णिया के गणेशपुर में भारत के पहले ग्रेन-बेस्ड (अनाज आधारित) एथेनॉल प्लांट की स्थापना हुई है?", o: ["हाँ (पूर्णिया)", "पटना", "गया", "भागलपुर"], a: 0 },
+            { q: "बिहार में परिवहन का सबसे प्रमुख और सुलभ साधन कौन सा है?", o: ["सड़क परिवहन", "रेल परिवहन", "जल परिवहन", "वायु परिवहन"], a: 0 },
+            { q: "बिहार में पक्की सड़कों की लंबाई में लगातार क्या देखा गया है?", o: ["तेज वृद्धि", "भारी गिरावट", "कोई बदलाव नहीं", "शून्य विस्तार"], a: 0 },
+            { q: "बिहार से गुजरने वाला ऐतिहासिक राष्ट्रीय राजमार्ग 2 (GT Road) अब किस नाम से जाना जाता है?", o: ["राष्ट्रीय राजमार्ग 19 (NH 19)", "NH 44", "NH 28", "NH 31"], a: 0 },
+            { q: "बिहार में राष्ट्रीय राजमार्गों (NH) की सबसे अधिक लंबाई किस जिले में है?", o: ["पटना", "मुजफ्फरपुर", "गया", "रोहतास"], a: 0 },
+            { q: "बिहार में राज्य राजमार्गों (SH) की देखरेख कौन सा विभाग करता है?", o: ["पथ निर्माण विभाग (PWD)", "केंद्रीय PWD", "नगर निगम", "ग्राम पंचायत"], a: 0 },
+            { q: "बिहार में ग्रामीण सड़कों के निर्माण हेतु कौन सी मुख्य योजना चल रही है?", o: ["मुख्यमंत्री ग्राम संपर्क योजना", "स्मार्ट सिटी योजना", "हर घर नल योजना", "कृषि योजना"], a: 0 },
+            { q: "गंगा नदी पर स्थित 'महात्मा गांधी सेतु' किस शहर को हाजीपुर से जोड़ता है?", o: ["पटना", "मुंगेर", "भागलपुर", "मोकामा"], a: 0 },
+            { q: "महात्मा गांधी सेतु का उद्घाटन किस वर्ष हुआ था?", o: ["1982", "1972", "1990", "1995"], a: 0 },
+            { q: "गंगा नदी पर मुंगेर में बने रेल-सह-सड़क पुल का नाम क्या है?", o: ["श्री कृष्ण सिंह सेतु", "गांधी सेतु", "जयप्रकाश सेतु", "राजेन्द्र सेतु"], a: 0 },
+            { q: "गंगा नदी पर मोकामा में स्थित पहला रेल-सह-सड़क पुल कौन सा है?", o: ["राजेन्द्र सेतु", "विक्रमशिला सेतु", "गांधी सेतु", "दीघा सेतु"], a: 0 },
+            { q: "भागलपुर में गंगा नदी पर कौन सा प्रसिद्ध सड़क पुल स्थित है?", o: ["विक्रमशिला सेतु", "गांधी सेतु", "राजेन्द्र सेतु", "सोन पुल"], a: 0 },
+            { q: "पटना और सोनपुर के बीच दीघा में गंगा नदी पर बने पुल का नाम क्या है?", o: ["जयप्रकाश नारायण सेतु", "गांधी सेतु", "विक्रमशिला सेतु", "नेहरू सेतु"], a: 0 },
+            { q: "बिहार में पहली रेल लाइन का निर्माण किस ईस्ट इंडिया कंपनी द्वारा कराया गया था?", o: ["ईस्ट इंडियन रेलवे", "ग्रेट इंडियन पेनिनसुला", "साउथ रेलवे", "नॉर्थ रेलवे"], a: 0 },
+            { q: "बिहार में पहली रेल लाइन कहाँ से कहाँ तक बिछाई गई थी?", o: ["ईस्ट इंडिया लूप लाइन (कोलकाता से मुगलसराय)", "पटना से गया", "दरभंगा से रक्सौल", "कटिहार से पूर्णिया"], a: 0 },
+            { q: "बिहार में रेल मार्ग की शुरुआत किस वर्ष हुई थी?", o: ["1860-1862", "1853", "1875", "1905"], a: 0 },
+            { q: "पूर्व मध्य रेलवे (East Central Railway) का मुख्यालय बिहार में कहाँ स्थित है?", o: ["हाजीपुर", "पटना", "समस्तीपुर", "दानापुर"], a: 0 },
+            { q: "पूर्व मध्य रेलवे (ECR) ज़ोन की स्थापना किस वर्ष हुई थी?", o: ["2002 (1 अक्टूबर)", "1998", "2005", "1992"], a: 0 },
+            { q: "बिहार में रेलवे के कितने मंडल (Divisions) पूर्व मध्य रेलवे के अंतर्गत आते हैं?", o: ["5 मंडल (समस्तीपुर, दानापुर, सोनपुर, पंडित दीनदयाल उपाध्याय, धनबाद)", "3 मंडल", "8 मंडल", "2 मंडल"], a: 0 },
+            { q: "बिहार का सबसे बड़ा और प्रमुख रेलवे जंक्शन कौन सा माना जाता है?", o: ["पटना जंक्शन", "गया जंक्शन", "मुजफ्फरपुर जंक्शन", "कटिहार जंक्शन"], a: 0 },
+            { q: "बिहार में मेट्रो रेल परियोजना का निर्माण किस शहर में हो रहा है?", o: ["पटना", "गया", "भागलपुर", "मुजफ्फरपुर"], a: 0 },
+            { q: "पटना मेट्रो रेल परियोजना का शिलान्यास किस वर्ष हुआ था?", o: ["2019", "2015", "2021", "2017"], a: 0 },
+            { q: "बिहार में आंतरिक जल परिवहन का सबसे मुख्य मार्ग कौन सी नदी प्रदान करती है?", o: ["गंगा नदी", "कोसी नदी", "गंडक नदी", "सोन नदी"], a: 0 },
+            { q: "राष्ट्रीय जलमार्ग संख्या 1 (NW 1) बिहार के किस शहर से होकर गुजरता है?", o: ["पटना, भागलपुर, बक्सर", "मुजफ्फरपुर", "दरभंगा", "गया"], a: 0 },
+            { q: "पटना के गायघाट में किस संस्था द्वारा अंतर्देशीय जलमार्ग टर्मिनल बनाया गया है?", o: ["भारतीय अंतर्देशीय जलमार्ग प्राधिकरण (IWAI)", "रेलवे", "सड़क निगम", "पोत परिवहन"], a: 0 },
+            { q: "बिहार में जल परिवहन द्वारा मुख्य रूप से किस सामान की ढुलाई होती है?", o: ["अनाज, बालू और भारी सामान", "केवल यात्री", "केवल कारें", "केवल डाक"], a: 0 },
+            { q: "जयप्रकाश नारायण अंतरराष्ट्रीय हवाई अड्डा किस शहर में स्थित है?", o: ["पटना", "गया", "दरभंगा", "भागलपुर"], a: 0 },
+            { q: "बिहार का दूसरा प्रमुख अंतरराष्ट्रीय स्तर का हवाई अड्डा कहाँ स्थित है?", o: ["गया", "मुजफ्फरपुर", "पूर्णिया", "रक्सौल"], a: 0 },
+            { q: "उत्तर बिहार के लोगों के लिए हाल ही में किस नए हवाई अड्डे से उड़ान सेवा शुरू हुई है?", o: ["दरभंगा हवाई अड्डा", "सहरसा हवाई अड्डा", "रक्सौल हवाई अड्डा", "मुजफ्फरपुर हवाई अड्डा"], a: 0 },
+            { q: "दरभंगा हवाई अड्डे से उड़ान योजना (UDAN) के तहत किस वर्ष सेवा शुरू हुई?", o: ["2020", "2018", "2015", "2022"], a: 0 },
+            { q: "उड़ान (UDAN) योजना का पूरा नाम क्या है?", o: ["उड़े देश का आम नागरिक", "उत्कृष्ट देश की हवाई नीति", "उन्नत देश आधुनिक नगर", "उड़ान देश की प्रगति"], a: 0 },
+            { q: "बिहार का कौन सा हवाई अड्डा धार्मिक एवं अंतर्राष्ट्रीय पर्यटकों के लिए प्रसिद्ध है?", o: ["गया हवाई अड्डा", "पटना हवाई अड्डा", "दरभंगा हवाई अड्डा", "बिहटा हवाई अड्डा"], a: 0 },
+            { q: "बिहार में सैन्य/रक्षा हवाई अड्डा कहाँ स्थित है जो नागरिक उड़ानों हेतु विकसित हो रहा है?", o: ["बिहटा (पटना)", "सुलतानगंज", "डेहरी", "मोतिहारी"], a: 0 },
+            { q: "बिहार में डाक सेवा के प्रसार के लिए राज्य को किस डाक ज़ोन में रखा गया है?", o: ["8वें डाक ज़ोन", "1ले ज़ोन", "3रे ज़ोन", "5वें ज़ोन"], a: 0 },
+            { q: "बिहार डाक परिमंडल का मुख्य कार्यालय कहाँ स्थित है?", o: ["पटना (जीपीओ)", "गया", "मुजफ्फरपुर", "भागलपुर"], a: 0 },
+            { q: "बिहार में टेलीफोन और मोबाइल संचार सेवाओं का विस्तार कैसा रहा है?", o: ["अत्यंत तीव्र प्रसार", "बहुत धीमा", "केवल शहरों तक सीमित", "बंद हो गया"], a: 0 },
+            { q: "बिहार में समाचार पत्रों के मुख्य केंद्र कौन से नगर हैं?", o: ["पटना और मुजफ्फरपुर", "रोहतास", "किशनगंज", "कैमूर"], a: 0 },
+            { q: "बिहार का पहला हिंदी समाचार पत्र कौन सा माना जाता है?", o: ["बिहार बंधु", "आर्यवर्त", "प्रदीप", "सर्चलाइट"], a: 0 },
+            { q: "बिहार बंधु समाचार पत्र किस वर्ष प्रकाशित होना शुरू हुआ था?", o: ["1872", "1854", "1905", "1920"], a: 0 },
+            { q: "बिहार का पहला अंग्रेजी दैनिक समाचार पत्र कौन सा था?", o: ["द सर्चलाइट (The Searchlight)", "द बिहार हेराल्ड", "द टाइम्स ऑफ इंडिया", "द हिंदू"], a: 0 },
+            { q: "द बिहार हेराल्ड अंग्रेजी साप्ताहिक पत्र का प्रकाशन किसने शुरू किया था?", o: ["गुरु प्रसाद सेन", "सच्चिदानंद सिन्हा", "मजहरुल हक", "महेश नारायण"], a: 0 },
+            { q: "दूरदर्शन का बिहार में पहला केंद्र किस शहर में स्थापित हुआ था?", o: ["मुजफ्फरपुर", "पटना", "भागलपुर", "गया"], a: 0 },
+            { q: "मुजफ्फरपुर में दूरदर्शन केंद्र की स्थापना किस वर्ष हुई थी?", o: ["1978", "1982", "1972", "1990"], a: 0 },
+            { q: "बिहार में आकाशवाणी (रेडियो) का पहला केंद्र किस शहर में खुला था?", o: ["पटना", "मुजफ्फरपुर", "भागलपुर", "दरभंगा"], a: 0 },
+            { q: "पटना आकाशवाणी केंद्र की स्थापना किस वर्ष हुई थी?", o: ["1948", "1950", "1956", "1962"], a: 0 },
+            { q: "बिहार में उद्योगों के असंतुलित विकास को दूर करने के लिए किसकी आवश्यकता है?", o: ["बुनियादी ढाँचे का विस्तार व निवेश प्रोत्साहन", "केवल कृषि बंद करना", "जनसंख्या भगाना", "केवल कर बढ़ाना"], a: 0 },
+            { q: "बिहार में बुनियादी ढाँचे (इन्फ्रास्ट्रक्चर) में तेजी से सुधार का प्रभाव किस पर पड़ा है?", o: ["व्यापार और आर्थिक समृद्धि पर", "केवल प्रदूषण पर", "गरीबी बढ़ने पर", "किसी पर नहीं"], a: 0 },
+            { q: "बिहार का कौन सा शहर उत्तर और दक्षिण बिहार को जोड़ने वाला प्रमुख रेल-सड़क केंद्र है?", o: ["पटना और मोकामा", "किशनगंज", "बक्सर", "गोपालगंज"], a: 0 },
+            { q: "बिहार में सड़क दुर्घटनाएं रोकने के लिए राष्ट्रीय राजमार्गों पर क्या व्यवस्था की जा रही है?", o: ["ट्रॉमा सेंटर और ओवरब्रिज", "सड़क बंद करना", "गति सीमा खत्म करना", "कच्चा बनाना"], a: 0 },
+            { q: "बिहार की अर्थव्यवस्था को गतिशील बनाने में किसका योगदान सर्वोपरि है?", o: ["परिवहन, संचार एवं कृषि-उद्योग", "केवल खनन", "समुद्री व्यापार", "विदेशी सहायता"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions & Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 5(ग): बिहार - उद्योग एवं परिवहन (महा-क्विज़)</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">बिहार के चीनी, जूट, रेशम, रेलवे कारखानों, राजमार्गों, पुलों, हवाई अड्डों एवं संचार साधनों पर आधारित 100 ऑटो-रैंडमाइज्ड प्रश्नों का इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने अध्याय 5(ग) के सभी प्रश्नों के सही उत्तर दिए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! आपकी बोर्ड परीक्षा की तैयारी बहुत मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! बिहार के उद्योगों एवं परिवहन के आंकड़ों का पुनः अध्ययन करें।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

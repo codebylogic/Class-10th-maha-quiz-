@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 5(घ): बिहार - जनसंख्या एवं नगरीकरण क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "सन 2011 की जनगणना के अनुसार बिहार की कुल जनसंख्या लगभग कितनी थी?", o: ["10.41 करोड़", "8.29 करोड़", "12.10 करोड़", "9.50 करोड़"], a: 0 },
+            { q: "जनसंख्या के आकार की दृष्टि से भारत के राज्यों में बिहार का कौन सा स्थान है?", o: ["तीसरा स्थान", "पहला स्थान", "दूसरा स्थान", "पांचवां स्थान"], a: 0 },
+            { q: "भारत में सर्वाधिक जनसंख्या वाले राज्यों में बिहार से आगे कौन से दो राज्य हैं?", o: ["उत्तर प्रदेश और महाराष्ट्र", "पश्चिम बंगाल और मध्य प्रदेश", "महाराष्ट्र और राजस्थान", "तमिलनाडु और आंध्र प्रदेश"], a: 0 },
+            { q: "सन 2001 में बिहार की कुल जनसंख्या लगभग कितनी दर्ज की गई थी?", o: ["8.29 करोड़", "10.41 करोड़", "7.50 करोड़", "9.10 करोड़"], a: 0 },
+            { q: "सन 2001 से 2011 के दौरान बिहार की जनसंख्या वृद्धि दर लगभग कितनी प्रतिशत रही?", o: ["25.4 प्रतिशत", "28.6 प्रतिशत", "21.5 प्रतिशत", "18.2 प्रतिशत"], a: 0 },
+            { q: "भारत में सर्वाधिक जनसंख्या घनत्व वाला राज्य कौन सा है?", o: ["बिहार", "पश्चिम बंगाल", "केरल", "उत्तर प्रदेश"], a: 0 },
+            { q: "2011 की जनगणना के अनुसार बिहार का जनसंख्या घनत्व कितना व्यक्ति प्रति वर्ग किमी है?", o: ["1106 व्यक्ति", "881 व्यक्ति", "1028 व्यक्ति", "950 व्यक्ति"], a: 0 },
+            { q: "2001 की जनगणना के अनुसार बिहार का जनसंख्या घनत्व कितना था?", o: ["881 व्यक्ति प्रति वर्ग किमी", "1106 व्यक्ति प्रति वर्ग किमी", "750 व्यक्ति प्रति वर्ग किमी", "900 व्यक्ति प्रति वर्ग किमी"], a: 0 },
+            { q: "बिहार का सबसे अधिक जनसंख्या वाला जिला कौन सा है?", o: ["पटना", "पूर्वी चंपारण", "मुजफ्फरपुर", "मधुबनी"], a: 0 },
+            { q: "2011 के अनुसार पटना जिले की कुल जनसंख्या लगभग कितनी दर्ज की गई थी?", o: ["58.38 लाख", "40.20 लाख", "70.15 लाख", "45.80 लाख"], a: 0 },
+            { q: "बिहार में सबसे कम जनसंख्या वाला जिला कौन सा है?", o: ["शेखपुरा", "शिवहर", "लखीसराय", "अरवल"], a: 0 },
+            { q: "बिहार का सबसे अधिक जनसंख्या घनत्व वाला जिला कौन सा है?", o: ["शिवहर", "पटना", "दरभंगा", "वैशाली"], a: 0 },
+            { q: "शिवहर जिले का जनसंख्या घनत्व प्रति वर्ग किमी लगभग कितना है?", o: ["1880 व्यक्ति", "1106 व्यक्ति", "1500 व्यक्ति", "2200 व्यक्ति"], a: 0 },
+            { q: "बिहार में सबसे कम जनसंख्या घनत्व वाला जिला कौन सा है?", o: ["कैमूर (भभुआ)", "जमुई", "बांका", "पश्चिम चंपारण"], a: 0 },
+            { q: "कैमूर जिले का जनसंख्या घनत्व लगभग कितना व्यक्ति प्रति वर्ग किलोमीटर है?", o: ["488 व्यक्ति", "350 व्यक्ति", "600 व्यक्ति", "520 व्यक्ति"], a: 0 },
+            { q: "2011 की जनगणना के अनुसार बिहार का लिंगानुपात (स्त्री प्रति 1000 पुरुष) कितना है?", o: ["918", "943", "921", "895"], a: 0 },
+            { q: "2001 की जनगणना के अनुसार बिहार का लिंगानुपात कितना दर्ज किया गया था?", o: ["919", "921", "910", "905"], a: 0 },
+            { q: "बिहार में सर्वाधिक लिंगानुपात वाला जिला कौन सा है?", o: ["गोपालगंज", "सिवान", "सारण", "किशनगंज"], a: 0 },
+            { q: "गोपालगंज जिले का लिंगानुपात (प्रति 1000 पुरुषों पर महिलाएँ) कितना दर्ज किया गया था?", o: ["1021", "1005", "985", "1050"], a: 0 },
+            { q: "बिहार में सबसे कम लिंगानुपात वाला जिला कौन सा है?", o: ["मुंगेर", "भागलपुर", "पटना", "खगड़िया"], a: 0 },
+            { q: "मुंगेर जिले का लिंगानुपात प्रति हजार पुरुषों पर कितना दर्ज किया गया था?", o: ["876", "885", "850", "890"], a: 0 },
+            { q: "2011 की जनगणना के अनुसार बिहार में कुल साक्षरता दर कितनी प्रतिशत है?", o: ["61.8 प्रतिशत", "73.0 प्रतिशत", "53.7 प्रतिशत", "65.4 प्रतिशत"], a: 0 },
+            { q: "2001 की जनगणना में बिहार की साक्षरता दर लगभग कितनी प्रतिशत थी?", o: ["47.0 प्रतिशत", "61.8 प्रतिशत", "52.5 प्रतिशत", "40.2 प्रतिशत"], a: 0 },
+            { q: "बिहार में पुरुष साक्षरता दर 2011 के अनुसार लगभग कितनी प्रतिशत है?", o: ["71.2 प्रतिशत", "61.8 प्रतिशत", "80.5 प्रतिशत", "65.0 प्रतिशत"], a: 0 },
+            { q: "बिहार में महिला साक्षरता दर 2011 के आंकड़ों के अनुसार कितनी प्रतिशत है?", o: ["51.5 प्रतिशत", "61.8 प्रतिशत", "45.2 प्रतिशत", "58.0 प्रतिशत"], a: 0 },
+            { q: "बिहार का सर्वाधिक साक्षरता दर वाला जिला कौन सा है?", o: ["रोहतास", "पटना", "भोजपुर", "मुंगेर"], a: 0 },
+            { q: "रोहतास जिले की साक्षरता दर लगभग कितनी प्रतिशत दर्ज की गई थी?", o: ["73.37 प्रतिशत", "65.20 प्रतिशत", "80.10 प्रतिशत", "70.50 प्रतिशत"], a: 0 },
+            { q: "बिहार में सबसे कम साक्षरता वाला जिला कौन सा है?", o: ["पूर्णिया", "कटिहार", "सीतामढ़ी", "अररिया"], a: 0 },
+            { q: "पूर्णिया जिले की साक्षरता दर लगभग कितनी प्रतिशत दर्ज की गई थी?", o: ["51.08 प्रतिशत", "45.20 प्रतिशत", "58.30 प्रतिशत", "42.00 प्रतिशत"], a: 0 },
+            { q: "बिहार में महिला साक्षरता दर सबसे कम किस जिले में है?", o: ["सहरसा", "पूर्णिया", "मधेपुरा", "कटिहार"], a: 0 },
+            { q: "बिहार में पुरुष साक्षरता दर सबसे अधिक किस जिले में पाई जाती है?", o: ["रोहतास", "पटना", "भोजपुर", "सिवान"], a: 0 },
+            { q: "2011 के अनुसार बिहार की कुल आबादी का कितना प्रतिशत भाग गांवों में रहता है?", o: ["88.7 प्रतिशत", "75.0 प्रतिशत", "81.2 प्रतिशत", "92.5 प्रतिशत"], a: 0 },
+            { q: "2011 की जनगणना के अनुसार बिहार में नगरीय जनसंख्या का प्रतिशत कितना है?", o: ["11.3 प्रतिशत", "25.0 प्रतिशत", "18.8 प्रतिशत", "10.5 प्रतिशत"], a: 0 },
+            { q: "2001 की जनगणना में बिहार में नगरीय जनसंख्या का प्रतिशत कितना था?", o: ["10.5 प्रतिशत", "11.3 प्रतिशत", "8.2 प्रतिशत", "13.0 प्रतिशत"], a: 0 },
+            { q: "बिहार में सर्वाधिक नगरीय जनसंख्या वाला जिला कौन सा है?", o: ["पटना", "मुंगेर", "भागलपुर", "मुजफ्फरपुर"], a: 0 },
+            { q: "पटना जिले में नगरीय आबादी का प्रतिशत लगभग कितना है?", o: ["43.1 प्रतिशत", "25.0 प्रतिशत", "60.0 प्रतिशत", "35.5 प्रतिशत"], a: 0 },
+            { q: "बिहार में सबसे कम नगरीय जनसंख्या का प्रतिशत किस जिले में है?", o: ["समस्तीपुर और बांका", "शेखपुरा", "गोपालगंज", "कैमूर"], a: 0 },
+            { q: "समस्तीपुर जिले में नगरीय जनसंख्या का प्रतिशत लगभग कितना है?", o: ["लगभग 3.5 प्रतिशत", "10 प्रतिशत", "8 प्रतिशत", "1.5 प्रतिशत"], a: 0 },
+            { q: "बिहार की राजधानी पटना की आबादी का घनत्व कितना अधिक है?", o: ["अत्यधिक घनत्व (1800 से अधिक)", "मध्यम घनत्व", "निम्न घनत्व", "विरल क्षेत्र"], a: 0 },
+            { q: "2011 के आंकड़ों के अनुसार बिहार में 10 लाख से अधिक आबादी वाला एकमात्र महानगर कौन सा है?", o: ["पटना", "गया", "भागलपुर", "मुजफ्फरपुर"], a: 0 },
+            { q: "बिहार का दूसरा सबसे बड़ा नगर जनसंख्या की दृष्टि से कौन सा माना जाता है?", o: ["गया", "भागलपुर", "मुजफ्फरपुर", "दरभंगा"], a: 0 },
+            { q: "बिहार में कुल कितने प्रशासनिक प्रमंडल (Divisions) हैं?", o: ["9 प्रमंडल", "7 प्रमंडल", "12 प्रमंडल", "5 प्रमंडल"], a: 0 },
+            { q: "बिहार में कुल जिलों की संख्या कितनी है?", o: ["38 जिले", "35 जिले", "40 जिले", "32 जिले"], a: 0 },
+            { q: "बिहार में कुल अनुमंडलों (Sub-divisions) की संख्या कितनी है?", o: ["101 अनुमंडल", "95 अनुमंडल", "110 अनुमंडल", "85 अनुमंडल"], a: 0 },
+            { q: "बिहार में प्रखंडों (Blocks) की कुल संख्या कितनी है?", o: ["534 प्रखंड", "500 प्रखंड", "550 प्रखंड", "520 प्रखंड"], a: 0 },
+            { q: "बिहार में नगर निगमों की संख्या समय के साथ बढ़कर कितनी हो गई है?", o: ["19 नगर निगम", "12 नगर निगम", "9 नगर निगम", "25 नगर निगम"], a: 0 },
+            { q: "बिहार का सबसे पुराना और मुख्य नगर निगम कौन सा है?", o: ["पटना नगर निगम", "गया नगर निगम", "भागलपुर नगर निगम", "मुजफ्फरपुर नगर निगम"], a: 0 },
+            { q: "पटना नगर निगम की स्थापना किस वर्ष हुई थी?", o: ["1952", "1947", "1960", "1972"], a: 0 },
+            { q: "बिहार में मध्यकालीन नगर का उदाहरण निम्नलिखित में से कौन सा है?", o: ["बिहारशरीफ और सासाराम", "पटना", "वैशाली", "बोधगया"], a: 0 },
+            { q: "सासाराम नगर का विकास किस काल में मुख्य रूप से हुआ था?", o: ["मध्यकाल", "प्राचीनकाल", "आधुनिक काल", "ब्रिटिश काल"], a: 0 },
+            { q: "प्राचीन काल के प्रसिद्ध नगरों में से एक कौन सा है?", o: ["पाटिलपुत्र (पटना) और वैशाली", "डालमियानगर", "बरौनी", "कटिहार"], a: 0 },
+            { q: "बोधगया किस प्रकार के नगर के रूप में विख्यात है?", o: ["धार्मिक एवं सांस्कृतिक नगर", "औद्योगिक नगर", "खनन नगर", "बंदरगाह नगर"], a: 0 },
+            { q: "राजगीर किस प्रकार के ऐतिहासिक एवं पर्यटन नगर का उदाहरण है?", o: ["प्राचीन धार्मिक एवं पर्यटन नगर", "आधुनिक औद्योगिक नगर", "सैनिक छावनी", "व्यापारिक मंडी"], a: 0 },
+            { q: "बरौनी किस प्रकार के नगर की श्रेणी में आता है?", o: ["औद्योगिक नगर", "धार्मिक नगर", "पर्यटन नगर", "प्रशासनिक नगर"], a: 0 },
+            { q: "डालमियानगर किस प्रकार के नगर का उदाहरण है?", o: ["औद्योगिक नगर", "सांस्कृतिक नगर", "छावनी नगर", "कृषि नगर"], a: 0 },
+            { q: "जमालपुर किस प्रकार के नगर का प्रमुख उदाहरण है?", o: ["रेलवे औद्योगिक नगर", "धार्मिक नगर", "कृषि मंडी", "पर्यटन स्थल"], a: 0 },
+            { q: "बिहारशरीफ किस जिले का प्रशासनिक मुख्यालय है?", o: ["नालंदा", "पटना", "नवादा", "शेखपुरा"], a: 0 },
+            { q: "सासाराम किस जिले का प्रशासनिक मुख्यालय है?", o: ["रोहतास", "कैमूर", "औरंगाबाद", "बक्सर"], a: 0 },
+            { q: "हाजीपुर किस जिले का मुख्यालय नगर है?", o: ["वैशाली", "मुजफ्फरपुर", "सारण", "समस्तीपुर"], a: 0 },
+            { q: "छपरा किस प्रमंडल और जिले का मुख्य केंद्र है?", o: ["सारण", "तिरहूत", "दरभंगा", "कोसी"], a: 0 },
+            { q: "बिहार में ग्रामीण आबादी के अत्यधिक होने का मुख्य कारण क्या है?", o: ["कृषि पर अत्यधिक निर्भरता", "उद्योगों का आधिक्य", "समुद्री व्यापार", "खनन कार्य"], a: 0 },
+            { q: "बिहार में प्रति वर्ग किलोमीटर औसतन कितनी आबादी बसती है?", o: ["1106 व्यक्ति", "800 व्यक्ति", "500 व्यक्ति", "1500 व्यक्ति"], a: 0 },
+            { q: "बिहार में जनसंख्या वितरण की मुख्य विशेषता क्या है?", o: ["अत्यंत असमान वितरण", "पूर्णतः समान वितरण", "केवल पहाड़ों पर बसाव", "केवल वनों में बसाव"], a: 0 },
+            { q: "बिहार के मैदानी भागों में जनसंख्या का घनत्व कैसा पाया जाता है?", o: ["उच्च से सघन घनत्व", "अत्यंत विरल", "शून्य घनत्व", "पहाड़ी घनत्व"], a: 0 },
+            { q: "गंगा नदी के दोनों ओर के उपजाऊ मैदानी भागों में आबादी कैसी है?", o: ["सघन आबादी", "विरल आबादी", "कोई आबादी नहीं", "केवल मौसमी आबादी"], a: 0 },
+            { q: "बिहार के कैमूर के पठारी और पहाड़ी भागों में जनसंख्या घनत्व कैसा है?", o: ["विरल (कम)", "अत्यधिक सघन", "मध्यम", "भारत में सबसे अधिक"], a: 0 },
+            { q: "उत्तर बिहार के बाढ़ प्रभावित क्षेत्रों में जनसंख्या का बसाव कैसा रहता है?", o: ["ऊंचे स्थानों और तटबंधों के पास", "नदियों के बीच में", "गहरे गड्ढों में", "केवल वनों में"], a: 0 },
+            { q: "बिहार से दूसरे राज्यों में लोगों के पलायन (Migration) का मुख्य कारण क्या है?", o: ["रोजगार और शिक्षा की तलाश", "पर्यटन", "मौसम परिवर्तन", "व्यापार बिक्री"], a: 0 },
+            { q: "बिहार के ग्रामीण क्षेत्रों से पुरुषों के पलायन का प्रभाव किस पर पड़ा है?", o: ["कृषि में महिलाओं की भागीदारी बढ़ी है", "कृषि बंद हो गई", "कोई प्रभाव नहीं", "जनसंख्या घट गई"], a: 0 },
+            { q: "2011 में बिहार की कुल आबादी में बच्चों (0-6 वर्ष) का अनुपात लगभग कितना था?", o: ["लगभग 17.6 प्रतिशत", "10 प्रतिशत", "25 प्रतिशत", "30 प्रतिशत"], a: 0 },
+            { q: "2011 की जनगणना के अनुसार बिहार में शिशु लिंगानुपात (0-6 वर्ष) कितना दर्ज किया गया?", o: ["935", "918", "943", "900"], a: 0 },
+            { q: "बिहार का कौन सा जिला सर्वाधिक शिशु लिंगानुपात वाला जिला है?", o: ["किशनगंज", "गोपालगंज", "सिवान", "कैमूर"], a: 0 },
+            { q: "किशनगंज जिले में शिशु लिंगानुपात कितना दर्ज किया गया था?", o: ["971", "950", "930", "985"], a: 0 },
+            { q: "बिहार में सबसे कम शिशु लिंगानुपात किस जिले में पाया गया?", o: ["वैशाली", "मुजफ्फरपुर", "पटना", "मुंगेर"], a: 0 },
+            { q: "वैशाली जिले में शिशु लिंगानुपात कितना दर्ज हुआ था?", o: ["904", "880", "915", "890"], a: 0 },
+            { q: "बिहार में अनुसूचित जाति (SC) की जनसंख्या कुल आबादी का कितना प्रतिशत है?", o: ["लगभग 15.9 प्रतिशत", "25 प्रतिशत", "10 प्रतिशत", "5 प्रतिशत"], a: 0 },
+            { q: "बिहार में अनुसूचित जनजाति (ST) की जनसंख्या कुल आबादी का लगभग कितना प्रतिशत है?", o: ["लगभग 1.3 प्रतिशत", "8 प्रतिशत", "15 प्रतिशत", "5 प्रतिशत"], a: 0 },
+            { q: "बिहार के किस जिले में अनुसूचित जनजाति (ST) की आबादी का प्रतिशत सबसे अधिक है?", o: ["पश्चिम चंपारण", "कटिहार", "जमुई", "बांका"], a: 0 },
+            { q: "2001 से 2011 के दशक में बिहार के किस जिले में सबसे अधिक जनसंख्या वृद्धि दर्ज हुई?", o: ["मधेपुरा", "किशनगंज", "अररिया", "खगड़िया"], a: 0 },
+            { q: "मधेपुरा जिले में दशकीय जनसंख्या वृद्धि दर कितनी प्रतिशत रही?", o: ["31.12 प्रतिशत", "25.40 प्रतिशत", "35.00 प्रतिशत", "28.50 प्रतिशत"], a: 0 },
+            { q: "2001 से 2011 के दशक में बिहार के किस जिले में सबसे कम जनसंख्या वृद्धि हुई?", o: ["गोपालगंज", "दरभंगा", "मुंगेर", "रोहतास"], a: 0 },
+            { q: "गोपालगंज जिले में दशकीय जनसंख्या वृद्धि दर लगभग कितनी दर्ज हुई?", o: ["19.02 प्रतिशत", "25.40 प्रतिशत", "15.00 प्रतिशत", "21.10 प्रतिशत"], a: 0 },
+            { q: "बिहार में कार्यशील जनसंख्या (Working Population) का प्रतिशत लगभग कितना है?", o: ["लगभग 33.4 प्रतिशत", "50 प्रतिशत", "60 प्रतिशत", "20 प्रतिशत"], a: 0 },
+            { q: "बिहार में मुख्य श्रमिकों में सबसे बड़ा वर्ग किसका है?", o: ["कृषि मजदूरों का", "उद्योगपतियों का", "दुकानदारों का", "सरकारी कर्मचारियों का"], a: 0 },
+            { q: "स्मार्ट सिटी मिशन के तहत बिहार के किन शहरों का चयन किया गया है?", o: ["पटना, बिहारशरीफ, भागलपुर और मुजफ्फरपुर", "गया, कटिहार, पूर्णिया", "सासाराम, बेगूसराय", "दरभंगा, सहरसा"], a: 0 },
+            { q: "बिहार में नगरों के तीव्र विकास के लिए कौन सा बोर्ड/प्राधिकरण कार्य करता है?", o: ["नगर विकास एवं आवास विभाग", "कृषि बोर्ड", "वन विभाग", "खनन बोर्ड"], a: 0 },
+            { q: "बिहार में नगरीकरण की धीमी गति का मुख्य कारण क्या माना जाता है?", o: ["औद्योगीकरण का अभाव", "सड़कों का अभाव", "जल की कमी", "जनसंख्या की कमी"], a: 0 },
+            { q: "बिहार में कस्बों या नगरों की न्यूनतम जनसंख्या मानक सामान्यतः कितनी मानी जाती है?", o: ["5000 या अधिक", "1000", "50000", "100000"], a: 0 },
+            { q: "बिहार के किस जिले में साक्षरता दर में 2001 से 2011 के बीच सबसे तेज सुधार हुआ?", o: ["ईंट/भट्ठा और पूर्णिया क्षेत्र", "पटना", "गया", "रोहतास"], a: 0 },
+            { q: "बिहार में जनसांख्यिकीय लाभांश (Demographic Dividend) का क्या अर्थ है?", o: ["युवा आबादी का उच्च अनुपात", "वृद्ध आबादी अधिक होना", "शिशु दर अधिक होना", "केवल साक्षर आबादी"], a: 0 },
+            { q: "बिहार में मानव संसाधन विकास के लिए सबसे आवश्यक घटक क्या है?", o: ["गुणवत्तापूर्ण शिक्षा एवं स्वास्थ्य", "केवल नए भवन", "विदेश जाना", "केवल कृषि"], a: 0 },
+            { q: "2011 में बिहार का जनसंख्या घनत्व भारत के औसत घनत्व (382) से कितना अधिक था?", o: ["लगभग तीन गुना (1106)", "समान", "कम था", "दुगना"], a: 0 },
+            { q: "बिहार में जन घनत्व का मुख्य प्रभाव किस प्राकृतिक संसाधन पर पड़ता है?", o: ["भूमि एवं जल संसाधनों पर दबाव", "पहाड़ों पर", "खनिजों पर", "हवाई अड्डों पर"], a: 0 },
+            { q: "गंगा के मैदानी भाग में नगरों का विकास मुख्य रूप से कहाँ हुआ है?", o: ["नदियों के किनारे एवं परिवहन मार्गों पर", "घने जंगलों में", "ऊंची पहाड़ियों पर", "दलदली क्षेत्रों में"], a: 0 },
+            { q: "बिहार में नगरीय निकायों के चुनाव कितने वर्षों पर कराए जाते हैं?", o: ["5 वर्षों पर", "6 वर्षों पर", "4 वर्षों पर", "3 वर्षों पर"], a: 0 },
+            { q: "बिहार के किस जिले में पुरुषों की तुलना में महिलाओं की साक्षरता का अंतर सबसे कम है?", o: ["मुंगेर", "रोहतास", "पटना", "गया"], a: 0 },
+            { q: "बिहार में जनसंख्या नियंत्रण के लिए किस प्राथमिक सेवा को मजबूत किया जा रहा है?", o: ["स्वास्थ्य एवं बालिका शिक्षा", "केवल उद्योग", "केवल सड़क निर्माण", "केवल कृषि"], a: 0 },
+            { q: "बिहार की जनसंख्या का घनत्व और वितरण किस बात का संकेत देता है?", o: ["मानव संसाधन का विशाल भंडार", "पूर्ण आत्मनिर्भरता", "खनिज बाहुल्य", "औद्योगिक क्रांति"], a: 0 },
+            { q: "बिहार में सतत विकास हेतु जनसंख्या वृद्धि को संतुलित करना क्यों आवश्यक है?", o: ["संसाधनों के समुचित उपयोग हेतु", "केवल आंकड़े बदलने के लिए", "कर बढ़ाने के लिए", "विदेश भेजने के लिए"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions & Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 5(घ): बिहार - जनसंख्या एवं नगरीकरण (महा-क्विज़)</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">2011 जनगणना के आंकड़े, जनघनत्व, साक्षरता दर, लिंगानुपात, प्रमुख नगरों एवं प्रशासनिक संरचना पर आधारित 100 ऑटो-रैंडमाइज्ड प्रश्नों का इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने अध्याय 5(घ) के सभी प्रश्नों के सही उत्तर दिए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! आपकी बोर्ड परीक्षा की तैयारी बहुत मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! बिहार की जनसंख्या एवं जनगणना के आंकड़ों का पुनः अध्ययन करें।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 4: परिवहन, संचार एवं व्यापार क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "स्वतंत्रता प्राप्ति के समय भारत में सड़कों की कुल लंबाई लगभग कितनी थी?", o: ["1.46 लाख किमी", "2.42 लाख किमी", "3.88 लाख किमी", "5.76 लाख किमी"], a: 0 },
+            { q: "पक्की सड़कों की लंबाई की दृष्टि से भारत का कौन सा राज्य प्रथम स्थान पर है?", o: ["महाराष्ट्र", "उत्तर प्रदेश", "तमिलनाडु", "केरल"], a: 0 },
+            { q: "सड़कों के घनत्व की दृष्टि से भारत का कौन सा राज्य प्रथम स्थान पर है?", o: ["केरल", "महाराष्ट्र", "पंजाब", "पश्चिम बंगाल"], a: 0 },
+            { q: "भारत के किस राज्य में कच्ची सड़कों की लंबाई सबसे अधिक है?", o: ["ओडिशा", "बिहार", "मध्य प्रदेश", "राजस्थान"], a: 0 },
+            { q: "सड़क परिवहन की देखरेख के लिए सड़कों को कितने वर्गों में बांटा गया है?", o: ["छह", "चार", "पाँच", "तीन"], a: 0 },
+            { q: "स्वर्णिम चतुर्भुज महामार्ग की कुल लंबाई कितनी है?", o: ["5846 किमी", "4007 किमी", "6000 किमी", "5000 किमी"], a: 0 },
+            { q: "स्वर्णिम चतुर्भुज महामार्ग किन चार महानगरों को आपस में जोड़ता है?", o: ["दिल्ली-मुंबई-चेन्नई-कोलकाता", "दिल्ली-कानपुर-पटना-कोलकाता", "मुंबई-पुणे-बेंगलुरु-चेन्नई", "दिल्ली-अमृतसर-जयपुर-मुंबई"], a: 0 },
+            { q: "उत्तर-दक्षिण गलियारा किन दो शहरों को आपस में जोड़ता है?", o: ["श्रीनगर को कन्याकुमारी से", "सिलचर को पोरबंदर से", "दिल्ली को चेन्नई से", "जम्मू को कोच्चि से"], a: 0 },
+            { q: "पूर्व-पश्चिम गलियारा किन दो स्थानों को जोड़ता है?", o: ["सिलचर से पोरबंदर", "गुवाहाटी से अहमदाबाद", "कोलकाता से सूरत", "अरुणाचल से गुजरात"], a: 0 },
+            { q: "राष्ट्रीय राजमार्गों के निर्माण एवं रखरखाव की जिम्मेदारी किसकी होती है?", o: ["केंद्र सरकार", "राज्य सरकार", "जिला परिषद", "नगर निगम"], a: 0 },
+            { q: "भारत का सबसे लंबा राष्ट्रीय राजमार्ग कौन सा है?", o: ["राष्ट्रीय राजमार्ग 44", "राष्ट्रीय राजमार्ग 7", "राष्ट्रीय राजमार्ग 1", "राष्ट्रीय राजमार्ग 2"], a: 0 },
+            { q: "ग्रैंड ट्रंक रोड (GT Road) का निर्माण किस शासक ने करवाया था?", o: ["शेरशाह सूरी", "अकबर", "चंद्रगुप्त मौर्य", "शाहजहाँ"], a: 0 },
+            { q: "ऐतिहासिक ग्रैंड ट्रंक रोड को वर्तमान में किन राष्ट्रीय राजमार्गों के रूप में जाना जाता है?", o: ["NH 1 और NH 2", "NH 7 और NH 8", "NH 44 और NH 48", "NH 5 और NH 6"], a: 0 },
+            { q: "राज्य राजमार्गों के निर्माण एवं रखरखाव की जिम्मेदारी किसकी होती है?", o: ["राज्य सरकार", "केंद्र सरकार", "ग्राम पंचायत", "केंद्रीय लोक निर्माण विभाग"], a: 0 },
+            { q: "सीमांत सड़कों का निर्माण एवं प्रबंधन कौन सी संस्था करती है?", o: ["सीमा सड़क संगठन", "भारतीय राष्ट्रीय राजमार्ग प्राधिकरण", "राज्य लोक निर्माण विभाग", "गृह मंत्रालय"], a: 0 },
+            { q: "सीमा सड़क संगठन (BRO) की स्थापना किस वर्ष हुई थी?", o: ["1960", "1950", "1972", "1985"], a: 0 },
+            { q: "एक्सप्रेस-वे किस प्रकार के सड़क मार्ग का उदाहरण है?", o: ["उच्च गति वाले द्रुत मार्ग", "ग्रामीण कच्ची सड़कें", "पहाड़ी पगडंडियाँ", "सीमांत मार्ग"], a: 0 },
+            { q: "प्रधानमंत्री ग्राम सड़क योजना का मुख्य उद्देश्य क्या है?", o: ["गांवों को पक्की सड़कों से जोड़ना", "राजधानियों को जोड़ना", "बंदरगाहों को जोड़ना", "विदेशों से जोड़ना"], a: 0 },
+            { q: "भारत में पहली रेलगाड़ी किस वर्ष चलाई गई थी?", o: ["1853", "1854", "1905", "1947"], a: 0 },
+            { q: "भारत में पहली रेलगाड़ी किन दो स्टेशनों के बीच चली थी?", o: ["मुंबई से ठाणे", "कोलकाता से रानीगंज", "दिल्ली से आगरा", "चेन्नई से अराकोणम"], a: 0 },
+            { q: "मुंबई से ठाणे के बीच चलाई गई पहली रेलगाड़ी ने कितनी दूरी तय की थी?", o: ["34 किमी", "42 किमी", "50 किमी", "28 किमी"], a: 0 },
+            { q: "भारतीय रेल मार्ग को प्रशासनिक सुविधा के लिए कितने ज़ोन में बांटा गया है?", o: ["18 ज़ोन", "16 ज़ोन", "12 ज़ोन", "20 ज़ोन"], a: 0 },
+            { q: "उत्तर रेलवे का मुख्यालय कहाँ स्थित है?", o: ["नई दिल्ली", "गोरखपुर", "कोलकाता", "जयपुर"], a: 0 },
+            { q: "पूर्व रेलवे का मुख्यालय किस शहर में स्थित है?", o: ["कोलकाता", "हाजीपुर", "भुवनेश्वर", "गुवाहाटी"], a: 0 },
+            { q: "पूर्व मध्य रेलवे का मुख्यालय कहाँ स्थित है?", o: ["हाजीपुर", "पटना", "मुजफ्फरपुर", "कटिहार"], a: 0 },
+            { q: "दक्षिण रेलवे का मुख्यालय किस नगर में स्थित है?", o: ["चेन्नई", "सिकंदराबाद", "बेंगलुरु", "कोच्चि"], a: 0 },
+            { q: "पश्चिम रेलवे का मुख्यालय कहाँ स्थित है?", o: ["मुंबई चर्चगेट", "मुंबई वीटी", "अहमदाबाद", "सूरत"], a: 0 },
+            { q: "मध्य रेलवे का मुख्यालय किस स्थान पर स्थित है?", o: ["मुंबई सीएसएमटी", "नागपुर", "भोपाल", "पुणे"], a: 0 },
+            { q: "पूर्वोत्तर रेलवे का मुख्यालय किस शहर में स्थित है?", o: ["गोरखपुर", "गुवाहाटी", "प्रयागराज", "लखनऊ"], a: 0 },
+            { q: "भारतीय रेलवे में बड़ी लाइन (Broad Gauge) की चौड़ाई कितनी होती है?", o: ["1.676 मीटर", "1.000 मीटर", "0.762 मीटर", "0.610 मीटर"], a: 0 },
+            { q: "मीटर लाइन (Meter Gauge) की पटरियों के बीच की दूरी कितनी होती है?", o: ["1.000 मीटर", "1.676 मीटर", "0.762 मीटर", "1.200 मीटर"], a: 0 },
+            { q: "छोटी लाइन (Narrow Gauge) की पटरियों की चौड़ाई मुख्य रूप से कितनी होती है?", o: ["0.762 मीटर", "1.676 मीटर", "1.000 मीटर", "2.000 मीटर"], a: 0 },
+            { q: "भारत में पहली मेट्रो रेल सेवा किस शहर में शुरू की गई थी?", o: ["कोलकाता", "दिल्ली", "मुंबई", "बेंगलुरु"], a: 0 },
+            { q: "कोलकाता में मेट्रो रेल सेवा किस वर्ष प्रारंभ हुई थी?", o: ["1984", "1992", "2002", "1974"], a: 0 },
+            { q: "दिल्ली में मेट्रो रेल सेवा की शुरुआत किस वर्ष हुई थी?", o: ["2002", "1998", "2005", "2010"], a: 0 },
+            { q: "कोंकण रेलवे किन राज्यों से होकर गुजरती है?", o: ["महाराष्ट्र, गोवा, कर्नाटक", "गुजरात, राजस्थान, पंजाब", "केरल, तमिलनाडु, आंध्र प्रदेश", "ओडिशा, पश्चिम बंगाल, असम"], a: 0 },
+            { q: "निम्नलिखित में से परिवहन का सबसे सस्ता साधन कौन सा है?", o: ["जल परिवहन", "सड़क परिवहन", "रेल परिवहन", "वायु परिवहन"], a: 0 },
+            { q: "परिवहन का सबसे तीव्र और महंगा साधन कौन सा है?", o: ["वायु परिवहन", "जल परिवहन", "सड़क परिवहन", "पाइपलाइन"], a: 0 },
+            { q: "भारत के आंतरिक जलमार्ग प्राधिकरण (IWAI) का गठन किस वर्ष हुआ था?", o: ["1986", "1988", "1995", "1990"], a: 0 },
+            { q: "राष्ट्रीय जलमार्ग संख्या 1 (NW 1) किन दो स्थानों को जोड़ता है?", o: ["प्रयागराज से हलदिया", "सदिया से धुबरी", "कोट्टपुरम से कोल्लम", "काकीनाडा से पुडुचेरी"], a: 0 },
+            { q: "राष्ट्रीय जलमार्ग संख्या 1 किस नदी पर स्थित है?", o: ["गंगा नदी", "ब्रह्मपुत्र नदी", "गोदावरी नदी", "नर्मदा नदी"], a: 0 },
+            { q: "राष्ट्रीय जलमार्ग संख्या 2 (NW 2) किस नदी पर विकसित है?", o: ["ब्रह्मपुत्र नदी", "गंगा नदी", "कृष्ण नदी", "कावेरी नदी"], a: 0 },
+            { q: "भारत के समुद्री तट पर कितने बड़े (प्रमुख) बंदरगाह हैं?", o: ["12 बड़े बंदरगाह", "6 बड़े बंदरगाह", "18 बड़े बंदरगाह", "25 बड़े बंदरगाह"], a: 0 },
+            { q: "भारत का सबसे बड़ा और प्रमुख प्राकृतिक बंदरगाह कौन सा है?", o: ["मुंबई बंदरगाह", "कांदला बंदरगाह", "चेन्नई बंदरगाह", "कोलकाता बंदरगाह"], a: 0 },
+            { q: "कांदला बंदरगाह किस राज्य में स्थित है?", o: ["गुजरात", "महाराष्ट्र", "गोवा", "कर्नाटक"], a: 0 },
+            { q: "कांदला बंदरगाह का नया नाम क्या रखा गया है?", o: ["दीनदयाल बंदरगाह", "श्यामा प्रसाद मुखर्जी बंदरगाह", "नेहरू बंदरगाह", "इंदिरा गांधी बंदरगाह"], a: 0 },
+            { q: "नेहरू (नावा शेवा) बंदरगाह किस राज्य में स्थित है?", o: ["महाराष्ट्र", "गुजरात", "केरल", "तमिलनाडु"], a: 0 },
+            { q: "भारत का सबसे पुराना कृत्रिम बंदरगाह कौन सा है?", o: ["चेन्नई बंदरगाह", "मुंबई बंदरगाह", "कोच्चि बंदरगाह", "पारादीप बंदरगाह"], a: 0 },
+            { q: "पारादीप बंदरगाह किस राज्य के तट पर स्थित है?", o: ["ओडिशा", "पश्चिम बंगाल", "आंध्र प्रदेश", "तमिलनाडु"], a: 0 },
+            { q: "विशाखापत्तनम बंदरगाह किस राज्य में स्थित है?", o: ["आंध्र प्रदेश", "तमिलनाडु", "ओडिशा", "केरल"], a: 0 },
+            { q: "भारत का सबसे गहरा और सुरक्षित प्राकृतिक बंदरगाह कौन सा माना जाता है?", o: ["विशाखापत्तनम", "चेन्नई", "कांदला", "तुतिकोरिन"], a: 0 },
+            { q: "मर्मगाओ बंदरगाह किस राज्य में स्थित है?", o: ["गोवा", "कर्नाटक", "महाराष्ट्र", "केरल"], a: 0 },
+            { q: "न्यू मंगलौर बंदरगाह किस राज्य में स्थित है?", o: ["कर्नाटक", "केरल", "तमिलनाडु", "गोवा"], a: 0 },
+            { q: "कोच्चि बंदरगाह किस राज्य में स्थित है?", o: ["केरल", "तमिलनाडु", "कर्नाटक", "आंध्र प्रदेश"], a: 0 },
+            { q: "कोलकाता बंदरगाह किस नदी के किनारे स्थित एक नदीय बंदरगाह है?", o: ["हुगली नदी", "गंगा नदी", "दामोदर नदी", "सुवर्णरेखा नदी"], a: 0 },
+            { q: "हल्दिया बंदरगाह किस राज्य में स्थित है?", o: ["पश्चिम बंगाल", "ओडिशा", "बिहार", "झारखंड"], a: 0 },
+            { q: "एनौर बंदरगाह किस राज्य में स्थित भारत का पहला निगमित बंदरगाह है?", o: ["तमिलनाडु", "आंध्र प्रदेश", "केरल", "कर्नाटक"], a: 0 },
+            { q: "भारत में वायु परिवहन का राष्ट्रीयकरण किस वर्ष किया गया था?", o: ["1953", "1947", "1962", "1971"], a: 0 },
+            { q: "भारत में डाक सेवा की शुरुआत किस वर्ष हुई थी?", o: ["1837", "1854", "1911", "1947"], a: 0 },
+            { q: "भारत में स्पीड पोस्ट सेवा की शुरुआत किस वर्ष हुई थी?", o: ["1986", "1990", "1998", "1975"], a: 0 },
+            { q: "भारत को कुल कितने डाक क्षेत्रों (Postal Zones) में बांटा गया है?", o: ["8 डाक क्षेत्र", "6 डाक क्षेत्र", "10 डाक क्षेत्र", "12 डाक क्षेत्र"], a: 0 },
+            { q: "पिन कोड (PIN Code) में कुल कितने अंक होते हैं?", o: ["6 अंक", "5 अंक", "8 अंक", "4 अंक"], a: 0 },
+            { q: "बिहार का डाक क्षेत्र किस ज़ोन के अंतर्गत आता है?", o: ["ज़ोन 8", "ज़ोन 1", "ज़ोन 3", "ज़ोन 5"], a: 0 },
+            { q: "भारत में दूरदर्शन की शुरुआत किस वर्ष हुई थी?", o: ["1959", "1972", "1982", "1950"], a: 0 },
+            { q: "दूरदर्शन का राष्ट्रीय प्रसारण किस वर्ष प्रारंभ हुआ था?", o: ["1982", "1975", "1990", "1965"], a: 0 },
+            { q: "ऑल इंडिया रेडियो का नाम बदलकर 'आकाशवाणी' किस वर्ष किया गया?", o: ["1957", "1950", "1960", "1971"], a: 0 },
+            { q: "भारत में इंटरनेट सेवा की सार्वजनिक शुरुआत किस वर्ष हुई थी?", o: ["1995", "1990", "2000", "1988"], a: 0 },
+            { q: "पाइपलाइन परिवहन का उपयोग मुख्य रूप से किस पदार्थ के लिए किया जाता है?", o: ["द्रव एवं गैस", "ठोस सामान", "यात्री", "अनाज"], a: 0 },
+            { q: "भारत की सबसे प्रसिद्ध हजीरा-विजयपुर-जगदीशपुर (HVJ) किस प्रकार की लाइन है?", o: ["गैस पाइपलाइन", "तेल पाइपलाइन", "जल पाइपलाइन", "सीवर पाइपलाइन"], a: 0 },
+            { q: "दो या दो से अधिक देशों के बीच होने वाले व्यापार को क्या कहते हैं?", o: ["अंतर्राष्ट्रीय व्यापार", "आंतरिक व्यापार", "स्थानीय व्यापार", "राज्यीय व्यापार"], a: 0 },
+            { q: "एक देश के भीतर विभिन्न राज्यों या शहरों के बीच व्यापार क्या कहलाता है?", o: ["आंतरिक व्यापार", "अंतर्राष्ट्रीय व्यापार", "मुक्त व्यापार", "द्विपक्षीय व्यापार"], a: 0 },
+            { q: "विदेशों से सामान मंगाने की प्रक्रिया को क्या कहते हैं?", o: ["आयात", "निर्यात", "पुनर्निर्यात", "चुंगी"], a: 0 },
+            { q: "देश से सामान विदेशों में बेचने की प्रक्रिया क्या कहलाती है?", o: ["निर्यात", "आयात", "सट्टा", "भंडारण"], a: 0 },
+            { q: "आयात और निर्यात के अंतर को क्या कहा जाता है?", o: ["व्यापार संतुलन", "भुगतान संतुलन", "व्यापार घाटा", "सकल लाभ"], a: 0 },
+            { q: "यदि निर्यात का मूल्य आयात से अधिक हो तो व्यापार संतुलन कैसा होगा?", o: ["अनुकूल व्यापार संतुलन", "प्रतिकूल व्यापार संतुलन", "संतुलित व्यापार", "शून्य व्यापार"], a: 0 },
+            { q: "यदि आयात का मूल्य निर्यात से अधिक हो तो व्यापार संतुलन कैसा होगा?", o: ["प्रतिकूल व्यापार संतुलन", "अनुकूल व्यापार संतुलन", "समान व्यापार", "लाभकारी व्यापार"], a: 0 },
+            { q: "विश्व व्यापार संगठन (WTO) का मुख्यालय कहाँ स्थित है?", o: ["जेनेवा", "न्यूयॉर्क", "पेरिस", "लंदन"], a: 0 },
+            { q: "विश्व व्यापार संगठन (WTO) की स्थापना किस वर्ष हुई थी?", o: ["1995", "1948", "1990", "2001"], a: 0 },
+            { q: "विशेष आर्थिक क्षेत्र (SEZ) का मुख्य उद्देश्य क्या बढ़ावा देना है?", o: ["विदेशी निवेश और निर्यात", "कृषि उत्पादन", "जनसंख्या नियंत्रण", "सरकारी नौकरियां"], a: 0 },
+            { q: "फाल्टा विशेष आर्थिक क्षेत्र (SEZ) किस राज्य में स्थित है?", o: ["पश्चिम बंगाल", "ओडिशा", "बिहार", "गुजरात"], a: 0 },
+            { q: "नोएडा विशेष आर्थिक क्षेत्र (SEZ) किस राज्य में स्थित है?", o: ["उत्तर प्रदेश", "हरियाणा", "दिल्ली", "राजस्थान"], a: 0 },
+            { q: "सूरत विशेष आर्थिक क्षेत्र किस राज्य में स्थित है?", o: ["गुजरात", "महाराष्ट्र", "राजस्थान", "मध्य प्रदेश"], a: 0 },
+            { q: "सांताक्रुज विशेष आर्थिक क्षेत्र किस शहर के पास स्थित है?", o: ["मुंबई", "चेन्नई", "कोलकाता", "अहमदाबाद"], a: 0 },
+            { q: "कोच्चि विशेष आर्थिक क्षेत्र किस राज्य में स्थित है?", o: ["केरल", "तमिलनाडु", "कर्नाटक", "गोवा"], a: 0 },
+            { q: "इंदिरा गांधी अंतरराष्ट्रीय हवाई अड्डा किस शहर में स्थित है?", o: ["नई दिल्ली", "मुंबई", "कोलकाता", "चेन्नई"], a: 0 },
+            { q: "छत्रपति शिवाजी अंतरराष्ट्रीय हवाई अड्डा किस नगर में है?", o: ["मुंबई", "पुणे", "नागपुर", "अहमदाबाद"], a: 0 },
+            { q: "नेताजी सुभाष चंद्र बोस अंतरराष्ट्रीय हवाई अड्डा कहाँ स्थित है?", o: ["कोलकाता", "ढाका", "गुवाहाटी", "सिलचर"], a: 0 },
+            { q: "चेन्नई में स्थित अंतरराष्ट्रीय हवाई अड्डे का क्या नाम है?", o: ["मीनांबक्कम", "राजीव गांधी", "कैम्पेगौड़ा", "कोचीन"], a: 0 },
+            { q: "जयप्रकाश नारायण अंतरराष्ट्रीय हवाई अड्डा कहाँ स्थित है?", o: ["पटना", "गया", "रांची", "वाराणसी"], a: 0 },
+            { q: "राजा सांसी (श्री गुरु रामदास जी) अंतरराष्ट्रीय हवाई अड्डा कहाँ है?", o: ["अमृतसर", "चंडीगढ़", "लुधियाना", "जालंधर"], a: 0 },
+            { q: "राजीव गांधी अंतरराष्ट्रीय हवाई अड्डा किस शहर में स्थित है?", o: ["हैदराबाद", "बेंगलुरु", "कोच्चि", "तिरुवनंतपुरम"], a: 0 },
+            { q: "पवन हंस लिमिटेड किस क्षेत्र में अपनी सेवा प्रदान करता है?", o: ["हेलिकॉप्टर सेवा", "समुद्री जहाज सेवा", "रेल सेवा", "बस सेवा"], a: 0 },
+            { q: "भारत में पहली हवाई डाक सेवा किन दो स्थानों के बीच शुरू हुई थी?", o: ["इलाहाबाद से नैनी", "दिल्ली से आगरा", "मुंबई से पुणे", "कोलकाता से ढाका"], a: 0 },
+            { q: "इलाहाबाद से नैनी के बीच पहली हवाई डाक सेवा किस वर्ष चलाई गई?", o: ["1911", "1925", "1932", "1905"], a: 0 },
+            { q: "सड़क दुर्घटनाओं को कम करने के लिए स्वर्णिम चतुर्भुज पर कौन सी व्यवस्था है?", o: ["लेन अनुशासन और डिवाइडर", "स्पीड ब्रेकर", "कच्ची पटरी", "एकल मार्ग"], a: 0 },
+            { q: "सॉफ्टवेयर निर्यात की दृष्टि से भारत का विश्व में कौन सा स्थान उभर रहा है?", o: ["प्रमुख अग्रणी देश", "अंतिम स्थान", "सामान्य स्थान", "कोई योगदान नहीं"], a: 0 },
+            { q: "भारत में संचार का सबसे लोकप्रिय और व्यक्तिगत साधन वर्तमान में कौन सा है?", o: ["मोबाइल फोन", "फैक्स", "डाकघर", "तार सेवा"], a: 0 },
+            { q: "दूरदर्शन द्वारा प्रसारित कार्यक्रमों का मुख्य उद्देश्य क्या होता है?", o: ["सूचना, शिक्षा और मनोरंजन", "केवल व्यापार", "केवल खेल का प्रसार", "राजनीतिक प्रचार"], a: 0 },
+            { q: "भारत का कौन सा बंदरगाह 'जवाहरलाल नेहरू पोर्ट' के नाम से जाना जाता है?", o: ["नावा शेवा", "कांदला", "एनौर", "तुतिकोरिन"], a: 0 },
+            { q: "परिवहन को किसी देश की अर्थव्यवस्था की क्या कहा जाता है?", o: ["जीवन रेखा", "मजबूरी", "अनावश्यक खर्च", "अवरोध"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions & Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 4: परिवहन, संचार एवं व्यापार (महा-क्विज़)</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">सड़क, रेल, जल, वायु परिवहन, संचार साधनों एवं अंतर्राष्ट्रीय व्यापार पर आधारित 100 ऑटो-रैंडमाइज्ड प्रश्नों का इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने अध्याय 4 के सभी प्रश्नों के सही उत्तर दिए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा हेतु आपकी तैयारी बहुत मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ्यपुस्तक के आंकड़ों एवं बंदरगाहों का पुनः अध्ययन करें।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

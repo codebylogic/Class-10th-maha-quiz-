@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 5(ख): बिहार - खनिज एवं ऊर्जा संसाधन क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "बिहार विभाजन (15 नवंबर 2000) के बाद अधिकांश खनिज संपदा किस राज्य में चली गई?", o: ["झारखंड", "ओडिशा", "पश्चिम बंगाल", "छत्तीसगढ़"], a: 0 },
+            { q: "पाइराइट उत्पादन में भारत में बिहार का कौन सा स्थान है?", o: ["प्रथम स्थान", "द्वितीय स्थान", "तृतीय स्थान", "चतुर्थ स्थान"], a: 0 },
+            { q: "बिहार में पाइराइट का सर्वाधिक खनन किस जिले में होता है?", o: ["रोहतास", "कैमूर", "गया", "मुंगेर"], a: 0 },
+            { q: "पाइराइट का उपयोग मुख्य रूप से किस उद्योग में किया जाता है?", o: ["सल्फर एवं गंधक का तेजाब", "सीमेंट उद्योग", "लोहा-इस्पात", "कांच उद्योग"], a: 0 },
+            { q: "बिहार में पाइराइट का कुल संचित भंडार किस घाटी में स्थित है?", o: ["सोन नदी घाटी (अमझोर)", "गंगा घाटी", "कोसी घाटी", "पुनपुन घाटी"], a: 0 },
+            { q: "अमझोर खनिज क्षेत्र बिहार के किस जिले में स्थित है?", o: ["रोहतास", "औरंगाबाद", "नवादा", "कैमूर"], a: 0 },
+            { q: "बिहार के रोहतास और कैमूर जिलों में कौन सा अधात्विक खनिज बहुतायत में पाया जाता है?", o: ["चूना पत्थर", "बॉक्साइट", "सोना", "मैंगनीज"], a: 0 },
+            { q: "चूना पत्थर का सबसे बड़ा उपभोक्ता कौन सा उद्योग है?", o: ["सीमेंट उद्योग", "कागज उद्योग", "चीनी उद्योग", "कपड़ा उद्योग"], a: 0 },
+            { q: "बिहार में सीमेन्ट का प्रमुख कारखाना किस स्थान पर स्थित है?", o: ["डालमियानगर (बंजारी)", "पटना", "गया", "मुजफ्फरपुर"], a: 0 },
+            { q: "डालमियानगर बिहार के किस जिले में स्थित एक प्रमुख औद्योगिक केंद्र है?", o: ["रोहतास", "भोजपुर", "बक्सर", "कैमूर"], a: 0 },
+            { q: "बिहार में अभ्रक (मायका) मुख्य रूप से किन जिलों में पाया जाता है?", o: ["नवादा और जमुई", "पूर्णिया और कटिहार", "सिवान और गोपालगंज", "पश्चिम चंपारण"], a: 0 },
+            { q: "नवादा जिले का रजौली क्षेत्र किस खनिज के खनन के लिए प्रसिद्ध है?", o: ["अभ्रक", "कोयला", "लोहा", "सोना"], a: 0 },
+            { q: "अभ्रक किस प्रकार का खनिज माना जाता है?", o: ["अधात्विक एवं कुचालक", "धात्विक एवं सुचालक", "ईंधन खनिज", "दुर्लभ मृदा तत्व"], a: 0 },
+            { q: "बिहार के जमुई जिले के कर्मटिया क्षेत्र में किस बहुमूल्य धातु का भंडार मिला है?", o: ["सोना", "चांदी", "प्लेटिनम", "हीरा"], a: 0 },
+            { q: "भारत के कुल अनुमानित स्वर्ण भंडार का बड़ा हिस्सा बिहार के किस जिले में केंद्रित है?", o: ["जमुई", "गया", "मुंगेर", "रोहतास"], a: 0 },
+            { q: "बॉक्साइट खनिज बिहार के किस जिले की पहाड़ियों में पाया जाता है?", o: ["मुंगेर (खड़कपुर पहाड़िया)", "रोहतास", "नवादा", "किशनगंज"], a: 0 },
+            { q: "खड़कपुर की पहाड़ियां बिहार के किस जिले में स्थित हैं?", o: ["मुंगेर", "भागलपुर", "जमुई", "बांका"], a: 0 },
+            { q: "क्वार्ट्ज़ या सिलिका सैंड बिहार के किन जिलों में पाया जाता है?", o: ["मुंगेर, जमुई और नवादा", "रोहतास और कैमूर", "सारण और सिवान", "दरभंगा और मधुबनी"], a: 0 },
+            { q: "चीनी मिट्टी (चाइना क्ले) का जमाव बिहार के किस जिले में मिलता है?", o: ["भागलपुर और मुंगेर", "रोहतास", "पटना", "बक्सर"], a: 0 },
+            { q: "भागलपुर का पैंतीस और कहलगांव क्षेत्र किस खनिज के लिए प्रसिद्ध है?", o: ["चीनी मिट्टी", "पाइराइट", "जिप्सम", "कोयला"], a: 0 },
+            { q: "साबुन पत्थर (स्टीटाइट/टैल्क) बिहार के किस जिले में पाया जाता है?", o: ["मुंगेर", "गया", "कैमूर", "सहरसा"], a: 0 },
+            { q: "सोरा (पोटेशियम नाइट्रेट) का उपयोग मुख्य रूप से किस निर्माण में होता है?", o: ["विस्फोटक एवं बारूद", "सीमेंट", "कांच", "प्लास्टिक"], a: 0 },
+            { q: "ऐतिहासिक रूप से बिहार का कौन सा क्षेत्र सोरा उत्पादन के लिए विख्यात था?", o: ["उत्तर एवं मध्य बिहार", "दक्षिणी पठार", "तराई क्षेत्र", "कैमूर का पठार"], a: 0 },
+            { q: "स्लेट (Slate) खनिज बिहार के किस जिले में पाया जाता है?", o: ["मुंगेर", "नवादा", "रोहतास", "औरंगाबाद"], a: 0 },
+            { q: "मोनोसाइट आणविक खनिज बिहार के किस जिले में थोड़ा पाया जाता है?", o: ["गया और मुंगेर", "रोहतास", "पूर्णिया", "गोपालगंज"], a: 0 },
+            { q: "युरेनियम के अंश बिहार के किस जिले के चट्टानों में मिले हैं?", o: ["गया", "पटना", "दरभंगा", "कटिहार"], a: 0 },
+            { q: "बिहार में खनिज तेल एवं प्राकृतिक गैस मिलने की संभावना किस क्षेत्र में है?", o: ["गंगा की द्रोणी (गंगा बेसिन)", "कैमूर पठार", "खड़कपुर पहाड़ी", "सोन घाटी"], a: 0 },
+            { q: "बिहार में पूर्णिया और कटिहार जिलों में किस ऊर्जा संसाधन की खोज जारी है?", o: ["पेट्रोलियम एवं प्राकृतिक गैस", "कोयला", "आणविक ऊर्जा", "भू-तापीय ऊर्जा"], a: 0 },
+            { q: "बिहार में कोयले का थोड़ा बहुत भंडार किस जिले के सीमांत भाग में मिलता है?", o: ["भागलपुर (कहलगांव)", "रोहतास", "कैमूर", "वैशाली"], a: 0 },
+            { q: "बिहार में कुल विद्युत उत्पादन क्षमता का सबसे बड़ा हिस्सा किस स्रोत से आता है?", o: ["ताप विद्युत (थर्मल पावर)", "जल विद्युत", "सौर ऊर्जा", "पवन ऊर्जा"], a: 0 },
+            { q: "कहलगांव तापीय विद्युत गृह (KSTPP) बिहार के किस जिले में स्थित है?", o: ["भागलपुर", "मुंगेर", "बांका", "कटिहार"], a: 0 },
+            { q: "कहलगांव ताप विद्युत गृह का संचालन किस राष्ट्रीय संस्था द्वारा किया जाता है?", o: ["NTPC", "NHPC", "NHAI", "GAIL"], a: 0 },
+            { q: "कांटी तापीय विद्युत परियोजना बिहार के किस जिले में स्थित है?", o: ["मुजफ्फरपुर", "वैशाली", "सीतामढ़ी", "समस्तीपुर"], a: 0 },
+            { q: "नवीनगर तापीय विद्युत परियोजना बिहार के किस जिले में स्थित है?", o: ["औरंगाबाद", "गया", "नवादा", "रोहतास"], a: 0 },
+            { q: "बरौनी ताप विद्युत गृह बिहार के किस जिले में स्थित है?", o: ["बेगूसराय", "पटना", "खगड़िया", "मुंगेर"], a: 0 },
+            { q: "बरौनी ताप विद्युत गृह की स्थापना किस देश के सहयोग से हुई थी?", o: ["रूस (सोवियत संघ)", "अमेरिका", "जर्मनी", "ब्रिटेन"], a: 0 },
+            { q: "बाढ़ (Barh) सुपर थर्मल पावर प्रोजेक्ट किस जिले में स्थित है?", o: ["पटना", "नालंदा", "मुंगेर", "भोजपुर"], a: 0 },
+            { q: "बाढ़ ताप विद्युत गृह का निर्माण किस कंपनी द्वारा कराया गया है?", o: ["NTPC", "BHEL", "Reliance", "Tata Power"], a: 0 },
+            { q: "बिहार राज्य विद्युत बोर्ड (BSERB) का गठन किस वर्ष हुआ था?", o: ["1958", "1950", "1962", "1972"], a: 0 },
+            { q: "बिहार राज्य जल विद्युत निगम (BHPC) की स्थापना किस वर्ष की गई थी?", o: ["1982", "1975", "1990", "1998"], a: 0 },
+            { q: "सोन नदी पर स्थित जल विद्युत केंद्र कहाँ स्थापित किया गया है?", o: ["डेहरी (डेहरी-ऑन-सोन)", "वाल्मीकिनगर", "भीमनगर", "कटिहार"], a: 0 },
+            { q: "पश्चिम चंपारण के वाल्मीकिनगर में किस प्रकार की विद्युत परियोजना है?", o: ["जल विद्युत परियोजना", "ताप विद्युत परियोजना", "आणविक परियोजना", "सौर ऊर्जा परियोजना"], a: 0 },
+            { q: "कोसी नदी पर जल विद्युत उत्पादन केंद्र किस स्थान पर स्थापित है?", o: ["कटैया", "डेहरी", "कांटी", "कहलगांव"], a: 0 },
+            { q: "अगानूर लघु जल विद्युत परियोजना किस जिले में स्थित है?", o: ["अरवल", "रोहतास", "औरंगाबाद", "गया"], a: 0 },
+            { q: "देहरी जल विद्युत केंद्र किस नहर प्रणाली पर स्थित है?", o: ["पश्चिम सोन नहर", "पूर्वी सोन नहर", "गंडक नहर", "कोसी नहर"], a: 0 },
+            { q: "बारुण जल विद्युत परियोजना बिहार के किस जिले में है?", o: ["औरंगाबाद", "गया", "रोहतास", "नवादा"], a: 0 },
+            { q: "बिहार में बहुउद्देशीय परियोजनाओं का मुख्य उद्देश्य क्या है?", o: ["सिंचाई, बाढ़ नियंत्रण और विद्युत", "केवल मत्स्य पालन", "केवल नौकायन", "केवल पेयजल"], a: 0 },
+            { q: "गैर-परंपरागत ऊर्जा स्रोतों में बिहार में किसकी सबसे अधिक संभावना है?", o: ["सौर ऊर्जा एवं बायोगैस", "ज्वारीय ऊर्जा", "भू-तापीय ऊर्जा", "पवन ऊर्जा"], a: 0 },
+            { q: "बिहार में सौर ऊर्जा को बढ़ावा देने के लिए कौन सी एजेंसी कार्यरत है?", o: ["BREDA", "NTPC", "BSPHCL", "NHPC"], a: 0 },
+            { q: "ब्रेडा (BREDA) का पूरा नाम क्या है?", o: ["बिहार रिन्यूएबल एनर्जी डेवलपमेंट एजेंसी", "बिहार रोड डेवलपमेंट अथॉरिटी", "बिहार रूरल इलेक्ट्रिफिकेशन एजेंसी", "बिहार रिसोर्स डेवलपमेंट बोर्ड"], a: 0 },
+            { q: "बिहार के किस जिले में 'फ्लोटिंग सोलर पावर प्लांट' (तैरता सौर संयंत्र) बनाया गया है?", o: ["दरभंगा एवं सुपौल", "पटना", "रोहतास", "गया"], a: 0 },
+            { q: "दरभंगा के कादिराबाद में बने तैरते सौर संयंत्र की क्या विशेषता है?", o: ["तालाब के जल पर तैरता पैनल", "पहाड़ पर स्थित", "छत पर लगा पैनल", "नहर के किनारे"], a: 0 },
+            { q: "बिहार में बायोगैस (गोबर गैस) का मुख्य कच्चा माल क्या है?", o: ["पशुओं का गोबर एवं कचरा", "कोयला", "लकड़ी", "प्लास्टिक"], a: 0 },
+            { q: "बिहार के ग्रामीण क्षेत्रों में प्रकाश हेतु किस स्वच्छ ऊर्जा का प्रसार किया जा रहा है?", o: ["सौर स्ट्रीट लाइट", "केरोसिन लैंप", "जनरेटर", "डीजल पंप"], a: 0 },
+            { q: "राजगीर और मुंगेर के गर्म जल के कुंडों में किस ऊर्जा की संभावना जताई गई है?", o: ["भू-तापीय ऊर्जा", "ज्वारीय ऊर्जा", "आणविक ऊर्जा", "पवन ऊर्जा"], a: 0 },
+            { q: "गया का ब्रह्मयोनि पहाड़ी क्षेत्र किस ऊर्जा के विकास के लिए चर्चा में रहता है?", o: ["सौर ऊर्जा", "जल विद्युत", "तापीय ऊर्जा", "कोयला"], a: 0 },
+            { q: "बिहार में प्रति व्यक्ति बिजली की खपत समय के साथ कैसी रही है?", o: ["लगातार बढ़ी है", "घटी है", "स्थिर रही है", "शून्य हो गई है"], a: 0 },
+            { q: "बिहार के सभी गांवों में बिजली पहुँचाने के लिए कौन सी योजना चलाई गई थी?", o: ["दीनदयाल उपाध्याय ग्राम ज्योति योजना", "प्रधानमंत्री ग्राम सड़क योजना", "सर्व शिक्षा अभियान", "मनरेगा"], a: 0 },
+            { q: "बिहार में हर घर बिजली योजना किस मिशन के तहत पूरी की गई?", o: ["मुख्यमंत्री विद्युत संबंध निश्चय योजना", "स्मार्ट सिटी मिशन", "स्वच्छ भारत मिशन", "हरियाली मिशन"], a: 0 },
+            { q: "बिहार में चूना पत्थर का सबसे बड़ा जमाव किस श्रेणी की चट्टानों में है?", o: ["विंध्यन श्रेणी की चट्टानें", "धारवाड़ चट्टानें", "टर्शियरी चट्टानें", "गोंडवाना चट्टानें"], a: 0 },
+            { q: "दक्षिण-पूर्वी बिहार (गया, नवादा, जमुई) में किस काल की चट्टानें पाई जाती हैं?", o: ["धारवाड़ काल की चट्टानें", "विंध्यन काल", "क्वार्टरनरी", "गोंडवाना"], a: 0 },
+            { q: "कैमूर का पठार किस चट्टानी समूह का हिस्सा है?", o: ["विंध्यन समूह", "धारवाड़ समूह", "गोंडवाना समूह", "हिमालयी समूह"], a: 0 },
+            { q: "बिहार के उत्तर-पश्चिमी भाग (शिवालिक श्रेणी) में किस प्रकार की चट्टानें हैं?", o: ["टर्शियरी चट्टानें", "धारवाड़ चट्टानें", "विंध्यन चट्टानें", "आर्कियन चट्टानें"], a: 0 },
+            { q: "गंगा का मैदानी भाग किस प्रकार के निक्षेपों से बना है?", o: ["क्वार्टरनरी (जलोढ़) निक्षेप", "आग्नेय चट्टानें", "कायांतरित शैल", "ज्वालामुखी राख"], a: 0 },
+            { q: "खनिज संपदा की दृष्टि से बिहार को कैसा राज्य माना जाता है?", o: ["सीमित/मध्यम खनिजों वाला राज्य", "अत्यधिक समृद्ध", "खनिज विहीन", "विश्व में प्रथम"], a: 0 },
+            { q: "बिहार में कांच उद्योग के लिए कच्चा माल सिलिका सैंड कहाँ से प्राप्त होता है?", o: ["मुंगेर एवं जमुई", "रोहतास", "किशनगंज", "गोपालगंज"], a: 0 },
+            { q: "फेल्सपार खनिज बिहार के किस जिले में पाया जाता है?", o: ["गया, जमुई और मुंगेर", "कैमूर", "पूर्णिया", "बक्सर"], a: 0 },
+            { q: "एस्बेस्टस खनिज बिहार के किस जिले में पाया जाता है?", o: ["मुंगेर", "रोहतास", "सिवान", "दरभंगा"], a: 0 },
+            { q: "एसबेस्टस का उपयोग मुख्य रूप से किस निर्माण में होता है?", o: ["रोधी चादरें एवं छतें", "गहने", "बर्तन", "कागज"], a: 0 },
+            { q: "गार्नेट खनिज बिहार के किस जिले में पाया जाता है?", o: ["गया", "पटना", "मुजफ्फरपुर", "सीतामढ़ी"], a: 0 },
+            { q: "सॉल्टपीटर (सोरा) रासायनिक रूप से क्या होता है?", o: ["पोटेशियम नाइट्रेट", "सोडियम क्लोराइड", "कैल्शियम कार्बोनेट", "कॉपर सल्फेट"], a: 0 },
+            { q: "बिहार में तापीय विद्युत गृहों को कोयला मुख्य रूप से कहाँ से प्राप्त होता है?", o: ["झारखंड की खानों से", "रानीगंज से", "सिंगरौली से", "असम से"], a: 0 },
+            { q: "कहलगांव तापीय विद्युत गृह की स्थापना किस पंचवर्षीय योजना के दौरान हुई थी?", o: ["सातवीं पंचवर्षीय योजना", "प्रथम योजना", "तीसरी योजना", "दसवीं योजना"], a: 0 },
+            { q: "मुजफ्फरपुर के कांटी विद्युत गृह का संचालन वर्तमान में कौन करता है?", o: ["NTPC", "BSERB", "NHPC", "Private Company"], a: 0 },
+            { q: "बरौनी तेल शोधक कारखाने को कच्चा तेल किस पाइपलाइन से मिलता है?", o: ["नाहरकटिया-बरौनी पाइपलाइन", "HVJ पाइपलाइन", "मुंबई-पुणे लाइन", "सूरत लाइन"], a: 0 },
+            { q: "नाहरकटिया तेल क्षेत्र भारत के किस राज्य में स्थित है?", o: ["असम", "मेघालय", "त्रिपुरा", "पश्चिम बंगाल"], a: 0 },
+            { q: "बरौनी तेल शोधक कारखाने की स्थापना किस वर्ष हुई थी?", o: ["1964", "1950", "1972", "1980"], a: 0 },
+            { q: "बिहार में पेट्रोकेमिकल उद्योग की स्थापना की संभावना कहाँ है?", o: ["बरौनी", "पटना", "गया", "भागलपुर"], a: 0 },
+            { q: "बिहार में एलपीजी (LPG) बॉटलिंग प्लांट कहाँ स्थित है?", o: ["बरौनी और गिद्धौर", "पटना", "मुजफ्फरपुर", "रोहतास"], a: 0 },
+            { q: "गैस आधारित तापीय विद्युत परियोजना बिहार में कहाँ प्रस्तावित है?", o: ["बक्सर (चौसा)", "कहलगांव", "कांटी", "बरौनी"], a: 0 },
+            { q: "चौसा (बक्सर) में किस प्रकार का पावर प्लांट बनाया जा रहा है?", o: ["तापीय विद्युत संयंत्र", "जल विद्युत संयंत्र", "पवन संयंत्र", "आणविक संयंत्र"], a: 0 },
+            { q: "पिरपैंती तापीय विद्युत परियोजना बिहार के किस जिले में प्रस्तावित है?", o: ["भागलपुर", "मुंगेर", "बांका", "किशनगंज"], a: 0 },
+            { q: "कजरा तापीय विद्युत परियोजना किस जिले में स्थित है?", o: ["लखीसराय", "जमुई", "मुंगेर", "शेखपुरा"], a: 0 },
+            { q: "बिहार में जल विद्युत की कुल संभाव्य क्षमता लगभग कितनी आंकी गई है?", o: ["लगभग 2400 मेगावाट", "500 मेगावाट", "10000 मेगावाट", "100 मेगावाट"], a: 0 },
+            { q: "बिहार में छोटी जल विद्युत परियोजनाओं के विकास पर कौन बल दे रहा है?", o: ["बिहार राज्य जल विद्युत निगम", "रेलवे", "सड़क निगम", "वन विभाग"], a: 0 },
+            { q: "त्रिवेणी नहर पर कौन सा लघु जल विद्युत केंद्र स्थित है?", o: ["वाल्मीकिनगर", "डेहरी", "कटैया", "नासिरगंज"], a: 0 },
+            { q: "नासिरगंज लघु जल विद्युत परियोजना किस जिले में है?", o: ["रोहतास", "औरंगाबाद", "कैमूर", "भोजपुर"], a: 0 },
+            { q: "जैनगर लघु जल विद्युत परियोजना किस जिले में स्थित है?", o: ["मधुबनी", "दरभंगा", "सहरसा", "सुपौल"], a: 0 },
+            { q: "सिरखिंडा जल विद्युत परियोजना किस जिले से संबंधित है?", o: ["रोहतास", "कैमूर", "गया", "नवादा"], a: 0 },
+            { q: "बिहार में गैर-परंपरागत ऊर्जा विकास के लिए किस वर्ष नीति बनाई गई?", o: ["2017", "2005", "2000", "2020"], a: 0 },
+            { q: "सौर ऊर्जा से संचालित पम्पसेट किसानों को किस योजना के तहत दिए जा रहे हैं?", o: ["पीएम कुसुम योजना", "किसान क्रेडिट कार्ड", "फसल बीमा", "मृदा कार्ड"], a: 0 },
+            { q: "बिहार में बायोमास ऊर्जा का मुख्य स्रोत क्या है?", o: ["धान की भूसी एवं गन्ने की खोई", "लकड़ी", "झाड़ियां", "पत्ते"], a: 0 },
+            { q: "धान की भूसी (Rice Husk) से बिजली बनाने वाले संयंत्र किस क्षेत्र में लगे हैं?", o: ["रोहतास और चंपारण", "पटना", "दरभंगा", "झाझा"], a: 0 },
+            { q: "ऊर्जा संरक्षण के लिए बिहार में किस प्रकार के बल्बों का वितरण किया गया?", o: ["एलईडी (LED) बल्ब", "फिलामेंट बल्ब", "हेलोजन", "ट्यूबलाइट"], a: 0 },
+            { q: "उजाला योजना का मुख्य उद्देश्य क्या था?", o: ["कम मूल्य पर LED बल्ब देना", "मुफ्त बिजली देना", "सोलर पैनल देना", "पाइपलाइन बिछाना"], a: 0 },
+            { q: "बिहार में स्मार्ट प्रीपेड बिजली मीटर लगाने वाला पहला राज्य कौन बना?", o: ["बिहार", "उत्तर प्रदेश", "झारखंड", "महाराष्ट्र"], a: 0 },
+            { q: "स्मार्ट प्रीपेड मीटर का मुख्य लाभ क्या है?", o: ["ऊर्जा की बचत और पारदर्शी बिलिंग", "मुफ्त बिजली", "असीमित खपत", "बिना तार के बिजली"], a: 0 },
+            { q: "बिहार में खनिजों का आर्थिक रूप से सही दोहन क्यों आवश्यक है?", o: ["राज्य के राजस्व और औद्योगिक विकास हेतु", "केवल निर्यात हेतु", "पर्यावरण नष्ट करने हेतु", "कृषि बंद करने हेतु"], a: 0 },
+            { q: "बिहार में ऊर्जा संकट को दूर करने का सबसे टिकाऊ उपाय क्या है?", o: ["नवीकरणीय ऊर्जा और तापीय संयंत्रों का विस्तार", "केवल मोमबत्ती जलाना", "बिजली आयात बंद करना", "उद्योग बंद करना"], a: 0 },
+            { q: "बिहार में खनिज एवं ऊर्जा संसाधनों का संरक्षण क्यों जरूरी है?", o: ["भावी पीढ़ियों और सतत विकास हेतु", "केवल बेचने के लिए", "दिखावे के लिए", "कोई आवश्यकता नहीं"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions & Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 5(ख): बिहार - खनिज एवं ऊर्जा संसाधन</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">पाइराइट, चूना पत्थर, अभ्रक, सोना, तापीय एवं जल विद्युत परियोजनाओं तथा सौर ऊर्जा पर आधारित 100 ऑटो-रैंडमाइज्ड प्रश्नों का महा-क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने अध्याय 5(ख) के सभी प्रश्नों के सही उत्तर दिए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! आपकी बोर्ड परीक्षा की तैयारी बहुत मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! बिहार के खनिज एवं पावर प्लांटों के आंकड़ों का पुनः अध्ययन करें।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

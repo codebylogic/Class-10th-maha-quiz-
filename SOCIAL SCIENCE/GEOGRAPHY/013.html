@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 1(ग): जल संसाधन क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const questions = [
+            { q: "1. बृहद क्षेत्र में जल की उपस्थिति के कारण ही पृथ्वी को क्या कहते हैं?", o: ["उजला ग्रह", "नीला ग्रह", "हरा ग्रह", "लाल ग्रह"], a: 1 },
+            { q: "2. कुल जल का कितना प्रतिशत भाग महासागरों में निहित है?", o: ["95.5 प्रतिशत", "96.5 प्रतिशत", "97.5 प्रतिशत", "98.5 प्रतिशत"], a: 1 },
+            { q: "3. देश के बांधों को किसने आधुनिक भारत का मंदिर कहा था?", o: ["महात्मा गांधी", "डॉ. राजेंद्र प्रसाद", "पंडित जवाहरलाल नेहरू", "स्वामी विवेकानंद"], a: 2 },
+            { q: "4. बिहार में अति जल-दोहन से किस तत्व का संकेंद्रण बढ़ा है?", o: ["फ्लोराइड", "क्लोराइड", "आर्सेनिक", "लौह अंश"], a: 2 },
+            { q: "5. प्राणियों के शरीर में जल की कितनी प्रतिशत मात्रा निहित होती है?", o: ["55 प्रतिशत", "60 प्रतिशत", "65 प्रतिशत", "70 प्रतिशत"], a: 2 },
+            { q: "6. पौधों में जल की मात्रा लगभग कितनी प्रतिशत होती है?", o: ["20 से 30 प्रतिशत", "35 से 50 प्रतिशत", "50 से 60 प्रतिशत", "65 से 99 प्रतिशत"], a: 3 },
+            { q: "7. विश्व के कुल मीठे जल का कितना प्रतिशत भाग पीने योग्य है?", o: ["1.5 प्रतिशत", "2.5 प्रतिशत", "3.5 प्रतिशत", "4.5 प्रतिशत"], a: 1 },
+            { q: "8. भारत में कुल नवीकरण योग्य जल संसाधन कितना अनुमानित है?", o: ["1869 वर्ग किमी प्रति वर्ष", "1900 वर्ग किमी प्रति वर्ष", "2000 वर्ग किमी प्रति वर्ष", "2100 वर्ग किमी प्रति वर्ष"], a: 0 },
+            { q: "9. भाखड़ा नांगल परियोजना किस नदी पर स्थित है?", o: ["सतलुज नदी", "गंगा नदी", "नर्मदा नदी", "कावेरी नदी"], a: 0 },
+            { q: "10. हीराकुंड बांध किस नदी पर बनाया गया है?", o: ["गोदावरी नदी", "सोन नदी", "महानदी", "कृष्णा नदी"], a: 2 },
+            { q: "11. भारत की सबसे बड़ी बहुउद्देशीय नदी घाटी परियोजना कौन सी है?", o: ["दामोदर परियोजना", "भाखड़ा नांगल परियोजना", "रिहंद परियोजना", "कोसी परियोजना"], a: 1 },
+            { q: "12. बिहार की सबसे प्राचीन और प्रमुख नहर प्रणाली कौन सी है?", o: ["कोसी नहर", "गंडक नहर", "त्रिवेणी नहर", "सोन नहर प्रणाली"], a: 3 },
+            { q: "13. बिहार का शोक किस नदी को कहा जाता है?", o: ["कोसी नदी", "सोन नदी", "गंगा नदी", "पुनपुन नदी"], a: 0 },
+            { q: "14. इंदिरा गांधी नहर किस राज्य में स्थित है?", o: ["पंजाब", "हरियाणा", "राजस्थान", "गुजरात"], a: 2 },
+            { q: "15. चंबल घाटी परियोजना किस राज्य में स्थित है?", o: ["बिहार", "राजस्थान और मध्य प्रदेश", "उत्तर प्रदेश", "महाराष्ट्र"], a: 1 },
+            { q: "16. नागार्जुन सागर परियोजना किस नदी पर स्थित है?", o: ["कावेरी नदी", "गोदावरी नदी", "तुंगभद्रा नदी", "कृष्णा नदी"], a: 3 },
+            { q: "17. बांस ड्रिप सिंचाई प्रणाली किस राज्य में अत्यंत प्रसिद्ध है?", o: ["मेघालय", "असम", "राजस्थान", "केरल"], a: 0 },
+            { q: "18. वर्षा जल संचयन ढांचा खादीन और जोहड़ किस राज्य में बनाए जाते हैं?", o: ["बिहार", "राजस्थान", "मध्य प्रदेश", "गुजरात"], a: 1 },
+            { q: "19. भारत में राष्ट्रीय जल नीति पहली बार किस वर्ष घोषित की गई थी?", o: ["1980 में", "1985 में", "1987 में", "1990 में"], a: 2 },
+            { q: "20. राष्ट्रीय जल नीति को पुनः किस वर्ष संशोधित किया गया था?", o: ["2000 में", "2002 में", "2005 में", "2010 में"], a: 1 },
+            { q: "21. राजस्थान में छत वर्षा जल संचयन को स्थानीय भाषा में क्या कहा जाता है?", o: ["कुआँ", "तालाब", "टांका", "बावड़ी"], a: 2 },
+            { q: "22. दामोदर घाटी परियोजना का निर्माण किस वर्ष हुआ था?", o: ["1945 में", "1948 में", "1950 में", "1952 में"], a: 1 },
+            { q: "23. रिहंद बांध परियोजना किस राज्य में स्थित है?", o: ["उत्तर प्रदेश", "बिहार", "झारखंड", "मध्य प्रदेश"], a: 0 },
+            { q: "24. कोसी बहुउद्देशीय परियोजना का प्रारंभ किस वर्ष हुआ था?", o: ["1950 में", "1952 में", "1954 में", "1955 में"], a: 3 },
+            { q: "25. गंडक परियोजना का निर्माण किस स्थान पर हुआ है?", o: ["वाल्मीकिनगर", "मुजफ्फरपुर", "छपरा", "पटना"], a: 0 },
+            { q: "26. सोन नदी घाटी परियोजना का विकास किस वर्ष हुआ था?", o: ["1874 में", "1885 में", "1900 में", "1950 में"], a: 0 },
+            { q: "27. राष्ट्रीय जल संसाधन परिषद के अध्यक्ष कौन होते हैं?", o: ["राष्ट्रपति", "जल संसाधन मंत्री", "प्रधानमंत्री", "पर्यावरण मंत्री"], a: 2 },
+            { q: "28. अंतरराज्यीय जल विवाद मुख्य रूप से किसके बंटवारे को लेकर होता है?", o: ["भूमि का बंटवारा", "नदियों के जल का बंटवारा", "बिजली का बंटवारा", "खनिज का बंटवारा"], a: 1 },
+            { q: "29. वर्षा जल का संग्रहण कर उसका पुनः उपयोग करना क्या कहलाता है?", o: ["जल प्रदूषण", "जल संचयन", "जल दोहन", "जल बर्बादी"], a: 1 },
+            { q: "30. वृहद क्षेत्र में जल की उपस्थिति के कारण दक्षिणी गोलार्द्ध को क्या कहते हैं?", o: ["स्थल गोलार्द्ध", "नीला गोलार्द्ध", "जल गोलार्द्ध", "शांत गोलार्द्ध"], a: 2 },
+            { q: "31. उत्तरी गोलार्द्ध को किस नाम से जाना जाता है?", o: ["जल गोलार्द्ध", "पर्वतीय गोलार्द्ध", "हिम गोलार्द्ध", "स्थल गोलार्द्ध"], a: 3 },
+            { q: "32. प्रतिव्यक्ति प्रतिवर्ष जल उपलब्धता के मामले में भारत का विश्व में कौन सा स्थान है?", o: ["100वाँ", "120वाँ", "125वाँ", "133वाँ"], a: 3 },
+            { q: "33. निम्नलिखित में से कौन मीठे जल का सबसे प्रमुख स्रोत है?", o: ["महासागर", "भूमिगत जल", "सफेद बर्फ", "नमकीन झील"], a: 1 },
+            { q: "34. भारत में जल का सबसे अधिक उपयोग किस क्षेत्र में होता है?", o: ["उद्योगों में", "कृषि क्षेत्र में", "घरेलू कार्यों में", "व्यापार में"], a: 1 },
+            { q: "35. संसार की सबसे लंबी नदी कौन सी है?", o: ["अमेज़न नदी", "गंगा नदी", "नील नदी", "मिसिसिपी नदी"], a: 2 },
+            { q: "36. भारत की सबसे लंबी नदी कौन सी है?", o: ["यमुना नदी", "गोदावरी नदी", "ब्रह्मपुत्र नदी", "गंगा नदी"], a: 3 },
+            { q: "37. तुंगभद्रा परियोजना किस राज्य में स्थित है?", o: ["कर्नाटक", "तमिलनाडु", "केरल", "आंध्र प्रदेश"], a: 0 },
+            { q: "38. नर्मदा बचाओ आंदोलन का मुख्य उद्देश्य क्या था?", o: ["बांध की ऊंचाई रोकना", "सिंचाई बढ़ाना", "मछली पालन", "बिजली बनाना"], a: 0 },
+            { q: "39. सरदार सरोवर बांध किस नदी पर बनाया गया है?", o: ["तापी नदी", "सोन नदी", "नर्मदा नदी", "महानदी"], a: 2 },
+            { q: "40. निम्नलिखित में से कौन सा बांध गुजरात में स्थित है?", o: ["भाखड़ा नांगल", "हीराकुंड", "रिहंद", "सरदार सरोवर"], a: 3 },
+            { q: "41. भारत का सबसे लंबा बांध कौन सा है?", o: ["हीराकुंड बांध", "भाखड़ा बांध", "टिहरी बांध", "रिहंद बांध"], a: 0 },
+            { q: "42. भारत का सबसे ऊंचा बांध कौन सा है?", o: ["भाखड़ा बांध", "टिहरी बांध", "हीराकुंड बांध", "सरदार सरोवर"], a: 1 },
+            { q: "43. टिहरी बांध परियोजना किस राज्य में स्थित है?", o: ["हिमाचल प्रदेश", "उत्तराखंड", "पंजाब", "जम्मू कश्मीर"], a: 1 },
+            { q: "44. कावेरी जल विवाद किन राज्यों के बीच मुख्य रूप से है?", o: ["बिहार और बंगाल", "केरल और गोवा", "पंजाब और हरियाणा", "तमिलनाडु और कर्नाटक"], a: 3 },
+            { q: "45. कृष्णा नदी जल विवाद किन राज्यों के बीच है?", o: ["महाराष्ट्र, कर्नाटक, आंध्र प्रदेश", "उत्तर प्रदेश और बिहार", "तमिलनाडु और केरल", "पंजाब और राजस्थान"], a: 0 },
+            { q: "46. पश्चिमी राजस्थान में पेयजल हेतु किस नहर का निर्माण किया गया है?", o: ["सोन नहर", "इंदिरा गांधी नहर", "त्रिवेणी नहर", "कोसी नहर"], a: 1 },
+            { q: "47. जल किस प्रकार का प्राकृतिक संसाधन है?", o: ["अजैव", "अनवीकरणीय", "चक्रिय और नवीकरणीय", "मानव निर्मित"], a: 2 },
+            { q: "48. छत वर्षा जल संचयन को अनिवार्य करने वाला पहला राज्य कौन सा है?", o: ["राजस्थान", "पंजाब", "उत्तर प्रदेश", "तमिलनाडु"], a: 3 },
+            { q: "49. जल संकट का मुख्य कारण निम्नलिखित में से क्या है?", o: ["अत्यधिक उपयोग और बर्बादी", "कम वर्षा होना", "अधिक नदियाँ होना", "जल संचयन"], a: 0 },
+            { q: "50. राष्ट्रीय जल नीति 2012 में जल को क्या माना गया है?", o: ["व्यापारिक वस्तु", "राष्ट्रीय संपदा", "निजी संपत्ति", "मुफ्त संसाधन"], a: 1 },
+            { q: "51. जल की गुणवत्ता में कमी आने का प्रमुख कारण क्या है?", o: ["औद्योगिक कचरा एवं रसायन", "वर्षा जल संचयन", "वृक्षारोपण", "नहरों का निर्माण"], a: 0 },
+            { q: "52. भारत में कुल उपलब्ध जल का कितना प्रतिशत भूजल है?", o: ["20 प्रतिशत", "30 प्रतिशत", "40 प्रतिशत", "50 प्रतिशत"], a: 2 },
+            { q: "53. सलाल परियोजना किस नदी पर स्थित है?", o: ["झेलम नदी", "चेनाब नदी", "रावी नदी", "सतलुज नदी"], a: 1 },
+            { q: "54. बगलीहार परियोजना किस नदी पर बनाई गई है?", o: ["चेनाब नदी", "व्यास नदी", "सतलुज नदी", "गंगा नदी"], a: 0 },
+            { q: "55. नागार्जुन सागर बांध किस राज्य में स्थित है?", o: ["कर्नाटक", "तमिलनाडु", "आंध्र प्रदेश और तेलंगाना", "केरल"], a: 2 },
+            { q: "56. मेट्टूर बांध किस नदी पर बनाया गया है?", o: ["कृष्णा नदी", "गोदावरी नदी", "नर्मदा नदी", "कावेरी नदी"], a: 3 },
+            { q: "57. शिवसमुद्रम जलप्रपात किस नदी पर स्थित है?", o: ["कावेरी नदी", "गोदावरी नदी", "कृष्णा नदी", "तापी नदी"], a: 0 },
+            { q: "58. धुआंधार जलप्रपात किस नदी पर स्थित है?", o: ["महानदी", "नर्मदा नदी", "सोन नदी", "चंबल नदी"], a: 1 },
+            { q: "59. जोग या गरसोप्पा जलप्रपात किस नदी पर है?", o: ["शरावती नदी", "कावेरी नदी", "पेरियार नदी", "कृष्णा नदी"], a: 0 },
+            { q: "60. पेरियार परियोजना किस राज्य में स्थित है?", o: ["तमिलनाडु", "कर्नाटक", "केरल", "आंध्र प्रदेश"], a: 2 },
+            { q: "61. उकाई परियोजना किस नदी पर स्थित है?", o: ["तापी नदी", "नर्मदा नदी", "महानदी", "साबरमती नदी"], a: 0 },
+            { q: "62. राणा प्रताप सागर बांध किस नदी पर स्थित है?", o: ["चंबल नदी", "सतलुज नदी", "सोन नदी", "ब्यास नदी"], a: 0 },
+            { q: "63. गांधी सागर बांध किस नदी पर बनाया गया है?", o: ["नर्मदा नदी", "तापी नदी", "चंबल नदी", "बेत्वा नदी"], a: 2 },
+            { q: "64. मयूराक्षी परियोजना किस राज्य में स्थित है?", o: ["पश्चिम बंगाल", "बिहार", "ओडिशा", "झारखंड"], a: 0 },
+            { q: "65. फरक्का बैराज किस नदी पर बनाया गया है?", o: ["गंगा नदी", "ब्रह्मपुत्र नदी", "हुगली नदी", "दामोदर नदी"], a: 0 },
+            { q: "66. अलमाटी बांध किस नदी पर बना हुआ है?", o: ["कावेरी नदी", "कृष्णा नदी", "गोदावरी नदी", "महानदी"], a: 1 },
+            { q: "67. रिहंद परियोजना से निर्मित कृत्रिम झील का क्या नाम है?", o: ["गोविंद सागर", "गोविंद वल्लभ पंत सागर", "राणा प्रताप सागर", "नागार्जुन सागर"], a: 1 },
+            { q: "68. भाखड़ा बांध के पीछे बनी झील को क्या कहते हैं?", o: ["गोविंद सागर झील", "चिल्का झील", "वूलर झील", "सांभर झील"], a: 0 },
+            { q: "69. भारत की सबसे बड़ी मीठे पानी की प्राकृतिक झील कौन सी है?", o: ["चिल्का झील", "वूलर झील", "सांभर झील", "लोकटक झील"], a: 1 },
+            { q: "70. भारत की सबसे बड़ी खारे पानी की झील कौन सी है?", o: ["वूलर झील", "सांभर झील", "चिल्का झील", "डल झील"], a: 2 },
+            { q: "71. सांभर झील किस राज्य में स्थित है?", o: ["गुजरात", "राजस्थान", "पंजाब", "हरियाणा"], a: 1 },
+            { q: "72. लोकटक झील भारत के किस राज्य में स्थित है?", o: ["मणिपुर", "मिजोरम", "मेघालय", "असम"], a: 0 },
+            { q: "73. जल प्रदूषण निरोध एवं नियंत्रण अधिनियम किस वर्ष पारित हुआ था?", o: ["1970 में", "1972 में", "1974 में", "1980 में"], a: 2 },
+            { q: "74. केंद्रीय जल आयोग (CWC) की स्थापना किस वर्ष हुई थी?", o: ["1945 में", "1950 में", "1955 में", "1960 में"], a: 0 },
+            { q: "75. जल संकट से निपटने का सर्वोत्तम उपाय क्या है?", o: ["जल संचयन और विवेकपूर्ण उपयोग", "अधिक नल लगाना", "नदियों को सुखाना", "अत्यधिक सिंचाई करना"], a: 0 },
+            { q: "76. बिहार में कौन सी नहर प्रणाली सबसे पुरानी है?", o: ["सोन नहर", "त्रिवेणी नहर", "ढाका नहर", "कमला नहर"], a: 0 },
+            { q: "77. त्रिवेणी नहर किस नदी से पानी प्राप्त करती है?", o: ["सोन नदी", "गंडक नदी", "कोसी नदी", "गंगा नदी"], a: 1 },
+            { q: "78. कमला नहर किस जिले में सिंचित क्षेत्र प्रदान करती है?", o: ["दरभंगा और मधुबनी", "रोहतास और गया", "पटना और नालंदा", "पूर्णिया और कटिहार"], a: 0 },
+            { q: "79. भारत में जल का सबसे बड़ा भंडार किस रूप में है?", o: ["नदियों में", "महासागरों और बर्फ में", "तालाबों में", "नहरों में"], a: 1 },
+            { q: "80. नदियां जल चक्र में किस भूमिका का निर्वहन करती हैं?", o: ["जल को सागर तक पहुँचाना", "जल को समाप्त करना", "वर्षा रोकना", "प्रदूषण फैलाना"], a: 0 },
+            { q: "81. कुल उपलब्ध भूजल का कितना प्रतिशत भाग भारत उपयोग करता है?", o: ["लगभग 30 प्रतिशत", "लगभग 42 प्रतिशत", "लगभग 60 प्रतिशत", "लगभग 80 प्रतिशत"], a: 1 },
+            { q: "82. कुएँ और ट्यूबवेल किस जल के उदाहरण हैं?", o: ["सतही जल", "भूमिगत जल", "समुद्री जल", "वर्षा जल"], a: 1 },
+            { q: "83. नदियाँ और झीलें किस जल के अंतर्गत आती हैं?", o: ["भूमिगत जल", "सतही (पृष्ठीय) जल", "खारा जल", "आणविक जल"], a: 1 },
+            { q: "84. पहाड़ी क्षेत्रों में वर्षा जल संचयन हेतु क्या बनाए जाते हैं?", o: ["टांका", "गुल या कुल", "जोहड़", "बावड़ी"], a: 1 },
+            { q: "85. पश्चिमी हिमालय में सिंचाई की पारंपरिक प्रणाली को क्या कहते हैं?", o: ["कुल या गुल", "खादीन", "टांका", "बंबू ड्रिप"], a: 0 },
+            { q: "86. वर्षा के जल को क्या कहा जाता है शुद्ध रूप में?", o: ["नल का जल", "पालर पानी", "कठोर जल", "गंदा जल"], a: 1 },
+            { q: "87. राजस्थान में शुष्क क्षेत्रों में वर्षा जल एकत्र करने के गड्ढे को क्या कहते हैं?", o: ["खादीन और जोहड़", "नहर", "झील", "तालाब"], a: 0 },
+            { q: "88. बहुउद्देशीय परियोजनाओं का मुख्य लाभ क्या है?", o: ["सिंचाई, बिजली एवं बाढ़ नियंत्रण", "केवल मछली पकड़ना", "केवल नौकायन", "केवल पर्यटन"], a: 0 },
+            { q: "89. बहुउद्देशीय परियोजनाओं को किसने आधुनिक भारत के मंदिर की संज्ञा दी थी?", o: ["महात्मा गांधी", "पंडित नेहरू", "सुभाष चंद्र बोस", "सरदार पटेल"], a: 1 },
+            { q: "90. बहुउद्देशीय परियोजनाओं से होने वाली एक प्रमुख समस्या क्या है?", o: ["विस्थापन और पर्यावरण क्षति", "जल की अधिकता", "सस्ती बिजली", "हरियाली बढ़ना"], a: 0 },
+            { q: "91. नर्मदा बचाओ आंदोलन किस प्रकार का संगठन था?", o: ["व्यापारिक संगठन", "गैर-सरकारी संगठन (NGO)", "राजनीतिक दल", "धार्मिक ट्रस्ट"], a: 1 },
+            { q: "92. टिहरी बांध आंदोलन किस राज्य में चलाया गया था?", o: ["हिमाचल प्रदेश", "उत्तराखंड", "पंजाब", "उत्तर प्रदेश"], a: 1 },
+            { q: "93. ड्रिप सिंचाई प्रणाली किस क्षेत्र के लिए सर्वाधिक उपयुक्त है?", o: ["शुष्क एवं अद्ध-शुष्क क्षेत्र", "अत्यधिक वर्षा वाले क्षेत्र", "दलदली क्षेत्र", "पहाड़ी ढाल"], a: 0 },
+            { q: "94. छिड़काव (स्प्रिंकलर) सिंचाई विधि का लाभ क्या है?", o: ["जल की बचत एवं समान वितरण", "अधिक जल की बर्बादी", "मिट्टी का कटाव", "फसल का नुकसान"], a: 0 },
+            { q: "95. भारत की किस नदी को 'वृद्ध गंगा' या 'दक्षिण गंगा' कहा जाता है?", o: ["कावेरी नदी", "गोदावरी नदी", "कृष्णा नदी", "नर्मदा नदी"], a: 1 },
+            { q: "96. दक्षिण भारत की गंगा किस नदी को कहा जाता है?", o: ["कावेरी नदी", "गोदावरी नदी", "कृष्णा नदी", "पेरियार नदी"], a: 0 },
+            { q: "97. भारत में जल संसाधनों का पुनर्भरण मुख्य रूप से किससे होता है?", o: ["नदियों से", "मानसून वर्षा से", "बर्फ पिघलने से", "समुद्र से"], a: 1 },
+            { q: "98. राष्ट्रीय जल नीति 2012 के तहत प्राथमिक प्राथमिकता किसे दी गई है?", o: ["पेयजल आपूर्ति", "उद्योगों को जल", "नेविगेशन", "मत्स्य पालन"], a: 0 },
+            { q: "99. जल का रासायनिक सूत्र निम्नलिखित में से क्या है?", o: ["CO2", "H2O", "O2", "NaCl"], a: 1 },
+            { q: "100. सतत पोषणीय विकास हेतु जल का क्या आवश्यक है?", o: ["संरक्षण एवं न्यायसंगत प्रबंधन", "अत्यधिक दोहन", "प्रदूषण बढ़ाना", "खुला छोड़ देना"], a: 0 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 1(ग): जल संसाधन (महा-क्विज़)</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">बहुउद्देशीय परियोजनाएँ, जल संचयन, नदियाँ एवं जल नीति पर आधारित 100 वस्तुनिष्ठ (Objective) प्रश्नों का इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने जल संसाधन अध्याय के सभी प्रश्नों के सटीक उत्तर दिए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बेहतरीन चल रही है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! अध्याय का एक बार पुनः अध्ययन करें।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

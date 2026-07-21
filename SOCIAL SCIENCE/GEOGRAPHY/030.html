@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 3: निर्माण उद्योग क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "कच्चे माल को मूल्यवान उत्पाद में परिवर्तित कर अधिक मात्रा में वस्तुओं के उत्पादन को क्या कहा जाता है?", o: ["निर्माण उद्योग", "प्राथमिक क्षेत्र", "व्यापार", "परिवहन"], a: 0 },
+            { q: "निर्माण उद्योग किस आर्थिक क्षेत्र के अंतर्गत आते हैं?", o: ["द्वितीयक क्षेत्र", "प्राथमिक क्षेत्र", "तृतीयक क्षेत्र", "चतुर्थक क्षेत्र"], a: 0 },
+            { q: "भारत में आधुनिक सूती वस्त्र उद्योग की पहली सफल मिल कहाँ स्थापित की गई थी?", o: ["मुंबई", "कोलकाता", "अहमदाबाद", "सुरत"], a: 0 },
+            { q: "मुंबई में पहली सफल सूती कपड़ा मिल किस वर्ष स्थापित की गई थी?", o: ["1854", "1818", "1870", "1907"], a: 0 },
+            { q: "भारत का पहला सूती वस्त्र कारखाना 1818 में कहाँ स्थापित किया गया था जो असफल रहा था?", o: ["फोर्ट ग्लास्टर", "मुंबई", "कानपुर", "सूरत"], a: 0 },
+            { q: "सूती वस्त्र उद्योग निम्नलिखित में से किस प्रकार का उद्योग है?", o: ["कृषि आधारित उद्योग", "खनिज आधारित उद्योग", "वन आधारित उद्योग", "उपभोक्ता आधारित उद्योग"], a: 0 },
+            { q: "निम्नलिखित में से कौन सा शहर 'भारत का बोस्टन' कहा जाता है?", o: ["अहमदाबाद", "मुंबई", "कानपुर", "कोयंबटूर"], a: 0 },
+            { q: "उत्तर भारत का मैनचेस्टर किसे कहा जाता है?", o: ["कानपुर", "लखनऊ", "वाराणसी", "दिल्ली"], a: 0 },
+            { q: "दक्षिण भारत का मैनचेस्टर किस शहर को कहा जाता है?", o: ["कोयंबटूर", "चेन्नई", "मादुरै", "बेंगलुरु"], a: 0 },
+            { q: "भारत में 'सूती वस्त्रों की राजधानी' किस नगर को कहा जाता है?", o: ["मुंबई", "अहमदाबाद", "सूरत", "कोलकाता"], a: 0 },
+            { q: "जूट उद्योग का पहला कारखाना कहाँ स्थापित किया गया था?", o: ["रिषड़ा", "कोलकाता", "हावड़ा", "पटना"], a: 0 },
+            { q: "भारत में जूट उद्योग का पहला कारखाना किस वर्ष स्थापित हुआ था?", o: ["1855", "1854", "1872", "1905"], a: 0 },
+            { q: "जूट उद्योग मुख्य रूप से किस नदी घाटी में केंद्रित है?", o: ["हुगली नदी घाटी", "गंगा नदी घाटी", "दामोदर नदी घाटी", "गोदावरी नदी घाटी"], a: 0 },
+            { q: "भारत में चीनी उत्पादन में अग्रणी राज्य कौन सा है?", o: ["उत्तर प्रदेश", "महाराष्ट्र", "बिहार", "तमिलनाडु"], a: 0 },
+            { q: "सिल्क (रेशम) वस्त्र उत्पादन का प्रमुख केंद्र भारत में कौन सा है?", o: ["कर्नाटक", "उत्तर प्रदेश", "गुजरात", "पंजाब"], a: 0 },
+            { q: "टाटा आयरन एंड स्टील कंपनी (TISCO) की स्थापना किस वर्ष हुई थी?", o: ["1907", "1854", "1912", "1923"], a: 0 },
+            { q: "TISCO की स्थापना कहाँ की गई थी?", o: ["जमशेदपुर", "बोकारो", "भिलाई", "दुर्गापुर"], a: 0 },
+            { q: "आधुनिक लोहा इस्पात उद्योग का वास्तविक प्रारंभ किस स्थान पर हुआ था?", o: ["कुल्टी", "जमशेदपुर", "बर्नपुर", "साक्षी"], a: 0 },
+            { q: "निम्नलिखित में से कौन सा लोहा इस्पात संयंत्र रूस के सहयोग से स्थापित किया गया था?", o: ["भिलाई", "राउरकेला", "दुर्गापुर", "भद्रावती"], a: 0 },
+            { q: "दुर्गापुर स्टील प्लांट किस देश के सहयोग से बनाया गया था?", o: ["ब्रिटेन", "रूस", "जर्मनी", "अमेरिका"], a: 0 },
+            { q: "राउरकेला इस्पात संयंत्र किस देश के सहयोग से स्थापित किया गया था?", o: ["जर्मनी", "रूस", "ब्रिटेन", "फ्रांस"], a: 0 },
+            { q: "बोकारो स्टील प्लांट की स्थापना किस देश के सहयोग से हुई थी?", o: ["सोवियत संघ", "जर्मनी", "ब्रिटेन", "जापान"], a: 0 },
+            { q: "भिलाई इस्पात संयंत्र भारत के किस राज्य में स्थित है?", o: ["छत्तीसगढ़", "झारखंड", "ओडिशा", "पश्चिम बंगाल"], a: 0 },
+            { q: "राउरकेला लोहा-इस्पात उद्योग किस राज्य में स्थित है?", o: ["ओडिशा", "छत्तीसगढ़", "झारखंड", "पश्चिम बंगाल"], a: 0 },
+            { q: "दुर्गापुर इस्पात संयंत्र किस राज्य में स्थित है?", o: ["पश्चिम बंगाल", "झारखंड", "ओडिशा", "बिहार"], a: 0 },
+            { q: "बोकारो स्टील प्लांट किस राज्य में स्थित है?", o: ["झारखंड", "बिहार", "छत्तीसगढ़", "ओडिशा"], a: 0 },
+            { q: "भारत में सार्वजनिक क्षेत्र के अंतर्गत इस्पात कारखानों का प्रबंध कौन संभालता है?", o: ["SAIL", "TISCO", "GAIL", "BHEL"], a: 0 },
+            { q: "सेल (SAIL) का पूर्ण रूप क्या है?", o: ["स्टील अथॉरिटी ऑफ इंडिया लिमिटेड", "स्टेट अथॉरिटी ऑफ इंडिया", "स्टील एजेंसी ऑफ इंडिया", "सोसाइटी फॉर इंडस्ट्रीज"], a: 0 },
+            { q: "एल्युमिनियम उद्योग के लिए मुख्य कच्चा माल क्या है?", o: ["बॉक्साइट", "हेमेटाइट", "मैग्नेटाइट", "चूना पत्थर"], a: 0 },
+            { q: "भारत का प्रथम एल्युमिनियम कारखाना कहाँ स्थापित किया गया था?", o: ["जे.के. नगर", "आसनसोल", "रेणुकूट", "कोरापुट"], a: 0 },
+            { q: "उत्तर प्रदेश का रेणुकूट किस उद्योग के लिए प्रसिद्ध है?", o: ["एल्युमिनियम उद्योग", "कागज उद्योग", "सीमेंट उद्योग", "लोहा उद्योग"], a: 0 },
+            { q: "सीमेंट उद्योग का सबसे प्रमुख कच्चा माल कौन सा है?", o: ["चूना पत्थर", "जिप्सम", "बॉक्साइट", "कोयला"], a: 0 },
+            { q: "भारत में पहला सीमेंट कारखाना किस वर्ष लगाया गया था?", o: ["1904", "1914", "1924", "1951"], a: 0 },
+            { q: "भारत का पहला सीमेंट कारखाना कहाँ स्थापित किया गया था?", o: ["चेन्नई", "मुंबई", "सिंदरी", "कटनी"], a: 0 },
+            { q: "रासायनिक उर्वरक उद्योग का पहला कारखाना कहाँ स्थापित किया गया था?", o: ["सिंदरी", "रानीपेट", "ट्रॉम्बे", "गोरखपुर"], a: 0 },
+            { q: "बिहार में रासायनिक उर्वरक का कारखाना कहाँ स्थित है?", o: ["बरौनी", "पटना", "गया", "मुजफ्फरपुर"], a: 0 },
+            { q: "सिंदरी उर्वरक कारखाना किस राज्य में स्थित है?", o: ["झारखंड", "बिहार", "ओडिशा", "पश्चिम बंगाल"], a: 0 },
+            { q: "कागज उद्योग का पहला सफल कारखाना कहाँ स्थापित किया गया था?", o: ["लखनऊ", "कोलकाता", "मुंबई", "कानपुर"], a: 0 },
+            { q: "नेपानगर किस उद्योग के लिए प्रसिद्ध है?", o: ["अखबारी कागज", "सीमेंट", "कपड़ा", "लोहा"], a: 0 },
+            { q: "नेपानगर भारत के किस राज्य में स्थित है?", o: ["मध्य प्रदेश", "महाराष्ट्र", "गुजरात", "राजस्थान"], a: 0 },
+            { q: "भारत में इलेक्ट्रॉनिक उद्योग की राजधानी किस शहर को माना जाता है?", o: ["बेंगलुरु", "चेन्नई", "हैदराबाद", "पुणे"], a: 0 },
+            { q: "सॉफ्टवेयर टेक्नोलॉजी पार्क ऑफ इंडिया का प्रमुख केंद्र कहाँ स्थित है?", o: ["बेंगलुरु", "पटना", "कानपुर", "भोपाल"], a: 0 },
+            { q: "ऑटोमोबाइल (मोटर गाड़ी) उद्योग का प्रमुख केंद्र कौन सा है?", o: ["गुड़गांव", "वाराणसी", "पटना", "रांची"], a: 0 },
+            { q: "भारत में पहला तेल शोधक कारखाना कहाँ स्थापित किया गया था?", o: ["डिगबोई", "बरौनी", "मुंबई हाई", "अंकलेश्वर"], a: 0 },
+            { q: "डिगबोई तेल शोधक कारखाना किस राज्य में स्थित है?", o: ["असम", "मेघालय", "त्रिपुरा", "पश्चिम बंगाल"], a: 0 },
+            { q: "बिहार का बरौनी तेल शोधक कारखाना किस देश के सहयोग से बना था?", o: ["रूस", "अमेरिका", "जर्मनी", "फ्रांस"], a: 0 },
+            { q: "निम्नलिखित में से कौन उपभोक्ता उद्योग का उदाहरण है?", o: ["चीनी उद्योग", "लोहा-इस्पात उद्योग", "रसायन उद्योग", "अल्युमिनियम उद्योग"], a: 0 },
+            { q: "निम्नलिखित में से कौन बुनियादी उद्योग (आधारभूत उद्योग) का उदाहरण है?", o: ["लोहा और इस्पात उद्योग", "सूती वस्त्र उद्योग", "कागज उद्योग", "खांडसारी उद्योग"], a: 0 },
+            { q: "सार्वजनिक क्षेत्र के उद्योग का उदाहरण कौन सा है?", o: ["भिलाई इस्पात संयंत्र", "टाटा स्टील", "डाबर उद्योग", "गोदरेज उद्योग"], a: 0 },
+            { q: "निजी क्षेत्र के उद्योग का उदाहरण कौन सा है?", o: ["टाटा आयरन एंड स्टील", "सेल", "रेल कोच फैक्टरी", "भिलाई प्लांट"], a: 0 },
+            { q: "संयुक्त क्षेत्र के उद्योग का उदाहरण कौन सा है?", o: ["ऑयल इंडिया लिमिटेड", "सेल", "टिस्को", "अमूल"], a: 0 },
+            { q: "सहकारी क्षेत्र के उद्योग का उदाहरण कौन सा है?", o: ["अमूल (आनंद मिल्क)", "टाटा स्टील", "भिलाई प्लांट", "बाटा शू"], a: 0 },
+            { q: "कृषि पर आधारित उद्योग निम्नलिखित में से कौन सा नहीं है?", o: ["सीमेंट उद्योग", "सूती वस्त्र उद्योग", "चीनी उद्योग", "जूट उद्योग"], a: 0 },
+            { q: "खनिज पर आधारित उद्योग निम्नलिखित में से कौन सा है?", o: ["सीमेंट उद्योग", "सूती वस्त्र उद्योग", "रेशम उद्योग", "कागज उद्योग"], a: 0 },
+            { q: "भारी उद्योग का उदाहरण कौन सा है?", o: ["लोहा-इस्पात उद्योग", "सूती कपड़ा उद्योग", "माचिस उद्योग", "खिलौना उद्योग"], a: 0 },
+            { q: "हल्के उद्योग का उदाहरण कौन सा है?", o: ["विद्युत पंखे बनाना", "रेल इंजन निर्माण", "जहाज निर्माण", "इस्पात निर्माण"], a: 0 },
+            { q: "सूती वस्त्र के लिए सबसे उपयुक्त जलवायु कौन सी होती है?", o: ["आर्द्र जलवायु", "शुष्क जलवायु", "ठंडी जलवायु", "अत्यधिक गर्म जलवायु"], a: 0 },
+            { q: "कपास किस प्रकार का कच्चा माल है?", o: ["भार-ह्रास रहित", "भार-ह्रास युक्त", "अत्यधिक भारी", "दुर्लभ"], a: 0 },
+            { q: "कृत्रिम रेशा (रेयान/नायलॉन) उद्योग किस पर आधारित है?", o: ["रसायन उद्योग", "कृषि उद्योग", "वन उद्योग", "पशुपालन"], a: 0 },
+            { q: "रेल कोच फैक्टरी 'पेरांबूर' किस राज्य में स्थित है?", o: ["तमिलनाडु", "पंजाब", "केरल", "कर्नाटक"], a: 0 },
+            { q: "रेल कोच फैक्टरी 'कपूरथला' किस राज्य में स्थित है?", o: ["पंजाब", "हरियाणा", "उत्तर प्रदेश", "राजस्थान"], a: 0 },
+            { q: "डीजल रेल इंजन का निर्माण कहाँ होता है?", o: ["वाराणसी", "चित्तरंजन", "पेरांबूर", "भोपाल"], a: 0 },
+            { q: "इलेक्ट्रिक रेल इंजन निर्माण केंद्र चित्तरंजन किस राज्य में है?", o: ["पश्चिम बंगाल", "झारखंड", "बिहार", "ओडिशा"], a: 0 },
+            { q: "भारत में जलयान निर्माण का प्रमुख केंद्र कौन सा है?", o: ["विशाखापत्तनम", "कांदला", "चेन्नई", "मुंबई"], a: 0 },
+            { q: "भारत में वायुयान निर्माण का प्रमुख केंद्र कौन सा है?", o: ["बेंगलुरु", "पटना", "जयपुर", "अहमदाबाद"], a: 0 },
+            { q: "पर्यावरण प्रदूषण का सबसे प्रमुख कारण कौन सा उद्योग है?", o: ["रसायन एवं चमड़ा उद्योग", "सूती वस्त्र उद्योग", "हैंडलूम उद्योग", "खिलौना उद्योग"], a: 0 },
+            { q: "उद्योगों से निकलने वाले जहरीले धुएँ से कौन सा प्रदूषण होता है?", o: ["वायु प्रदूषण", "जल प्रदूषण", "ध्वनि प्रदूषण", "मृदा प्रदूषण"], a: 0 },
+            { q: "औद्योगिक अपशिष्टों को नदियों में बहाने से कौन सा प्रदूषण होता है?", o: ["जल प्रदूषण", "वायु प्रदूषण", "ध्वनि प्रदूषण", "रेडियोधर्मी प्रदूषण"], a: 0 },
+            { q: "मशीनों और जनरेटरों के शोर से कौन सा प्रदूषण होता है?", o: ["ध्वनि प्रदूषण", "जल प्रदूषण", "मृदा प्रदूषण", "तापीय प्रदूषण"], a: 0 },
+            { q: "भोपाल गैस त्रासदी किस वर्ष हुई थी?", o: ["1984", "1980", "1990", "1974"], a: 0 },
+            { q: "भोपाल गैस त्रासदी में किस विषैली गैस का रिसाव हुआ था?", o: ["मिथाइल आइसोसाइनेट", "कार्बन मोनोऑक्साइड", "सल्फर डाइऑक्साइड", "अमोनिया"], a: 0 },
+            { q: "भारत में चीनी की मिले सबसे अधिक किस राज्य में स्थित हैं?", o: ["उत्तर प्रदेश", "बिहार", "महाराष्ट्र", "पंजाब"], a: 0 },
+            { q: "हाल के वर्षों में चीनी मिलें दक्षिण भारत में क्यों स्थानांतरित हो रही हैं?", o: ["गन्ने में सुक्रोज की अधिक मात्रा", "सस्ती भूमि", "कम मजदूर", "ठंडा मौसम"], a: 0 },
+            { q: "पशमीना ऊन किस जानवर के बालों से बनाई जाती है?", o: ["बकरी", "भेड़", "ऊंट", "खरगोश"], a: 0 },
+            { q: "अंगोरा ऊन किस जानवर के बालों से प्राप्त की जाती है?", o: ["खरगोश", "भेड़", "बकरी", "याक"], a: 0 },
+            { q: "भारत का सबसे पुराना बड़ा उद्योग कौन सा है?", o: ["सूती वस्त्र उद्योग", "लोहा-इस्पात उद्योग", "सीमेंट उद्योग", "कागज उद्योग"], a: 0 },
+            { q: "भद्रावती लोहा-इस्पात केंद्र किस राज्य में स्थित है?", o: ["कर्नाटक", "तमिलनाडु", "आंध्र प्रदेश", "केरल"], a: 0 },
+            { q: "सलेम इस्पात संयंत्र किस राज्य में स्थित है?", o: ["तमिलनाडु", "कर्नाटक", "केरल", "तेलंगाना"], a: 0 },
+            { q: "विशाखापत्तनम इस्पात संयंत्र किस राज्य में स्थित है?", o: ["आंध्र प्रदेश", "तमिलनाडु", "ओडिशा", "कर्नाटक"], a: 0 },
+            { q: "विजयनगर इस्पात संयंत्र किस राज्य में स्थित है?", o: ["कर्नाटक", "महाराष्ट्र", "गोवा", "गुजरात"], a: 0 },
+            { q: "हुगली औद्योगिक प्रदेश का केंद्र कौन सा नगर है?", o: ["कोलकाता-हावड़ा", "कोलकाता-मेदिनीपुर", "कोलकाता-रिषड़ा", "कोलकाता-कोननगर"], a: 0 },
+            { q: "मुंबई-पुणे औद्योगिक क्षेत्र किस राज्य में स्थित है?", o: ["महाराष्ट्र", "गुजरात", "गोवा", "कर्नाटक"], a: 0 },
+            { q: "गुजरात औद्योगिक प्रदेश का प्रमुख केंद्र कौन सा है?", o: ["अहमदाबाद-वडोदरा", "सूरत-राजकोट", "गांधीनगर-जामनगर", "भड़ूच-आनंद"], a: 0 },
+            { q: "छोटानागपुर औद्योगिक प्रदेश किस राज्य में विस्तृत है?", o: ["झारखंड", "बिहार", "छत्तीसगढ़", "ओडिशा"], a: 0 },
+            { q: "गुरुग्राम-दिल्ली-मेरठ औद्योगिक प्रदेश किस भाग में है?", o: ["उत्तरी भारत", "दक्षिणी भारत", "पूर्वी भारत", "पश्चिमी भारत"], a: 0 },
+            { q: "भारत में उदारीकरण और वैश्वीकरण की नीति किस वर्ष अपनाई गई थी?", o: ["1991", "1980", "2001", "1951"], a: 0 },
+            { q: "विदेशी प्रत्यक्ष निवेश (FDI) का सबसे अधिक लाभ किस उद्योग को मिला?", o: ["ऑटोमोबाइल और सूचना प्रौद्योगिकी", "कृषि", "जूट उद्योग", "खांडसारी"], a: 0 },
+            { q: "भारत में जूट के सामान का सबसे बड़ा खरीदार कौन सा देश है?", o: ["अमेरिका", "चीन", "रूस", "जापान"], a: 0 },
+            { q: "कृत्रिम धागे से बने वस्त्रों की माँग बढ़ने से किस उद्योग को झटका लगा है?", o: ["जूट उद्योग", "सीमेंट उद्योग", "लोहा उद्योग", "इलेक्ट्रॉनिक्स"], a: 0 },
+            { q: "नागपुर में स्थित 'मैंगनीज ओर इंडिया लिमिटेड' किस प्रकार का उपक्रम है?", o: ["सार्वजनिक उपक्रम", "निजी उपक्रम", "सहकारी उपक्रम", "संयुक्त उपक्रम"], a: 0 },
+            { q: "भारत का कौन सा राज्य सीमेंट उत्पादन में अग्रणी माना जाता है?", o: ["राजस्थान", "बिहार", "असम", "हरियाणा"], a: 0 },
+            { q: "सॉफ्टवेयर उद्योग किस श्रेणी के अंतर्गत आते हैं?", o: ["फुटलूज (स्वच्छंद) उद्योग", "भारी उद्योग", "कृषि उद्योग", "पशु उद्योग"], a: 0 },
+            { q: "फुटलूज (Footloose) उद्योग की क्या विशेषता है?", o: ["कच्चे माल पर निर्भर न होना", "भारी कच्चे माल की आवश्यकता", "केवल नदियों के किनारे स्थापित होना", "अत्यधिक धुएँ का उत्सर्जन"], a: 0 },
+            { q: "पेरासिटामोल या दवाइयाँ बनाने वाला उद्योग किस श्रेणी में आता है?", o: ["रसायन उद्योग", "कृषि उद्योग", "धातु उद्योग", "वस्त्र उद्योग"], a: 0 },
+            { q: "इंजीनियरिंग सामान का निर्माण किस प्रकार के उद्योग का हिस्सा है?", o: ["भारी एवं मध्यम उद्योग", "हल्का उद्योग", "कुटीर उद्योग", "प्राथमिक उद्योग"], a: 0 },
+            { q: "कुटीर उद्योग की मुख्य विशेषता क्या है?", o: ["परिवार के सदस्यों द्वारा घर पर काम करना", "बड़ी-बड़ी मशीनों का प्रयोग", "विदेशी पूंजी का निवेश", "हजारों मजदूरों की आवश्यकता"], a: 0 },
+            { q: "खादी एवं ग्रामोद्योग आयोग की स्थापना क्यों की गई थी?", o: ["ग्रामीण उद्योगों को बढ़ावा देने के लिए", "विदेशी व्यापार रोकने के लिए", "कृषि बंद करने के लिए", "बड़े कारखाने लगाने के लिए"], a: 0 },
+            { q: "भारत में चीनी उद्योग का मुख्य कच्चा माल क्या है?", o: ["गन्ना", "चुकंदर", "मक्का", "खजूर"], a: 0 },
+            { q: "तापीय विद्युत गृह से निकलने वाली राख (Fly Ash) का उपयोग किस उद्योग में होता है?", o: ["सीमेंट उद्योग", "कपड़ा उद्योग", "कागज उद्योग", "चीनी उद्योग"], a: 0 },
+            { q: "औद्योगिक विकास को किस प्रक्रिया की रीढ़ माना जाता है?", o: ["आर्थिक विकास", "सामाजिक पतन", "कृषि विनाश", "पर्यावरण सुधार"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions & Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 3: निर्माण उद्योग (महा-क्विज़)</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">सूती वस्त्र, लोहा-इस्पात, सीमेंट, उर्वरक उद्योग एवं औद्योगिक प्रदूषण पर आधारित 100 ऑटो-रैंडमाइज्ड प्रश्नों का इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने निर्माण उद्योग अध्याय के सभी प्रश्नों के सही उत्तर दिए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! आपकी बिहार बोर्ड परीक्षा की तैयारी बेहतरीन है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ्यपुस्तक के प्रमुख उद्योगों का पुनः अध्ययन करें।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

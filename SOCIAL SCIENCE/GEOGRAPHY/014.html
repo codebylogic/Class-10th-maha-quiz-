@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 1(घ): वन एवं वन्य प्राणी संसाधन क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const questions = [
+            { q: "1. भारत में 2001 में कितने प्रतिशत भौगोलिक क्षेत्र में वन का विस्तार था?", o: ["25 प्रतिशत", "19.27 प्रतिशत", "20.60 प्रतिशत", "33 प्रतिशत"], a: 2 },
+            { q: "2. वन स्थिति रिपोर्ट के अनुसार भारत में वन का विस्तार कितना प्रतिशत है?", o: ["20.60 प्रतिशत", "20.55 प्रतिशत", "23 प्रतिशत", "25 प्रतिशत"], a: 0 },
+            { q: "3. बिहार में कितने प्रतिशत भौगोलिक क्षेत्र में वन का विस्तार है?", o: ["15 प्रतिशत", "10 प्रतिशत", "8 प्रतिशत", "7 प्रतिशत"], a: 3 },
+            { q: "4. पूर्वोत्तर राज्यों के 188 आदिवासी जिलों में कुल क्षेत्र का कितना प्रतिशत वन है?", o: ["75 प्रतिशत", "60.11 प्रतिशत", "50 प्रतिशत", "80 प्रतिशत"], a: 1 },
+            { q: "5. भारत के किस राज्य में वन का सबसे अधिक विस्तार पाया जाता है?", o: ["मध्य प्रदेश", "केरला", "कर्नाटक", "उत्तर प्रदेश"], a: 0 },
+            { q: "6. वन संरक्षण एवं प्रबंधन की दृष्टि से वनों को कितने वर्गों में वर्गीकृत किया गया है?", o: ["4 वर्गों में", "2 वर्गों में", "3 वर्गों में", "5 वर्गों में"], a: 2 },
+            { q: "7. 1951 से 1980 तक लगभग कितना वर्ग किमी वन क्षेत्र कृषि भूमि में परिवर्तित हुआ?", o: ["30000 वर्ग किमी", "26200 वर्ग किमी", "20000 वर्ग किमी", "25200 वर्ग किमी"], a: 1 },
+            { q: "8. संविधान की धारा 21 का संबंध निम्नलिखित में से किससे है?", o: ["जल संसाधन संरक्षण से", "मृदा संरक्षण से", "खनिज संरक्षण से", "वन्य जीवों तथा प्राकृतिक संसाधनों के संरक्षण से"], a: 3 },
+            { q: "9. एफएओ (FAO) की वानिकी रिपोर्ट के अनुसार 1948 में विश्व में कितने अरब हेक्टेयर पर वन था?", o: ["6 अरब हेक्टेयर", "4 अरब हेक्टेयर", "8 अरब हेक्टेयर", "5 अरब हेक्टेयर"], a: 1 },
+            { q: "10. भारत में सुंदरवन राष्ट्रीय उद्यान किस राज्य में स्थित है?", o: ["पश्चिम बंगाल", "ओडिशा", "असम", "तमिलनाडु"], a: 0 },
+            { q: "11. किस राज्य में मैंग्रोव वन का सबसे अधिक विस्तार पाया जाता है?", o: ["गुजरात", "असम", "पश्चिम बंगाल", "केरल"], a: 2 },
+            { q: "12. टैक्सोल का उपयोग मुख्य रूप से किस बीमारी के इलाज में होता है?", o: ["मलेरिया में", "एड्स में", "कैंसर में", "टीबी में"], a: 2 },
+            { q: "13. चरक का संबंध किस देश से था?", o: ["चीन से", "भारत से", "नेपाल से", "श्रीलंका से"], a: 1 },
+            { q: "14. भारत का राष्ट्रीय पक्षी निम्नलिखित में से कौन सा है?", o: ["कबूल", "हंस", "मयूर", "तोता"], a: 2 },
+            { q: "15. भारत का राष्ट्रीय पशु निम्नलिखित में से कौन सा है?", o: ["बाघ", "सिंह", "हाथी", "हिरण"], a: 0 },
+            { q: "16. घड़ियाल प्रजनन केंद्र मुख्य रूप से कहाँ स्थापित किया गया है?", o: ["मुरैना में", "काजीरंगा में", "सुंदरवन में", "रणथंभौर में"], a: 0 },
+            { q: "17. भारत में पक्षी विहार केंद्र 'भरतपुर' किस राज्य में स्थित है?", o: ["गुजरात", "राजस्थान", "मध्य प्रदेश", "हरियाणा"], a: 1 },
+            { q: "18. काजीरंगा राष्ट्रीय उद्यान भारत के किस राज्य में स्थित है?", o: ["उत्तराखंड", "असम", "पश्चिम बंगाल", "अरुणाचल प्रदेश"], a: 1 },
+            { q: "19. प्रसिद्ध 'कॉर्बेट राष्ट्रीय उद्यान' किस राज्य में स्थित है?", o: ["हिमाचल प्रदेश", "जम्मू कश्मीर", "उत्तराखंड", "उत्तर प्रदेश"], a: 2 },
+            { q: "20. एक सींग वाला गेंडा मुख्य रूप से किस राष्ट्रीय उद्यान में पाया जाता है?", o: ["गिर में", "काजीरंगा में", "कान्हा में", "बांदीपुर में"], a: 1 },
+            { q: "21. भारत में प्रोजेक्ट टाइगर की शुरुआत किस वर्ष की गई थी?", o: ["1970 में", "1980 में", "1973 में", "1975 में"], a: 2 },
+            { q: "22. एशियाई सिंहों का प्राकृतिक निवास स्थल 'गिर राष्ट्रीय उद्यान' कहाँ है?", o: ["गुजरात में", "महाराष्ट्र में", "राजस्थान में", "मध्य प्रदेश में"], a: 0 },
+            { q: "23. बांदीपुर राष्ट्रीय उद्यान किस राज्य में स्थित है?", o: ["कर्नाटक में", "केरल में", "तमिलनाडु में", "आंध्र प्रदेश में"], a: 0 },
+            { q: "24. कान्हा राष्ट्रीय उद्यान किस राज्य में स्थित है?", o: ["राजस्थान में", "ओडिशा में", "उत्तर प्रदेश में", "मध्य प्रदेश में"], a: 3 },
+            { q: "25. भारत में कुल कितने जैव मंडल क्षेत्र (बायोस्फीयर रिजर्व) हैं?", o: ["18", "12", "15", "20"], a: 0 },
+            { q: "26. भारत में राष्ट्रीय उद्यान (National Parks) की कुल संख्या लगभग कितनी है?", o: ["85", "106", "95", "120"], a: 1 },
+            { q: "27. देश में अभयारण्यों (Wildlife Sanctuaries) की संख्या लगभग कितनी है?", o: ["500", "400", "567", "600"], a: 2 },
+            { q: "28. चीड़ का पेड़ मुख्य रूप से किस प्रकार के वनों में पाया जाता है?", o: ["सदाबहार वन में", "मैंग्रोव वन में", "रेगिस्तानी वन में", "पर्वतीय वन में"], a: 3 },
+            { q: "29. चंदन के वृक्ष मुख्य रूप से किस राज्य के वनों में बहुतायत से मिलते हैं?", o: ["कर्नाटक", "केरल", "तमिलनाडु", "असम"], a: 0 },
+            { q: "30. देवदार किस प्रकार के वन का प्रमुख पेड़ है?", o: ["शंकुधारी या पर्वतीय वन", "उष्णकटिबंधीय सदाबहार", "मैंग्रोव वन", "पर्णपाती वन"], a: 0 },
+            { q: "31. सागौन किस प्रकार के वन का मुख्य वृक्ष है?", o: ["सदाबहार वन", "पतझड़ (पर्णपाती) वन", "कांटेदार वन", "दलदली वन"], a: 1 },
+            { q: "32. कुनैन नामक दवा किस पौधे की छाल से बनाई जाती है?", o: ["जामुन से", "तुलसी से", "पीपल से", "सिनकोना से"], a: 3 },
+            { q: "33. किस पौधे का उपयोग रक्तचाप (ब्लड प्रेशर) के इलाज में होता है?", o: ["सर्पगंधा का", "नेम का", "तुलसी का", "बहेड़ा का"], a: 0 },
+            { q: "34. भारत में वनों का सबसे कम विस्तार किस राज्य में पाया जाता है?", o: ["पंजाब में", "हरियाणा में", "गोवा में", "बिहार में"], a: 1 },
+            { q: "35. सदाबहार वन भारत के किस भाग में बहुतायत में पाए जाते हैं?", o: ["उत्तर-पूर्वी भाग में", "उत्तर-पश्चिमी भाग में", "मध्य भाग में", "दक्षिणी पठार में"], a: 0 },
+            { q: "36. मैंग्रोव वनों का सबसे अधिक विस्तार किस राज्य में है?", o: ["ओडिशा में", "केरल में", "पश्चिम बंगाल में", "आंध्र प्रदेश में"], a: 2 },
+            { q: "37. चिपको आंदोलन किस राज्य में शुरू हुआ था?", o: ["उत्तराखंड में", "बिहार में", "उत्तर प्रदेश में", "मध्य प्रदेश में"], a: 0 },
+            { q: "38. प्रसिद्ध चिपको आंदोलन के नेता कौन थे?", o: ["मेधा पाटकर", "सुंदरलाल बहुगुणा", "अमर्त्य सेन", "बाबा आम्टे"], a: 1 },
+            { q: "39. वन नीति के अनुसार देश के कितने प्रतिशत भाग पर वन होना चाहिए?", o: ["25 प्रतिशत", "33 प्रतिशत", "40 प्रतिशत", "20 प्रतिशत"], a: 1 },
+            { q: "40. किस वर्ग के वनों में पशु चराने और लकड़ी काटने पर पूर्ण प्रतिबंध होता है?", o: ["रक्षित वन में", "अवर्गीकृत वन में", "आरक्षित वन में", "निजी वन में"], a: 2 },
+            { q: "41. ऐसे वन जिन पर सरकार का नियंत्रण होता है परंतु नियम सुरक्षित होते हैं, क्या कहलाते हैं?", o: ["रक्षित वन", "आरक्षित वन", "अवर्गीकृत वन", "सामुदायिक वन"], a: 0 },
+            { q: "42. बीजों और बेकार भूमि पर स्थित वनों को किस श्रेणी में रखा जाता है?", o: ["आरक्षित वन", "अवर्गीकृत वन", "रक्षित वन", "सदाबहार वन"], a: 1 },
+            { q: "43. भारत में कितने प्रतिशत वन क्षेत्र आरक्षित वन की श्रेणी में आते हैं?", o: ["50 प्रतिशत से अधिक", "20 प्रतिशत", "30 प्रतिशत", "10 प्रतिशत"], a: 0 },
+            { q: "44. राजस्थान के अलवर जिले में ग्रामीणों ने किस अभयारण्य की घोषणा की?", o: ["सरिस्का का", "भैंरोदेव डाकव 'सोंचरी'", "रणथंभौर का", "केवलादेव का"], a: 1 },
+            { q: "45. संयुक्त वन प्रबंधन (JFM) की शुरुआत सबसे पहले किस राज्य में हुई थी?", o: ["ओडिशा में", "पश्चिम बंगाल में", "बिहार में", "असम में"], a: 0 },
+            { q: "46. सुंदरवन में पाया जाने वाला प्रसिद्ध वन्य जीव कौन सा है?", o: ["रॉयल बंगाल टाइगर", "एक सींग वाला गेंडा", "एशियाई हाथी", "सफेद भालू"], a: 0 },
+            { q: "47. लाल पांडा भारत के किस क्षेत्र के वनों में पाया जाता है?", o: ["पूर्वी हिमालय क्षेत्र में", "पश्चिमी घाट में", "थार मरुस्थल में", "मध्य भारत में"], a: 0 },
+            { q: "48. रेड डाटा बुक का संबंध निम्नलिखित में से किससे है?", o: ["रेड क्रॉस से", "विलुप्त हो रहे जीवों की सूची से", "वन्य अपराधों से", "पर्यावरण प्रदूषण से"], a: 1 },
+            { q: "49. आईयूसीएन (IUCN) का मुख्य कार्य क्या है?", o: ["जल संरक्षण", "प्रकृति एवं प्राकृतिक संसाधनों का संरक्षण", "व्यापार नियंत्रण", "ऊर्जा संरक्षण"], a: 1 },
+            { q: "50. भारत का राष्ट्रीय जलचर जीव निम्नलिखित में से कौन सा है?", o: ["समुद्री कछुआ", "गंगा डॉल्फिन", "ब्लू व्हेल", "घड़ियाल"], a: 1 },
+            { q: "51. नीलगिरी बायोस्फीयर रिजर्व भारत के किस राज्य में स्थित है?", o: ["केरल, तमिलनाडु, कर्नाटक", "उत्तर प्रदेश", "असम", "पश्चिम बंगाल"], a: 0 },
+            { q: "52. नंदा देवी जैव मंडल रिजर्व किस राज्य में स्थित है?", o: ["हिमाचल प्रदेश", "उत्तराखंड", "सिक्किम", "जम्मू कश्मीर"], a: 1 },
+            { q: "53. सिमलीपाल राष्ट्रीय उद्यान किस राज्य में स्थित है?", o: ["ओडिशा में", "बिहार में", "झारखंड में", "छत्तीसगढ़ में"], a: 0 },
+            { q: "54. मानस राष्ट्रीय उद्यान किस राज्य में स्थित है?", o: ["पश्चिम बंगाल में", "असम में", "मणिपुर में", "मेघालय में"], a: 1 },
+            { q: "55. पेरियार वन्य जीव अभयारण्य किस राज्य में स्थित है?", o: ["तमिलनाडु में", "कर्नाटक में", "केरल में", "आंध्र प्रदेश में"], a: 2 },
+            { q: "56. रणथंभौर राष्ट्रीय उद्यान किस राज्य में स्थित है?", o: ["मध्य प्रदेश में", "गुजरात में", "हरियाणा में", "राजस्थान में"], a: 3 },
+            { q: "57. पलामू (बेतला) राष्ट्रीय उद्यान किस राज्य में स्थित है?", o: ["झारखंड में", "बिहार में", "ओडिशा में", "उत्तर प्रदेश में"], a: 0 },
+            { q: "58. बिहार के किस जिले में 'वाल्मीकि नगर राष्ट्रीय उद्यान' स्थित है?", o: ["पूर्वी चंपारण", "पश्चिम चंपारण", "मुजफ्फरपुर", "गया"], a: 1 },
+            { q: "59. 'कंवर झील' पक्षी विहार बिहार के किस जिले में स्थित है?", o: ["बेगूसराय में", "दरभंगा में", "समस्तीपुर में", "पटना में"], a: 0 },
+            { q: "60. 'कुशेश्वर स्थान' पक्षी अभयारण्य बिहार के किस जिले में स्थित है?", o: ["बेगूसराय में", "दरभंगा में", "भागलपुर में", "वैशाली में"], a: 1 },
+            { q: "61. साल किस प्रकार के वन का मुख्य पेड़ है?", o: ["पतझड़ (पर्णपाती) वन", "सदाबहार वन", "कांटेदार वन", "दलदली वन"], a: 0 },
+            { q: "62. आबनूस और महोगनी किस प्रकार के वनों के वृक्ष हैं?", o: ["उष्णकटिबंधीय सदाबहार वन", "पर्वतीय वन", "रेगिस्तानी वन", "शुष्क वन"], a: 0 },
+            { q: "63. भारत में सबसे अधिक मैंग्रोव वन किस डेल्टा क्षेत्र में पाए जाते हैं?", o: ["कावेरी डेल्टा में", "गंगा-ब्रह्मपुत्र सुंदरवन डेल्टा में", "महानदी डेल्टा में", "गोदावरी डेल्टा में"], a: 1 },
+            { q: "64. निम्नलिखित में कौन सा पौधा औषधीय गुण वाला पौधा है?", o: ["तुलसी", "सागौन", "शीशम", "देवदार"], a: 0 },
+            { q: "65. हिमालयन यव (Himalayan Yew) क्या है?", o: ["एक प्रकार का हिरण", "एक औषधीय पौधा", "एक पक्षी", "एक पर्वतीय नदी"], a: 1 },
+            { q: "66. वनों के ह्रास का सबसे प्रमुख कारण निम्नलिखित में से क्या है?", o: ["कृषिगत भूमि का विस्तार एवं विकास", "पशुचारण", "इंधन की लकड़ी", "पर्यटन"], a: 0 },
+            { q: "67. स्थानांतरित कृषि (झूम खेती) से वनों पर क्या प्रभाव पड़ता है?", o: ["वन क्षरण एवं विनाश होता है", "वनों का विस्तार होता है", "मिट्टी उपजाऊ होती है", "कोई प्रभाव नहीं पड़ता"], a: 0 },
+            { q: "68. वन्य जीव संरक्षण अधिनियम भारत में किस वर्ष लागू किया गया?", o: ["1972 में", "1980 में", "1986 में", "1990 में"], a: 0 },
+            { q: "69. पर्यावरण संरक्षण अधिनियम भारत में किस वर्ष पारित हुआ था?", o: ["1986 में", "1972 में", "1992 में", "2000 में"], a: 0 },
+            { q: "70. भारत में मुख्य रूप से कितने प्रकार के वन पाए जाते हैं?", o: ["तीन प्रकार के", "चार प्रकार के", "पांच प्रकार के", "छह प्रकार के"], a: 2 },
+            { q: "71. कोणधारी (शंकुधारी) वन किस प्रकार की जलवायु में पाए जाते हैं?", o: ["उष्ण जलवायु में", "शीत/पर्वतीय जलवायु में", "शुष्क जलवायु में", "दलदली क्षेत्र में"], a: 1 },
+            { q: "72. महोगनी, रोजवुड और रबड़ किस प्रकार के वन के उदाहरण हैं?", o: ["सदाबहार वन के", "पर्णपाती वन के", "कांटेदार वन के", "पर्वतीय वन के"], a: 0 },
+            { q: "73. थार मरुस्थल में किस प्रकार की वनस्पतियाँ मुख्य रूप से पाई जाती हैं?", o: ["सदाबहार वन", "कांटेदार एवं झाड़ियाँ", "दलदली वन", "पर्वतीय वन"], a: 1 },
+            { q: "74. कैक्टस और नागफनी किस प्रकार के वन के पौधे हैं?", o: ["मरुस्थलीय/शुष्क वन", "सदाबहार वन", "डेल्टाई वन", "शीतोष्ण वन"], a: 0 },
+            { q: "75. गुजरात का 'गिर वन' किसके संरक्षण के लिए प्रसिद्ध है?", o: ["एशियाई सिंह के लिए", "बाघ के लिए", "हाथी के लिए", "एक सींग वाले गेंडे के लिए"], a: 0 },
+            { q: "76. असम का 'काजीरंगा' किसके लिए प्रसिद्ध है?", o: ["एक सींग वाले गेंडे के लिए", "सफेद शेर के लिए", "जंगली गधे के लिए", "मोर के लिए"], a: 0 },
+            { q: "77. भारत के किस राज्य में 'पेरियार बाघ रिजर्व' स्थित है?", o: ["केरल में", "कर्नाटक में", "तमिलनाडु में", "ओडिशा में"], a: 0 },
+            { q: "78. 'सरिस्का बाघ रिजर्व' भारत के किस राज्य में स्थित है?", o: ["राजस्थान में", "गुजरात में", "मध्य प्रदेश में", "हरियाणा में"], a: 0 },
+            { q: "79. वन महोत्सव की शुरुआत भारत में किसने की थी?", o: ["के. एम. मुंशी ने", "महात्मा गांधी ने", "जवाहरलाल नेहरू ने", "सुंदरलाल बहुगुणा ने"], a: 0 },
+            { q: "80. प्रतिवर्ष 'विश्व वानिकी दिवस' किस तिथि को मनाया जाता है?", o: ["21 मार्च को", "5 जून को", "22 अप्रैल को", "16 सितंबर को"], a: 0 },
+            { q: "81. भारत में वन अनुसंधान संस्थान (FRI) कहाँ स्थित है?", o: ["देहरादून में", "नई दिल्ली में", "भोपाल में", "कोलकाता में"], a: 0 },
+            { q: "82. भारतीय वन सर्वेक्षण (FSI) का मुख्यालय कहाँ स्थित है?", o: ["देहरादून में", "शिमला में", "राँची में", "नागपुर में"], a: 0 },
+            { q: "83. भारतीय वन्यजीव संस्थान (WII) कहाँ स्थित है?", o: ["देहरादून में", "जयपुर में", "भोपाल में", "गुवाहाटी में"], a: 0 },
+            { q: "84. केंद्रीय शुष्क क्षेत्र अनुसंधान संस्थान (CAZRI) कहाँ है?", o: ["जोधपुर में", "बीकानेर में", "जैसलमेर में", "जयपुर में"], a: 0 },
+            { q: "85. भारत का राष्ट्रीय विरासत पशु (Heritage Animal) किसे घोषित किया गया है?", o: ["हाथी को", "बाघ को", "गाय को", "सिंह को"], a: 0 },
+            { q: "86. भारत में सर्वाधिक वनावरण प्रतिशत वाला राज्य कौन सा है?", o: ["मिजोरम", "अरुणाचल प्रदेश", "मेघालय", "नागालैंड"], a: 0 },
+            { q: "87. पूर्वोत्तर भारत में झूम खेती के कारण वनों का क्या होता है?", o: ["ह्रास और क्षरण", "वृद्धि", "संरक्षण", "विकास"], a: 0 },
+            { q: "88. उष्णकटिबंधीय पर्णपाती वनों को किस अन्य नाम से भी जाना जाता है?", o: ["मानसूनी वन", "सदाबहार वन", "रेगिस्तानी वन", "टैगा वन"], a: 0 },
+            { q: "89. मानसूनी वनों का सबसे मुख्य पेड़ निम्नलिखित में से कौन सा है?", o: ["सागौन और साल", "नारियल", "सुंदरी", "कैक्टस"], a: 0 },
+            { q: "90. सुंदरवन का नाम किस वृक्ष की अधिकता के कारण पड़ा है?", o: ["सुंदरी वृक्ष", "चंदन वृक्ष", "साल वृक्ष", "सागौन वृक्ष"], a: 0 },
+            { q: "91. मैंग्रोव वनस्पतियों की मुख्य विशेषता क्या होती है?", o: ["दलिया एवं खारे जल में उगना", "कम पानी में उगना", "बर्फ में उगना", "बिना धूप के उगना"], a: 0 },
+            { q: "92. वनों से प्राप्त होने वाला अप्रत्यक्ष लाभ क्या है?", o: ["मृदा अपरदन पर रोक एवं पर्यावरण संतुलन", "लकड़ी मिलना", "फल मिलना", "गोंद मिलना"], a: 0 },
+            { q: "93. जैव विविधता का मुख्य केंद्र निम्नलिखित में से कौन सा माना जाता है?", o: ["वन क्षेत्र", "शहरी क्षेत्र", "औद्योगिक क्षेत्र", "कृषि क्षेत्र"], a: 0 },
+            { q: "94. भारत के किस भाग में पश्चिमी घाट जैव विविधता का प्रमुख हॉटस्पॉट है?", o: ["पश्चिमी घाट (सहाद्रि)", "थार मरुस्थल", "गंगा का मैदान", "अरावली पर्वत"], a: 0 },
+            { q: "95. 'शांत घाटी' (Silent Valley) किस राज्य में स्थित है?", o: ["केरल में", "तमिलनाडु में", "कर्नाटक में", "हिमाचल प्रदेश में"], a: 0 },
+            { q: "96. 'फूलों की घाटी' (Valley of Flowers) किस राज्य में स्थित है?", o: ["उत्तराखंड में", "सिक्किम में", "हिमाचल प्रदेश में", "जम्मू कश्मीर में"], a: 0 },
+            { q: "97. संकटग्रस्त प्रजातियों को किस किताब में दर्ज किया जाता है?", o: ["रेड डाटा बुक में", "ग्रीन बुक में", "येलो बुक में", "ब्लू बुक में"], a: 0 },
+            { q: "98. काजीरंगा राष्ट्रीय उद्यान किस नदी के किनारे स्थित है?", o: ["ब्रह्मपुत्र नदी", "गंगा नदी", "सूरमा नदी", "मेघना नदी"], a: 0 },
+            { q: "99. जिम कॉर्बेट राष्ट्रीय उद्यान का पुराना नाम क्या था?", o: ["हेली राष्ट्रीय उद्यान", "कान्हा पार्क", "गिर पार्क", "मानस पार्क"], a: 0 },
+            { q: "100. सतत विकास हेतु वनों का क्या आवश्यक है?", o: ["संरक्षण एवं वैज्ञानिक प्रबंधन", "अत्यधिक कटाई", "अवैध व्यापार", "आग लगाना"], a: 0 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 1(घ): वन एवं वन्य प्राणी संसाधन (महा-क्विज़)</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">वनों का वितरण, राष्ट्रीय उद्यान, अभयारण्य एवं जैव विविधता पर आधारित 100 महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने वन एवं वन्य प्राणी अध्याय के सभी प्रश्नों के सटीक उत्तर दिए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! आपकी बोर्ड परीक्षा की तैयारी बहुत ही अच्छी है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! अध्याय को एक बार पुनः ध्यान से दोहराएँ।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक का अध्ययन करें और फिर प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

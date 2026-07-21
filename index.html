@@ -129,20 +129,44 @@ const quizData = [
     {
         subjectName: "HINDI (हिंदी)",
         icon: "📔",
-        description: "कक्षा 10वीं बिहार बोर्ड हिंदी (गोधूलि भाग-2) के सभी पाठों के टेस्ट सेट।",
-        chapters: [
-            { name: "चैप्टर 01 (श्रम विभाजन और जाति प्रथा)", path: "./HINDI/01.html" },
-            { name: "चैप्टर 02 (विष के दांत)", path: "./HINDI/02.html" },
-            { name: "चैप्टर 03 (भारत से हम क्या सीखें)", path: "./HINDI/03.html" },
-            { name: "चैप्टर 04 (नाखून क्यों बढ़ते हैं)", path: "./HINDI/04.html" },
-            { name: "चैप्टर 05 (नागरी लिपि)", path: "./HINDI/05.html" },
-            { name: "चैप्टर 06 (बहादुर)", path: "./HINDI/06.html" },
-            { name: "चैप्टर 07 (परंपरा का मूल्यांकन)", path: "./HINDI/07.html" },
-            { name: "चैप्टर 08 (जीत-जीत मैं निरखत हूँ)", path: "./HINDI/08.html" },
-            { name: "चैप्टर 09 (अविन्यों)", path: "./HINDI/09.html" },
-            { name: "चैप्टर 10 (मछली)", path: "./HINDI/10.html" },
-            { name: "चैप्टर 11 (नौबतखाने में इबादत)", path: "./HINDI/11.html" },
-            { name: "चैप्टर 12 (शिक्षा और संस्कृति)", path: "./HINDI/12.html" }
+        description: "कक्षा 10वीं बिहार बोर्ड हिंदी (गोधूलि भाग-2) गद्यखंड एवं काव्यखंड के संपूर्ण टेस्ट।",
+        sections: [
+            {
+                sectionName: "गद्यखंड (Gadhya Khand)",
+                icon: "📖",
+                chapters: [
+                    { name: "पाठ 01 (श्रम विभाजन और जाति प्रथा)", path: "./HINDI/01.html" },
+                    { name: "पाठ 02 (विष के दांत)", path: "./HINDI/02.html" },
+                    { name: "पाठ 03 (भारत से हम क्या सीखें)", path: "./HINDI/03.html" },
+                    { name: "पाठ 04 (नाखून क्यों बढ़ते हैं)", path: "./HINDI/04.html" },
+                    { name: "पाठ 05 (नागरी लिपि)", path: "./HINDI/05.html" },
+                    { name: "पाठ 06 (बहादुर)", path: "./HINDI/06.html" },
+                    { name: "पाठ 07 (परंपरा का मूल्यांकन)", path: "./HINDI/07.html" },
+                    { name: "पाठ 08 (जीत-जीत मैं निरखत हूँ)", path: "./HINDI/08.html" },
+                    { name: "पाठ 09 (अविन्यों)", path: "./HINDI/09.html" },
+                    { name: "पाठ 10 (मछली)", path: "./HINDI/10.html" },
+                    { name: "पाठ 11 (नौबतखाने में इबादत)", path: "./HINDI/11.html" },
+                    { name: "पाठ 12 (शिक्षा और संस्कृति)", path: "./HINDI/12.html" }
+                ]
+            },
+            {
+                sectionName: "काव्यखंड (Kavya Khand)",
+                icon: "✍️",
+                chapters: [
+                    { name: "पाठ 01 (राम नाम बिनु बिरथे जगि जन्मा)", path: "./HINDI/13.html" },
+                    { name: "पाठ 02 (प्रेम अयनि श्री राधिका)", path: "./HINDI/14.html" },
+                    { name: "पाठ 03 (अति सूधो सनेह को मारगु है)", path: "./HINDI/15.html" },
+                    { name: "पाठ 04 (स्वदेशी)", path: "./HINDI/16.html" },
+                    { name: "पाठ 05 (भारतमाता)", path: "./HINDI/17.html" },
+                    { name: "पाठ 06 (जनतंत्र का जन्म)", path: "./HINDI/18.html" },
+                    { name: "पाठ 07 (हिरोशिमा)", path: "./HINDI/19.html" },
+                    { name: "पाठ 08 (एक वृक्ष की हत्या)", path: "./HINDI/20.html" },
+                    { name: "पाठ 09 (हमारी नींद)", path: "./HINDI/21.html" },
+                    { name: "पाठ 10 (अक्षर-ज्ञान)", path: "./HINDI/22.html" },
+                    { name: "पाठ 11 (लौटकर आऊँगा फिर)", path: "./HINDI/23.html" },
+                    { name: "पाठ 12 (मेरे बिना तुम प्रभु)", path: "./HINDI/24.html" }
+                ]
+            }
         ]
     },
     {
@@ -213,12 +237,20 @@ const quizData = [
                 sectionName: "GEOGRAPHY (भूगोल)",
                 icon: "🗺️",
                 chapters: [
-                    { name: "पाठ 01 (भारत : संसाधन एवं उपयोग)", path: "./SOCIAL SCIENCE/GEOGRAPHY/01.html" },
-                    { name: "पाठ 02 (कृषि)", path: "./SOCIAL SCIENCE/GEOGRAPHY/02.html" },
-                    { name: "पाठ 03 (निर्माण उद्योग)", path: "./SOCIAL SCIENCE/GEOGRAPHY/03.html" },
-                    { name: "पाठ 04 (परिवहन, संचार एवं व्यापार)", path: "./SOCIAL SCIENCE/GEOGRAPHY/04.html" },
-                    { name: "पाठ 05 (बिहार : कृषि एवं वन संसाधन)", path: "./SOCIAL SCIENCE/GEOGRAPHY/05.html" },
-                    { name: "पाठ 06 (मानचित्र अध्ययन)", path: "./SOCIAL SCIENCE/GEOGRAPHY/06.html" }
+                    { name: "इकाई 1: भारत : संसाधन एवं उपयोग (मुख्य)", path: "./SOCIAL SCIENCE/GEOGRAPHY/010.html" },
+                    { name: "इकाई 1(क): प्राकृतिक संसाधन", path: "./SOCIAL SCIENCE/GEOGRAPHY/011.html" },
+                    { name: "इकाई 1(ख): जल संसाधन", path: "./SOCIAL SCIENCE/GEOGRAPHY/012.html" },
+                    { name: "इकाई 1(ग): वन एवं वन्य प्राणी संसाधन", path: "./SOCIAL SCIENCE/GEOGRAPHY/013.html" },
+                    { name: "इकाई 1(घ): खनिज संसाधन", path: "./SOCIAL SCIENCE/GEOGRAPHY/014.html" },
+                    { name: "इकाई 1(ङ): शक्ति (ऊर्जा) संसाधन", path: "./SOCIAL SCIENCE/GEOGRAPHY/015.html" },
+                    { name: "इकाई 2: कृषि", path: "./SOCIAL SCIENCE/GEOGRAPHY/020.html" },
+                    { name: "इकाई 3: निर्माण उद्योग", path: "./SOCIAL SCIENCE/GEOGRAPHY/030.html" },
+                    { name: "इकाई 4: परिवहन, संचार एवं व्यापार", path: "./SOCIAL SCIENCE/GEOGRAPHY/040.html" },
+                    { name: "इकाई 5: बिहार : कृषि एवं वन संसाधन (मुख्य)", path: "./SOCIAL SCIENCE/GEOGRAPHY/051.html" },
+                    { name: "इकाई 5(क): बिहार : खनिज एवं ऊर्जा संसाधन", path: "./SOCIAL SCIENCE/GEOGRAPHY/052.html" },
+                    { name: "इकाई 5(ख): बिहार : उद्योग एवं परिवहन", path: "./SOCIAL SCIENCE/GEOGRAPHY/053.html" },
+                    { name: "इकाई 5(ग): बिहार : जनसंख्या एवं नगरीकरण", path: "./SOCIAL SCIENCE/GEOGRAPHY/054.html" },
+                    { name: "इकाई 6: मानचित्र अध्ययन (प्रारूप)", path: "./SOCIAL SCIENCE/GEOGRAPHY/060.html" }
                 ]
             },
             {

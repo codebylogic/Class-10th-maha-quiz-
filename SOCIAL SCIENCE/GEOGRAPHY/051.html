@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 5(क): बिहार - कृषि एवं वन संसाधन क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "बिहार की कितनी प्रतिशत आबादी प्रत्यक्ष या अप्रत्यक्ष रूप से कृषि पर निर्भर है?", o: ["80 प्रतिशत", "60 प्रतिशत", "70 प्रतिशत", "90 प्रतिशत"], a: 0 },
+            { q: "बिहार के कुल भौगोलिक क्षेत्रफल का लगभग कितना प्रतिशत भाग कृषि योग्य है?", o: ["60 प्रतिशत", "80 प्रतिशत", "50 प्रतिशत", "40 प्रतिशत"], a: 0 },
+            { q: "बिहार में शुद्ध बोया गया क्षेत्र कुल भौगोलिक क्षेत्रफल का लगभग कितना प्रतिशत है?", o: ["60 प्रतिशत", "70 प्रतिशत", "50 प्रतिशत", "80 प्रतिशत"], a: 0 },
+            { q: "बिहार की कृषि किस पर सबसे अधिक निर्भर करती है?", o: ["मानसून पर", "नहरों पर", "ट्यूबवेल पर", "तालाबों पर"], a: 0 },
+            { q: "बिहार में कृषि किस प्रकार की अर्थव्यवस्था का मुख्य आधार है?", o: ["जीविकोपार्जन कृषि", "व्यापारिक कृषि", "रोपण कृषि", "गहन कृषि"], a: 0 },
+            { q: "बिहार की मुख्य खाद्यान्न फसल निम्नलिखित में से कौन सी है?", o: ["धान (चावल)", "गेहूँ", "मक्का", "जौ"], a: 0 },
+            { q: "बिहार में धान का सर्वाधिक उत्पादन किस जिले में होता है?", o: "रोहतास", o: ["रोहतास", "पश्चिम चंपारण", "औरंगाबाद", "कैमूर"], a: 0 },
+            { q: "बिहार का कौन सा क्षेत्र धान की खेती के लिए सबसे अधिक उपयुक्त माना जाता है?", o: ["दक्षिण-पश्चिम मैदानी भाग", "उत्तर-पूर्वी मैदानी भाग", "पहाड़ी भाग", "गंगा का दियारा क्षेत्र"], a: 0 },
+            { q: "बिहार में गेहूँ का सबसे बड़ा उत्पादक जिला कौन सा है?", o: ["रोहतास", "पटना", "सिवान", "मुजफ्फरपुर"], a: 0 },
+            { q: "बिहार में मक्का का सर्वाधिक उत्पादन किस क्षेत्र में होता है?", o: ["उत्तर-पूर्वी मैदानी भाग", "दक्षिणी मैदानी भाग", "पश्चिमी मैदानी भाग", "पहाड़ी भाग"], a: 0 },
+            { q: "बिहार के किस जिले को 'मक्का का घर' या प्रमुख उत्पादक माना जाता है?", o: ["खगड़िया", "पटना", "गया", "रोहतास"], a: 0 },
+            { q: "बिहार में भदई और अगहनी किस फसल के प्रमुख प्रकार हैं?", o: ["धान", "गेहूँ", "सरसों", "चना"], a: 0 },
+            { q: "बिहार में रबी फसलों की बुआई मुख्य रूप से किस महीने में होती है?", o: ["अक्टूबर-नवंबर", "जून-जुलाई", "मार्च-अप्रैल", "जनवरी-फरवरी"], a: 0 },
+            { q: "बिहार में जायद (गरमा) फसलें किस ऋतु में उगाई जाती हैं?", o: ["ग्रीष्म ऋतु", "शीत ऋतु", "वर्षा ऋतु", "शरद ऋतु"], a: 0 },
+            { q: "बिहार में दलहन फसलों में सर्वाधिक उत्पादन किसका होता है?", o: ["चना और मसूर", "अरहर और मूंग", "सोयाबीन", "राजमा"], a: 0 },
+            { q: "बिहार में चना का उत्पादन किस जिले में सबसे अधिक होता है?", o: ["रोहतास", "दरभंगा", "पूर्णिया", "किशनगंज"], a: 0 },
+            { q: "बिहार में तिलहन फसलों में सबसे अधिक उत्पादन किसका होता है?", o: ["सरसों और राई", "तिल", "सूरजमुखी", "तीसी"], a: 0 },
+            { q: "बिहार की प्रमुख नकद/व्यापारिक फसल निम्नलिखित में से कौन सी है?", o: ["गन्ना", "गेहूँ", "धान", "मक्का"], a: 0 },
+            { q: "बिहार में गन्ने का सर्वाधिक उत्पादन किस जिले में होता है?", o: ["पश्चिम चंपारण", "गोपालगंज", "पूर्वी चंपारण", "सीतामढ़ी"], a: 0 },
+            { q: "बिहार के उत्तर-पश्चिमी भाग में कौन सी नकद फसल बड़े पैमाने पर उगाई जाती है?", o: ["गन्ना", "कपास", "रबड़", "चाय"], a: 0 },
+            { q: "बिहार में जूट (पटसन) का सर्वाधिक उत्पादन किस जिले में होता है?", o: ["पूर्णिया", "कटिहार", "किशनगंज", "सहरसा"], a: 0 },
+            { q: "बिहार का कौन सा प्रमंडल जूट उत्पादन के लिए प्रसिद्ध है?", o: ["पूर्णिया प्रमंडल", "पटना प्रमंडल", "भागलपुर प्रमंडल", "तिरहूत प्रमंडल"], a: 0 },
+            { q: "बिहार में तंबाकू उत्पादन के लिए कौन सा क्षेत्र विश्व प्रसिद्ध रहा है?", o: ["गंगा का दियारा क्षेत्र", "कोसी का मैदान", "गंडक क्षेत्र", "कैमूर का पठार"], a: 0 },
+            { q: "बिहार के किस जिले में चाय की खेती बड़े पैमाने पर शुरू की गई है?", o: ["किशनगंज", "पूर्णिया", "कटिहार", "अररिया"], a: 0 },
+            { q: "बिहार का मुजफ्फरपुर जिला किस फल के उत्पादन के लिए पूरे देश में विख्यात है?", o: ["शाही लीची", "मालदा आम", "जर्दालु आम", "केला"], a: 0 },
+            { q: "बिहार का हाजीपुर शहर किस फल के उत्पादन के लिए प्रसिद्ध है?", o: ["केला", "लीची", "अमरूद", "संतरा"], a: 0 },
+            { q: "भागलपुर का कौन सा फल अपनी खास सुगंध के लिए भौगोलिक संकेतक (GI Tag) प्राप्त है?", o: ["जर्दालु आम", "शाही लीची", "चित्तीदार केला", "मीठा अमरूद"], a: 0 },
+            { q: "बिहार के किस जिले का 'कतरनी चावल' बहुत प्रसिद्ध है?", o: ["भागलपुर", "पटना", "रोहतास", "बक्सर"], a: 0 },
+            { q: "बिहार के गया जिले का कौन सा तिलहन उत्पाद काफी लोकप्रिय है?", o: ["तिल", "सरसों", "सोयाबीन", "सूरजमुखी"], a: 0 },
+            { q: "बिहार में मखाना का सर्वाधिक उत्पादन किस क्षेत्र में होता है?", o: ["मिथिलांचल (दरभंगा-मधुबनी)", "मगध क्षेत्र", "भोजपुर क्षेत्र", "सीमांचल"], a: 0 },
+            { q: "विश्व के कुल मखाना उत्पादन का लगभग कितना प्रतिशत भाग बिहार में होता है?", o: ["80 से 90 प्रतिशत", "50 प्रतिशत", "30 प्रतिशत", "60 प्रतिशत"], a: 0 },
+            { q: "बिहार के किस उत्पाद को हाल ही में जीआई टैग प्रदान किया गया है?", o: ["मिथिला मखाना", "बक्सर का गेहूँ", "गया का मक्का", "पटना का चना"], a: 0 },
+            { q: "बिहार में पान (नागरबेल) की खेती के लिए कौन सा जिला प्रसिद्ध है?", o: ["नालंदा (इस्लामपुर)", "वैशाली", "सहरसा", "रोहतास"], a: 0 },
+            { q: "बिहार में कृषि योग्य भूमि के छोटे टुकड़ों में बँटने का मुख्य कारण क्या है?", o: ["जनसंख्या वृद्धि और विभाजन", "सरकारी नीतियाँ", "सिंचाई की कमी", "मिट्टी का क्षरण"], a: 0 },
+            { q: "बिहार में सिंचाई का सबसे बड़ा और प्रमुख साधन क्या है?", o: ["ट्यूबवेल (नलकूप)", "नहरें", "तालाब", "कुएँ"], a: 0 },
+            { q: "बिहार में कुल सिंचित क्षेत्र का सबसे बड़ा भाग किस साधन से सींचा जाता है?", o: ["नलकूप", "नहर", "पोखर", "आहर-पाइन"], a: 0 },
+            { q: "बिहार की सबसे पुरानी नहर परियोजना कौन सी है?", o: ["सोन नहर परियोजना", "गंडक नहर परियोजना", "कोसी नहर परियोजना", "बागमती परियोजना"], a: 0 },
+            { q: "सोन नहर परियोजना का निर्माण किस वर्ष हुआ था?", o: ["1874", "1905", "1850", "1951"], a: 0 },
+            { q: "सोन नदी घाटी परियोजना का मुख्य केंद्र कहाँ स्थित है?", o: ["डेहरी (डेहरी-ऑन-सोन)", "इंद्रपुरी", "पटना", "वाल्मीकिनगर"], a: 0 },
+            { q: "इंद्रपुरी बैराज का निर्माण किस नदी पर किया गया है?", o: ["सोन नदी", "गंडक नदी", "कोसी नदी", "पुनपुन नदी"], a: 0 },
+            { q: "गंडक नदी घाटी परियोजना का निर्माण किस स्थान पर हुआ है?", o: ["वाल्मीकिनगर", "डेहरी", "भीमनगर", "हनुमाननगर"], a: 0 },
+            { q: "गंडक परियोजना भारत के साथ किस पड़ोसी देश की संयुक्त परियोजना है?", o: ["नेपाल", "भूटान", "बांग्लादेश", "चीन"], a: 0 },
+            { q: "कोसी नदी घाटी परियोजना की शुरुआत किस वर्ष हुई थी?", o: ["1955", "1947", "1965", "1972"], a: 0 },
+            { q: "कोसी परियोजना के तहत बैराज का निर्माण कहाँ किया गया है?", o: ["भीमनगर (हनुमाननगर)", "वाल्मीकिनगर", "इंद्रपुरी", "बगहा"], a: 0 },
+            { q: "कोसी नदी को पारंपरिक रूप से किस नाम से जाना जाता रहा है?", o: ["बिहार का शोक", "बिहार की जीवनरेखा", "उत्तर की गंगा", "पवित्र सरिता"], a: 0 },
+            { q: "बिहार के दक्षिणी भाग में सिंचाई की पारंपरिक प्रणाली को क्या कहा जाता है?", o: ["आहर और पाइन", "रेहट और कुआँ", "बोरिंग", "नहर"], a: 0 },
+            { q: "बिहार में कुल भौगोलिक क्षेत्रफल के कितने प्रतिशत भाग पर वन फैले हैं?", o: ["लगभग 7.84 प्रतिशत", "15 प्रतिशत", "22 प्रतिशत", "33 प्रतिशत"], a: 0 },
+            { q: "राष्ट्रीय वन नीति के अनुसार किसी भी क्षेत्र में कितने प्रतिशत वन होने चाहिए?", o: ["33 प्रतिशत", "25 प्रतिशत", "50 प्रतिशत", "15 प्रतिशत"], a: 0 },
+            { q: "बिहार में वनों का कुल विस्तार लगभग कितने वर्ग किलोमीटर में है?", o: ["7380 वर्ग किमी", "9500 वर्ग किमी", "5000 वर्ग किमी", "12000 वर्ग किमी"], a: 0 },
+            { q: "बिहार के किस जिले में वनों का प्रतिशत क्षेत्रफल सबसे अधिक है?", o: ["कैमूर", "जमुई", "नवादा", "गया"], a: 0 },
+            { q: "बिहार के किस जिले में सबसे कम वन क्षेत्र पाया जाता है?", o: ["शेखपुरा", "शिवहर", "बक्सर", "गोपालगंज"], a: 0 },
+            { q: "बिहार में किस प्रकार के वन मुख्य रूप से पाए जाते हैं?", o: ["उष्णकटिबंधीय पर्णपाती (पतझड़) वन", "सदाबहार वन", "कांटेदार मरुस्थलीय वन", "ध्रुवीय वन"], a: 0 },
+            { q: "आर्द्र पर्णपाती वन बिहार के किस भाग में पाए जाते हैं?", o: ["उत्तर-पूर्वी एवं तराई भाग", "दक्षिणी मैदानी भाग", "पश्चिमी शुष्क भाग", "मध्य भाग"], a: 0 },
+            { q: "शुष्क पर्णपाती वन बिहार के किस क्षेत्र में अधिक मिलते हैं?", o: ["दक्षिणी पठारी सीमांत भाग", "तराई क्षेत्र", "गंगा के उत्तर", "कोसी क्षेत्र"], a: 0 },
+            { q: "बिहार का एकमात्र राष्ट्रीय उद्यान कौन सा है?", o: ["वाल्मीकि राष्ट्रीय उद्यान", "कांवर पक्षी विहार", "संजय गांधी उद्यान", "गौतम बुद्ध अभ्यारण्य"], a: 0 },
+            { q: "वाल्मीकि राष्ट्रीय उद्यान किस जिले में स्थित है?", o: ["पश्चिम चंपारण", "पूर्वी चंपारण", "कैमूर", "रोहतास"], a: 0 },
+            { q: "वाल्मीकि टाइगर रिजर्व मुख्य रूप से किसके संरक्षण के लिए प्रसिद्ध है?", o: ["बाघ (Tiger)", "एक सींग वाला गेंडा", "हाथी", "हिरण"], a: 0 },
+            { q: "कांवर झील पक्षी अभ्यारण्य बिहार के किस जिले में स्थित है?", o: ["बेगूसराय", "दरभंगा", "समस्तीपुर", "सहरसा"], a: 0 },
+            { q: "कांवर झील को किस प्रकार की आर्द्रभूमि (Ramsar Site) घोषित किया गया है?", o: ["रामसर स्थल", "विश्व धरोहर", "सदाबहार झील", "कृत्रिम जलाशय"], a: 0 },
+            { q: "कुशेश्वरस्थान पक्षी अभ्यारण्य बिहार के किस जिले में स्थित है?", o: ["दरभंगा", "मधुबनी", "बेगूसराय", "सुपौल"], a: 0 },
+            { q: "गौतम बुद्ध वन्यजीव अभ्यारण्य किस जिले में स्थित है?", o: ["गया", "नवादा", "औरंगाबाद", "जमुई"], a: 0 },
+            { q: "कैमूर वन्यजीव अभ्यारण्य बिहार के किस क्षेत्र में फैला है?", o: ["कैमूर और रोहतास", "पश्चिम चंपारण", "मुंगेर", "भागलपुर"], a: 0 },
+            { q: "नागी बांध और नकटी बांध पक्षी अभ्यारण्य किस जिले में स्थित हैं?", o: ["जमुई", "लखीसराय", "मुंगेर", "बांका"], a: 0 },
+            { q: "भीमबांध वन्यजीव अभ्यारण्य बिहार के किस जिले में स्थित है?", o: ["मुंगेर", "भागलपुर", "जमुई", "खगड़िया"], a: 0 },
+            { q: "विक्रमशिला गांगेय डॉल्फिन अभ्यारण्य किस जिले में स्थित है?", o: ["भागलपुर", "पटना", "मुंगेर", "कटिहार"], a: 0 },
+            { q: "भारत का राष्ट्रीय जलीय जीव किसे घोषित किया गया है?", o: ["गांगेय डॉल्फिन (सोंस)", "घड़ियाल", "कछुआ", "झींगा मछली"], a: 0 },
+            { q: "पटना में स्थित जैविक उद्यान का क्या नाम है?", o: ["संजय गांधी जैविक उद्यान", "इंदिरा गांधी जैविक उद्यान", "महात्मा गांधी उद्यान", "राजीव गांधी पार्क"], a: 0 },
+            { q: "संजय गांधी जैविक उद्यान किस जीव के प्रजनन केंद्र के रूप में प्रसिद्ध है?", o: ["गेंडा (Rhinoceros)", "बाघ", "सफेद शेर", "हाथी"], a: 0 },
+            { q: "बिहार में कृषि क्षेत्र के विकास में सबसे बड़ी प्राकृतिक बाधा क्या है?", o: ["बाढ़ और सूखा", "भूकंप", "चक्रवात", "सुनामी"], a: 0 },
+            { q: "उत्तर बिहार मुख्य रूप से किस प्राकृतिक आपदा से प्रभावित रहता है?", o: ["बाढ़ से", "सूखे से", "भूस्खलन से", "आग से"], a: 0 },
+            { q: "दक्षिण बिहार का अधिकांश भाग किस समस्या से ग्रस्त रहता है?", o: ["सूखा से", "बाढ़ से", "शीतलहर से", "जलजमाव से"], a: 0 },
+            { q: "बिहार में कृषि विकास के लिए हाल ही में कौन सा रोडमैप लागू किया गया है?", o: ["कृषि रोडमैप", "औद्योगिक नीति", "हरित नीति", "सिंचाई योजना"], a: 0 },
+            { q: "बिहार में जैविक खेती को बढ़ावा देने के लिए किस कॉरिडोर का विकास किया जा रहा है?", o: ["गंगा जैविक कॉरिडोर", "सोन कॉरिडोर", "कोसी कॉरिडोर", "गंडक कॉरिडोर"], a: 0 },
+            { q: "बिहार की कितनी प्रतिशत भूमि पर वनाच्छादन बढ़ाने का लक्ष्य रखा गया है?", o: ["17 प्रतिशत", "33 प्रतिशत", "25 प्रतिशत", "10 प्रतिशत"], a: 0 },
+            { q: "बिहार में हरियाली मिशन की शुरुआत क्यों की गई थी?", o: ["हरित आवरण बढ़ाने हेतु", "फसल उत्पादन हेतु", "तालाब बनाने हेतु", "सड़क निर्माण हेतु"], a: 0 },
+            { q: "बिहार में 'जल-जीवन-हरियाली' अभियान का मुख्य उद्देश्य क्या है?", o: ["पर्यावरण संरक्षण एवं जल संचयन", "केवल उद्योग लगाना", "विद्युत उत्पादन", "पक्की सड़कें बनाना"], a: 0 },
+            { q: "साल (साखुआ) के वृक्ष बिहार में मुख्य रूप से कहाँ पाए जाते हैं?", o: ["दक्षिणी पठारी भाग", "गंगा का मैदानी भाग", "दियारा क्षेत्र", "कोसी तटબંધ"], a: 0 },
+            { q: "शीशम और सागवान के पेड़ किस प्रकार के वनों के उदाहरण हैं?", o: ["पर्णपाती वन", "सदाबहार वन", "कांटेदार वन", "मैंग्रोव वन"], a: 0 },
+            { q: "सबाउ घास बिहार के किस जिले में बहुतायत से पाई जाती है?", o: ["भागलपुर और बांका", "पश्चिम चंपारण", "रोहतास", "गोपालगंज"], a: 0 },
+            { q: "बिहार में कत्था किस पेड़ की लकड़ी से तैयार किया जाता है?", o: ["खैर के पेड़ से", "शीशम से", "बबूल से", "महुआ से"], a: 0 },
+            { q: "बिहार में महुआ का उपयोग मुख्य रूप से किस काम आता है?", o: ["फल एवं औषधि हेतु", "कागज बनाने में", "इमारती लकड़ी में", "सीमेंट बनाने में"], a: 0 },
+            { q: "बिहार में लाख (Lac) का उत्पादन किस कीट से होता है?", o: ["लाख के कीट से", "रेशम कीट से", "मधुमक्खी से", "केचुए से"], a: 0 },
+            { q: "बिहार में शहतूत और तसर रेशम का उत्पादन किस क्षेत्र में होता है?", o: ["भागलपुर और बांका", "पटना और गया", "मुजफ्फरपुर", "सीवान"], a: 0 },
+            { q: "भागलपुर को किस नाम से जाना जाता है?", o: ["सिल्क सिटी", "राइस सिटी", "शुगर सिटी", "स्टील सिटी"], a: 0 },
+            { q: "बिहार में डेयरी विकास के लिए कौन सा ब्रांड सबसे लोकप्रिय है?", o: ["कॉम्फेड (सुधा)", "अमूल", "मदर डेयरी", "मेधा"], a: 0 },
+            { q: "सुधा डेयरी (COMPFED) की स्थापना किस वर्ष हुई थी?", o: ["1983", "1975", "1990", "2001"], a: 0 },
+            { q: "बिहार में मत्स्य (मछली) उत्पादन में अग्रणी जिला कौन सा है?", o: ["दरभंगा और मधुबनी", "रोहतास", "पटना", "कैमूर"], a: 0 },
+            { q: "बिहार सरकार द्वारा मछली पालन को किस क्षेत्र का दर्जा दिया गया है?", o: ["कृषि का दर्जा", "उद्योग का दर्जा", "व्यापार का दर्जा", "सेवा का दर्जा"], a: 0 },
+            { q: "बिहार में मधुमक्खी पालन (शहद उत्पादन) किस जिले में सबसे अधिक होता है?", o: ["मुजफ्फरपुर और पूर्वी चंपारण", "गया", "रोहतास", "बांका"], a: 0 },
+            { q: "बिहार में मशरूम (खंभी) उत्पादन में भारत में कौन सा स्थान प्राप्त किया है?", o: ["प्रथम स्थान", "द्वितीय स्थान", "तृतीय स्थान", "पांचवां स्थान"], a: 0 },
+            { q: "बिहार में कृषि श्रमिकों की संख्या कुल कार्यशील आबादी का कितना भाग है?", o: ["आधे से अधिक", "एक तिहाई", "चौथाई भाग", "दस प्रतिशत"], a: 0 },
+            { q: "बिहार में भूमि उपयोग वर्ग के तहत बंजर भूमि का प्रतिशत कितना है?", o: ["लगभग 4 से 5 प्रतिशत", "20 प्रतिशत", "30 प्रतिशत", "50 प्रतिशत"], a: 0 },
+            { q: "बिहार का कौन सा जिला चावल और गेहूँ दोनों के उत्पादन में शीर्ष पर रहता है?", o: ["रोहतास", "दरभंगा", "कटिहार", "किशनगंज"], a: 0 },
+            { q: "बिहार के तराई क्षेत्र में कौन सी जनजाति मुख्य रूप से निवास करती है?", o: ["थारू जनजाति", "मुंडा जनजाति", "संथाल जनजाति", "ओरांव जनजाति"], a: 0 },
+            { q: "बिहार में वनों के ह्रास का सबसे प्रमुख ऐतिहासिक कारण क्या रहा है?", o: ["कृषि भूमि का विस्तार एवं आबादी", "अत्यधिक वर्षा", "उद्योगों का बंद होना", "बाढ़"], a: 0 },
+            { q: "बिहार राज्य वन विकास निगम की स्थापना किस वर्ष की गई थी?", o: ["1975", "1985", "1995", "2005"], a: 0 },
+            { q: "बिहार में कृषि साख (ऋण) प्रदान करने वाली शीर्ष संस्था कौन सी है?", o: ["राज्य सहकारी बैंक", "व्यापारिक बैंक", "साहूकार", "प्राथमिक समिति"], a: 0 },
+            { q: "बिहार में दलहनी अनुसंधान केंद्र की स्थापना कहाँ की जा रही है?", o: ["मोकामा", "पटना", "मुजफ्फरपुर", "भागलपुर"], a: 0 },
+            { q: "बिहार में आलू का उत्पादन किस जिले में सर्वाधिक होता है?", o: ["पटना और नालंदा", "पश्चिम चंपारण", "किशनगंज", "कैमूर"], a: 0 },
+            { q: "बिहार की अर्थव्यवस्था को सुदृढ़ करने के लिए किसका विकास अति आवश्यक है?", o: ["कृषि आधारित उद्योग एवं सिंचाई", "केवल खनिज", "समुद्री व्यापार", "पहाड़ी पर्यटन"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions & Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.4 19 2c1 2 2 4.1 2 8 0 5.5-4.5 10-10 10z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 5(क): बिहार - कृषि एवं वन संसाधन</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">बिहार की फसलों, सिंचाई परियोजनाओं, वन विस्तार, अभ्यारण्यों एवं कृषि-आधारित संसाधनों पर आधारित 100 वस्तुनिष्ठ प्रश्नों का महा-क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने अध्याय 5(क) के सभी प्रश्नों के सही उत्तर दिए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! आपकी बोर्ड परीक्षा की तैयारी बहुत मजबूत है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! बिहार के कृषि एवं वन आंकड़ों का पुनः अध्ययन करें।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

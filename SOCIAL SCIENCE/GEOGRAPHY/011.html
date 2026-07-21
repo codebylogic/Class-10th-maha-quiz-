@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 भूगोल - अध्याय 1: भूमि संसाधन क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const questions = [
+            { q: "कोयला किस प्रकार का संसाधन है?", o: ["नवीकरणीय", "अनवीकरणीय", "जैव", "अजैव"], a: 1 },
+            { q: "सौर ऊर्जा निम्नलिखित में से कौन सा संसाधन है?", o: ["मानव कृत", "पुनः पूर्ति योग्य", "अजैव", "अचक्रीय"], a: 1 },
+            { q: "तट रेखा से कितने किलोमीटर क्षेत्र की सीमा राष्ट्रीय संपदा कहलाती है?", o: ["10 किमी", "150 किमी", "192 किमी", "200 किमी"], a: 2 },
+            { q: "डाकू की अर्थव्यवस्था का संबंध किससे है?", o: ["संसाधन संग्रहण से", "संसाधनों के अनियोजित दोहन से", "संसाधन नियोजन से", "संसाधन निर्माण से"], a: 1 },
+            { q: "समुद्री क्षेत्र में राजनीतिक सीमा के कितने किमी क्षेत्र तक संपदा निहित है?", o: ["10.2 किमी", "15.5 किमी", "12.2 किमी", "19.2 किमी"], a: 3 },
+            { q: "संसाधन होते नहीं, बनते हैं यह कथन किसका है?", o: ["जिम्मरमैन", "महात्मा गांधी", "संदीप पांडे", "अमर्त्य सेन"], a: 0 },
+            { q: "निम्नलिखित में कौन सा संसाधन प्राकृतिक संसाधन है?", o: ["भवन", "भूमि", "मानव", "मशीन"], a: 1 },
+            { q: "प्रथम पृथ्वी सम्मेलन किस वर्ष आयोजित किया गया था?", o: ["1990", "1998", "1992", "2002"], a: 2 },
+            { q: "प्रथम पृथ्वी सम्मेलन किस शहर में हुआ था?", o: ["न्यूयार्क", "रियो डी जेनेरो", "जोहान्सबर्ग", "टोक्यो"], a: 1 },
+            { q: "द्वितीय पृथ्वी सम्मेलन कहाँ हुआ था?", o: ["न्यूयार्क", "पेरिस", "मास्को", "काठमांडू"], a: 0 },
+            { q: "तृतीय पृथ्वी सम्मेलन किस वर्ष आयोजित हुआ था?", o: ["1992", "1997", "2002", "2012"], a: 2 },
+            { q: "क्योटो सम्मेलन किस देश में आयोजित किया गया था?", o: ["भारत", "जापान", "चीन", "अमेरिका"], a: 1 },
+            { q: "क्योटो सम्मेलन मुख्य रूप से किस समस्या पर केंद्रित था?", o: ["जल प्रदूषण", "मृदा अपरदन", "जनसंख्या वृद्धि", "ग्लोबल वार्मिंग"], a: 3 },
+            { q: "पर्यावरण दिवस किस तिथि को मनाया जाता है?", o: ["5 जून", "15 अगस्त", "26 जनवरी", "10 दिसंबर"], a: 0 },
+            { q: "स्मॉल इज ब्यूटीफुल पुस्तक के लेखक कौन हैं?", o: ["शुमेकर", "जिम्मरमैन", "गांधीजी", "अमर्त्य सेन"], a: 0 },
+            { q: "हमारे पास हर व्यक्ति की आवश्यकता पूर्ति के लिए बहुत कुछ है, लेकिन किसी के लालच की तुष्टि के लिए नहीं - यह किसने कहा था?", o: ["जवाहरलाल नेहरू", "सुभाष चंद्र बोस", "महात्मा गांधी", "डॉ. राजेंद्र प्रसाद"], a: 2 },
+            { q: "ब्रूंडलैंड कमीशन ने किस विषय पर अपनी रिपोर्ट सौंपी थी?", o: ["सतत विकास", "जल संरक्षण", "वन्य जीव संरक्षण", "मृदा संरक्षण"], a: 0 },
+            { q: "क्लब ऑफ रोम ने किस वर्ष संसाधनों के संरक्षण की वकालत की थी?", o: ["1972", "1968", "1984", "1990"], a: 1 },
+            { q: "उत्पत्ति के आधार पर संसाधन कितने प्रकार के होते हैं?", o: ["तीन", "चार", "दो", "पांच"], a: 2 },
+            { q: "समाप्यता के आधार पर संसाधन कितने प्रकार के होते हैं?", o: ["दो", "तीन", "चार", "पांच"], a: 0 },
+            { q: "स्वामित्व के आधार पर संसाधन कितने प्रकार के होते हैं?", o: ["2", "3", "4", "5"], a: 2 },
+            { q: "विकास की स्थिति के आधार पर संसाधनों को कितने वर्गों में बांटा गया है?", o: ["2", "3", "5", "4"], a: 3 },
+            { q: "वे संसाधन जो जैव मंडल से प्राप्त होते हैं तथा जिनमें जीवन होता है, क्या कहलाते हैं?", o: ["अजैव संसाधन", "जैव संसाधन", "नवीकरणीय संसाधन", "मानव निर्मित संसाधन"], a: 1 },
+            { q: "चट्टानें और धातुएँ किस प्रकार के संसाधन के उदाहरण हैं?", o: ["जैव", "संभाव्य", "अजैव", "संचित"], a: 2 },
+            { q: "पवन ऊर्जा और जल ऊर्जा किस प्रकार के संसाधन हैं?", o: ["अनवीकरणीय", "नवीकरणीय", "अजैव", "मानव निर्मित"], a: 1 },
+            { q: "खनिज तेल और प्राकृतिक गैस किस प्रकार के संसाधन हैं?", o: ["नवीकरणीय", "अनवीकरणीय", "असीमित", "मानवीय"], a: 1 },
+            { q: "किसी निजी व्यक्ति के स्वामित्व वाला तालाब या बगीचा किस प्रकार का संसाधन है?", o: ["सामुदायिक संसाधन", "राष्ट्रीय संसाधन", "व्यक्तिगत संसाधन", "अंतर्राष्ट्रीय संसाधन"], a: 2 },
+            { q: "गांव का श्मशान, खेल का मैदान और मंदिर किस प्रकार के संसाधन हैं?", o: ["व्यक्तिगत", "सामुदायिक", "राष्ट्रीय", "अंतर्राष्ट्रीय"], a: 1 },
+            { q: "देश के अंदर मौजूद सभी खनिज और जल संसाधन किस प्रकार के संसाधन हैं?", o: ["व्यक्तिगत", "सामुदायिक", "राष्ट्रीय", "अंतर्राष्ट्रीय"], a: 2 },
+            { q: "200 समुद्री मील के बाद का खुला महासागरीय क्षेत्र किस संसाधन के अंतर्गत आता है?", o: ["राष्ट्रीय", "व्यक्तिगत", "सामुदायिक", "अंतर्राष्ट्रीय"], a: 3 },
+            { q: "ऐसे संसाधन जो किसी क्षेत्र में मौजूद हैं परंतु उनका उपयोग नहीं किया गया है, कहलाते हैं?", o: ["संभाव्य संसाधन", "विकसित संसाधन", "संचित कोष", "आरक्षित"], a: 0 },
+            { q: "बांधों में संचित जल किस प्रकार के संसाधन का उदाहरण है?", o: ["संभाव्य", "संचित कोष", "विकसित", "अंतर्राष्ट्रीय"], a: 1 },
+            { q: "संसाधनों का विवेकपूर्ण और न्यायसंगत उपयोग क्या कहलाता है?", o: ["संसाधन विनाश", "संसाधन नियोजन", "संसाधन दोहन", "संसाधन क्षय"], a: 1 },
+            { q: "भारत में संसाधन नियोजन के मुख्य रूप से कितने चरण हैं?", o: ["3", "5", "7", "2"], a: 0 },
+            { q: "भारत के किस राज्य में सौर ऊर्जा की अपार संभावनाएँ मौजूद हैं?", o: ["बिहार", "असम", "पंजाब", "राजस्थान"], a: 3 },
+            { q: "लद्दाख क्षेत्र भारत में किस प्रकार के संसाधनों के लिए प्रसिद्ध है?", o: ["सांस्कृतिक विरासत", "जल संसाधन", "खनिज संसाधन", "वन संसाधन"], a: 0 },
+            { q: "संसाधनों के संरक्षण हेतु सर्वप्रथम अंतर्राष्ट्रीय स्तर पर किसने आवाज उठाई थी?", o: ["संयुक्त राष्ट्र", "क्लब ऑफ रोम", "विश्व बैंक", "यूनेस्को"], a: 1 },
+            { q: "एजेंडा 21 का संबंध किस सम्मेलन से है?", o: ["प्रथम पृथ्वी सम्मेलन", "द्वितीय पृथ्वी सम्मेलन", "तृतीय पृथ्वी सम्मेलन", "क्योटो सम्मेलन"], a: 0 },
+            { q: "एजेंडा 21 का मुख्य उद्देश्य क्या था?", o: ["परमाणु रोक", "व्यापार विस्तार", "सतत विकास", "गरीबी मिटाना"], a: 2 },
+            { q: "चिपको आंदोलन के प्रणेता कौन थे?", o: ["मेधा पाटकर", "सुंदरलाल बहुगुणा", "अमर्त्य सेन", "महात्मा गांधी"], a: 1 },
+            { q: "नर्मदा बचाओ आंदोलन का नेतृत्व किसने किया था?", o: ["मेधा पाटकर", "सुंदरलाल बहुगुणा", "अन्ना हजारे", "संदीप पांडे"], a: 0 },
+            { q: "वर्षा जल संचयन किस राज्य में अनिवार्य किया गया है?", o: ["बिहार", "राजस्थान", "उत्तर प्रदेश", "तमिलनाडु"], a: 3 },
+            { q: "भारत का कुल भौगोलिक क्षेत्रफल कितना है?", o: ["32.8 लाख वर्ग किमी", "38.5 लाख वर्ग किमी", "30.2 लाख वर्ग किमी", "28.5 लाख वर्ग किमी"], a: 0 },
+            { q: "भारत के कुल क्षेत्रफल के कितने प्रतिशत भाग पर मैदान पाया जाता है?", o: ["30%", "43%", "27%", "50%"], a: 1 },
+            { q: "भारत के कुल क्षेत्रफल के कितने प्रतिशत भाग पर पर्वत विस्तृत हैं?", o: ["43%", "27%", "30%", "10%"], a: 2 },
+            { q: "भारत के कुल भू-भाग का कितना प्रतिशत क्षेत्र पठारी है?", o: ["27%", "30%", "43%", "15%"], a: 0 },
+            { q: "राष्ट्रीय वन नीति 1952 के अनुसार देश के कितने प्रतिशत भू-भाग पर वन होना आवश्यक है?", o: ["25%", "20%", "33%", "40%"], a: 2 },
+            { q: "भारत में वर्तमान में लगभग कितने प्रतिशत भौगोलिक क्षेत्र पर वन फैले हैं?", o: ["24.62%", "33.00%", "15.50%", "10.20%"], a: 0 },
+            { q: "मृदा किस प्रकार का संसाधन है?", o: ["अनवीकरणीय", "नवीकरणीय", "मानव निर्मित", "कृत्रिम"], a: 1 },
+            { q: "भारत में सबसे अधिक विस्तार किस मिट्टी का है?", o: ["काली मिट्टी", "लाल मिट्टी", "जलोढ़ मिट्टी", "लैटेराइट मिट्टी"], a: 2 },
+            { q: "जलोढ़ मिट्टी का निर्माण मुख्य रूप से किन नदियों द्वारा लाए गए अवसादों से हुआ है?", o: ["नर्मदा और तापी", "सिंधु, गंगा और ब्रह्मपुत्र", "गोदावरी और कृष्णा", "कावेरी और महानदी"], a: 1 },
+            { q: "नवीन जलोढ़ मिट्टी को किस नाम से जाना जाता है?", o: ["बांगर", "खादर", "रेगुर", "तराई"], a: 1 },
+            { q: "पुराणी जलोढ़ मिट्टी को क्या कहा जाता है?", o: ["खादर", "भाबर", "बांगर", "रेगुर"], a: 2 },
+            { q: "काली मिट्टी का दूसरा नाम क्या है?", o: ["बलुई मिट्टी", "लाल मिट्टी", "लैटेराइट मिट्टी", "रेगुर मिट्टी"], a: 3 },
+            { q: "काली मिट्टी किस फसल की खेती के लिए सबसे उपयुक्त मानी जाती है?", o: ["कपास", "गेहूँ", "चावल", "चाय"], a: 0 },
+            { q: "काली मिट्टी का विस्तार मुख्य रूप से किस राज्य में है?", o: ["बिहार और बंगाल", "महाराष्ट्र और गुजरात", "राजस्थान", "ओडिशा"], a: 1 },
+            { q: "लाल और पीली मिट्टी का रंग लाल क्यों होता है?", o: ["लोहे के अंश के कारण", "चूना के कारण", "जल की अधिकता से", "दबाव के कारण"], a: 0 },
+            { q: "लैटेराइट मिट्टी का निर्माण किस प्रकार की जलवायु में होता है?", o: ["शुष्क क्षेत्रों में", "ठंडे क्षेत्रों में", "रेगिस्तानी इलाकों में", "भारी वर्षा वाले क्षेत्रों में"], a: 3 },
+            { q: "काजू और चाय की खेती के लिए कौन सी मिट्टी सबसे उपयुक्त होती है?", o: ["काली मिट्टी", "लैटेराइट मिट्टी", "जलोढ़ मिट्टी", "पीली मिट्टी"], a: 1 },
+            { q: "मरुस्थलीय मिट्टी मुख्य रूप से भारत के किस राज्य में पाई जाती है?", o: ["मध्य प्रदेश", "राजस्थान", "बिहार", "असम"], a: 1 },
+            { q: "सीढ़ीनुमा कृषि किस राज्य में प्रचलित है?", o: ["बिहार के मैदान", "हरियाणा", "उत्तराखंड", "पंजाब"], a: 2 },
+            { q: "पंजाब में भूमि निम्नीकरण का मुख्य कारण क्या है?", o: ["गहन खेती", "अत्यधिक सिंचाई", "वनोन्मूलन", "अति पशुचारण"], a: 1 },
+            { q: "गुजरात और राजस्थान में भूमि निम्नीकरण का मुख्य कारण क्या है?", o: ["अत्यधिक सिंचाई", "खनन", "भारी वर्षा", "अति पशुचारण"], a: 3 },
+            { q: "झारखंड और छत्तीसगढ़ में भूमि निम्नीकरण का मुख्य कारण क्या है?", o: ["खनन कार्य", "अत्यधिक सिंचाई", "अति पशुचारण", "शहरीकरण"], a: 0 },
+            { q: "मेढक के प्रजनन को नष्ट करने वाला रसायन कौन सा है?", o: ["बेंजीन", "यूरिया", "एंड्रिन", "फास्फोरस"], a: 2 },
+            { q: "मृदा अपरदन को रोकने के लिए पर्वतीय ढालों पर कौन सी विधि अपनाई जाती है?", o: ["समुच्चय जुताई", "गहन कृषि", "झूम कृषि", "अति पशुचारण"], a: 0 },
+            { q: "पवन अपरदन वाले क्षेत्रों में कौन सी कृषि पद्धति उपयोगी होती है?", o: ["सोपानी कृषि", "पट्टी कृषि", "झूम खेती", "सघन खेती"], a: 1 },
+            { q: "पृथ्वी के कितने प्रतिशत भाग पर जल की उपस्थिति है?", o: ["29%", "50%", "71%", "60%"], a: 2 },
+            { q: "जल की उपस्थिति के कारण पृथ्वी को क्या कहा जाता है?", o: ["नीला ग्रह", "हरा ग्रह", "लाल ग्रह", "उजला ग्रह"], a: 0 },
+            { q: "कुल जल का कितना प्रतिशत भाग महासागरों में निहित है?", o: ["71.0%", "96.5%", "2.5%", "50.0%"], a: 1 },
+            { q: "विश्व के कुल मीठे जल का कितना प्रतिशत भाग पीने योग्य है?", o: ["10.0%", "15.0%", "2.5%", "25.0%"], a: 2 },
+            { q: "देश के बांधों को किसने आधुनिक भारत का मंदिर कहा था?", o: ["महात्मा गांधी", "पंडित जवाहरलाल नेहरू", "डॉ. राजेंद्र प्रसाद", "लाल बहादुर शास्त्री"], a: 1 },
+            { q: "भाखड़ा नांगल परियोजना किस नदी पर स्थित है?", o: ["गंगा नदी", "नर्मदा नदी", "सतलुज नदी", "कावेरी नदी"], a: 2 },
+            { q: "हीराकुंड बांध किस नदी पर बनाया गया है?", o: ["गोदावरी", "सतलुज", "सोन", "महानदी"], a: 3 },
+            { q: "भारत की सबसे बड़ी बहुउद्देशीय नदी घाटी परियोजना कौन सी है?", o: ["भाखड़ा नांगल परियोजना", "हीराकुंड", "दामोदर", "रिहंद"], a: 0 },
+            { q: "बिहार की सबसे प्राचीन और प्रमुख नहर प्रणाली कौन सी है?", o: ["सोन नहर प्रणाली", "कोसी नहर", "गंडक नहर", "त्रिवेणी नहर"], a: 0 },
+            { q: "बिहार का शोक किस नदी को कहा जाता है?", o: ["सोन नदी", "कोसी नदी", "गंगा नदी", "पुनपुन नदी"], a: 1 },
+            { q: "इंदिरा गांधी नहर किस राज्य में स्थित है?", o: ["पंजाब", "हरियाणा", "राजस्थान", "गुजरात"], a: 2 },
+            { q: "चंबल घाटी परियोजना किस राज्य में स्थित है?", o: ["बिहार", "उत्तर प्रदेश", "राजस्थान और मध्य प्रदेश", "महाराष्ट्र"], a: 2 },
+            { q: "नागार्जुन सागर परियोजना किस नदी पर स्थित है?", o: ["कावेरी नदी", "गोदावरी नदी", "तुंगभद्रा नदी", "कृष्णा नदी"], a: 3 },
+            { q: "बांस ड्रिप सिंचाई प्रणाली किस राज्य में अत्यंत प्रसिद्ध है?", o: ["मेघालय", "असम", "राजस्थान", "केरल"], a: 0 },
+            { q: "वर्षा जल संचयन ढांचा खादीन और जोहड़ किस राज्य में बनाए जाते हैं?", o: ["बिहार", "राजस्थान", "मध्य प्रदेश", "गुजरात"], a: 1 },
+            { q: "भारत में जल नीति पहली बार किस वर्ष घोषित की गई थी?", o: ["1987", "1992", "2002", "2012"], a: 0 },
+            { q: "राष्ट्रीय जल नीति पुनः किस वर्ष संशोधित की गई?", o: ["1990 में", "2002 और 2012 में", "2000 में", "2020 में"], a: 1 },
+            { q: "प्राणियों के शरीर में कितना प्रतिशत जल की मात्रा निहित होती है?", o: ["50%", "75%", "65%", "85%"], a: 2 },
+            { q: "पौधों में जल की मात्रा लगभग कितनी प्रतिशत होती है?", o: ["20% से 30%", "65% से 99%", "40% से 50%", "10% से 20%"], a: 1 },
+            { q: "वृहद क्षेत्र में जल की उपस्थिति के कारण ही दक्षिणी गोलार्द्ध को क्या कहा जाता है?", o: ["स्थल गोलार्द्ध", "जल गोलार्द्ध", "नीला गोलार्द्ध", "शांत गोलार्द्ध"], a: 1 },
+            { q: "उत्तरी गोलार्द्ध को किस नाम से जाना जाता है?", o: ["जल गोलार्द्ध", "पर्वतीय गोलार्द्ध", "स्थल गोलार्द्ध", "हिम गोलार्द्ध"], a: 2 },
+            { q: "प्रतिव्यक्ति प्रतिवर्ष जल उपलब्धता के मामले में भारत का विश्व में कौन सा स्थान है?", o: ["100वाँ", "50वाँ", "120वाँ", "133वाँ"], a: 3 },
+            { q: "भारत में कुल नवीकरण योग्य जल संसाधन कितना अनुमानित है?", o: ["1869 वर्ग किमी प्रति वर्ष", "2000 वर्ग किमी प्रति वर्ष", "1500 वर्ग किमी प्रति वर्ष", "1000 वर्ग किमी प्रति वर्ष"], a: 0 },
+            { q: "राजस्थान में छत वर्षा जल संचयन को स्थानीय भाषा में क्या कहा जाता है?", o: ["कुआँ", "टांका", "तालाब", "बावड़ी"], a: 1 },
+            { q: "दामोदर घाटी परियोजना का निर्माण किस वर्ष हुआ था?", o: ["1948", "1952", "1950", "1955"], a: 0 },
+            { q: "रिहंद बांध परियोजना किस राज्य में स्थित है?", o: ["उत्तर प्रदेश", "बिहार", "झारखंड", "मध्य प्रदेश"], a: 0 },
+            { q: "कोसी बहुउद्देशीय परियोजना का प्रारंभ कब हुआ था?", o: ["1947", "1955", "1960", "1950"], a: 1 },
+            { q: "गंडक परियोजना किस स्थान पर निर्मित है?", o: ["पटना", "मुजफ्फरपुर", "छपरा", "वाल्मीकिनगर"], a: 3 },
+            { q: "सोन नदी घाटी परियोजना का विकास कब हुआ था?", o: ["1874", "1900", "1950", "1947"], a: 0 },
+            { q: "राष्ट्रीय जल संसाधन परिषद के अध्यक्ष कौन होते हैं?", o: ["राष्ट्रपति", "प्रधानमंत्री", "पर्यावरण मंत्री", "जल संसाधन मंत्री"], a: 1 },
+            { q: "अंतरराज्यीय जल विवाद मुख्य रूप से किसके बंटवारे को लेकर होता है?", o: ["भूमि के बंटवारे", "खनिजों के बंटवारे", "नदियों के जल के बंटवारे", "बिजली के बंटवारे"], a: 2 },
+            { q: "संसाधनों का अत्यधिक और विवेकहीन दोहन किस प्रकार की समस्या पैदा करता है?", o: ["पर्यावरणीय एवं सामाजिक समस्याएँ", "आर्थिक समृद्धि", "जनसंख्या नियंत्रण", "सुख शांति"], a: 0 },
+            { q: "सतत पोषणीय विकास की अवधारणा का मूल उद्देश्य क्या है?", o: ["केवल वर्तमान का विकास", "भावी पीढ़ी के लिए संसाधनों की सुरक्षा", "सभी संसाधनों का तुरंत दोहन", "पर्यावरण को नुकसान पहुँचाना"], a: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = new Array(questions.length).fill('default');
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं भूगोल</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 1: भूमि संसाधन (महा-क्विज़)</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">सम्पूर्ण प्रथम अध्याय पर आधारित 100 महत्वपूर्ण वस्तुनिष्ठ (Objective) प्रश्नों का इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionStates.fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने भूगोल के इस अध्याय में पूरे अंक प्राप्त किए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बहुत अच्छी है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और दोहराएँ।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>
