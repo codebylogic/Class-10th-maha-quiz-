@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 अर्थशास्त्र - अध्याय 4 क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "भारत का केंद्रीय बैंक कौन सा है?", o: ["भारतीय रिज़र्व बैंक", "भारतीय स्टेट बैंक", "सेंट्रल बैंक ऑफ इंडिया", "बैंक ऑफ इंडिया"], a: 0 },
+            { q: "भारतीय रिज़र्व बैंक की स्थापना किस वर्ष हुई थी?", o: ["1935", "1947", "1950", "1955"], a: 0 },
+            { q: "भारत में कागजी नोट जारी करने का एकाधिकार किसे प्राप्त है?", o: ["भारतीय रिज़र्व बैंक", "वित्त मंत्रालय", "भारतीय स्टेट बैंक", "नीति आयोग"], a: 0 },
+            { q: "भारत की वित्तीय राजधानी किस शहर को कहा जाता है?", o: ["मुंबई", "दिल्ली", "कोलकाता", "चेन्नई"], a: 0 },
+            { q: "गैर-संस्थागत वित्त प्रदान करने वाला सबसे लोकप्रिय साधन कौन सा है?", o: ["महाजन", "व्यावसायिक बैंक", "सहकारी बैंक", "व्यापारी"], a: 0 },
+            { q: "मैकलेगन समिति की स्थापना किस वर्ष की गई थी?", o: ["1914", "1911", "1915", "1919"], a: 0 },
+            { q: "राज्य में कार्यरत केंद्रीय सहकारी बैंकों की संख्या कितनी है?", o: ["25", "50", "75", "100"], a: 0 },
+            { q: "दीर्घकालीन ऋण प्रदान करने वाली संस्था कौन सी है?", o: ["भूमि विकास बैंक", "प्राथमिक कृषि साख समिति", "व्यावसायिक बैंक", "महाजन"], a: 0 },
+            { q: "भारत में सहकारिता आंदोलन का प्रारंभ कब हुआ था?", o: ["1904", "1905", "1907", "1914"], a: 0 },
+            { q: "व्यवसायिक बैंकों का राष्ट्रीयकरण पहली बार किस वर्ष किया गया था?", o: ["1969", "1971", "1980", "1950"], a: 0 },
+            { q: "1969 में कुल कितने व्यवसायिक बैंकों का राष्ट्रीयकरण किया गया था?", o: ["14", "20", "10", "6"], a: 0 },
+            { q: "देश में अभी कार्यरत क्षेत्रीय ग्रामीण बैंकों की संख्या कितनी है?", o: ["196", "190", "200", "150"], a: 0 },
+            { q: "हमारे राज्य में प्राथमिक कृषि साख समितियों की संख्या लगभग कितनी है?", o: ["6844", "7000", "5000", "8000"], a: 0 },
+            { q: "वित्तीय संस्थाओं के मुख्य रूप से कितने प्रकार होते हैं?", o: ["दो प्रकार", "तीन प्रकार", "चार प्रकार", "पांच प्रकार"], a: 0 },
+            { q: "भारतीय पूंजी बाजार किस प्रकार का ऋण प्रदान करता है?", o: ["दीर्घकालीन ऋण", "अल्पकालीन ऋण", "मध्यमकालीन ऋण", "उपर्युक्त सभी"], a: 0 },
+            { q: "भारतीय मुद्रा बाजार किस प्रकार का ऋण प्रदान करता है?", o: ["अल्पकालीन ऋण", "दीर्घकालीन ऋण", "मध्यमकालीन ऋण", "अत्यंत दीर्घकालीन ऋण"], a: 0 },
+            { q: "संगठित वित्तीय क्षेत्र के अंतर्गत इनमें से कौन शामिल है?", o: ["वाणिज्यिक बैंक", "साहूकार", "महाजन", "रिश्तेदार"], a: 0 },
+            { q: "असंगठित वित्तीय क्षेत्र के अंतर्गत इनमें से कौन आता है?", o: ["महाजन और साहूकार", "रिज़र्व बैंक", "क्षेत्रीय ग्रामीण बैंक", "सहकारी बैंक"], a: 0 },
+            { q: "किस बैंक को प्राथमिक कृषि साख समिति से अल्पकालीन ऋण प्राप्त होता है?", o: ["राज्य सहकारी बैंक", "भूमि विकास बैंक", "व्यावसायिक बैंक", "विदेशी बैंक"], a: 0 },
+            { q: "भूमि विकास बैंक का पूर्व नाम क्या था?", o: ["बंधक बैंक", "कृषि बैंक", "ग्रामीण बैंक", "सहमति बैंक"], a: 0 },
+            { q: "कृषि को दीर्घकालीन ऋण प्रदान करने का कार्य मुख्य रूप से कौन करता है?", o: ["भूमि विकास बैंक", "प्राथमिक साख समिति", "महाजन", "व्यापारी"], a: 0 },
+            { q: "नाबार्ड (NABARD) की स्थापना किस वर्ष हुई थी?", o: ["1982", "1975", "1990", "1969"], a: 0 },
+            { q: "नाबार्ड का मुख्य कार्य क्या है?", o: ["कृषि एवं ग्रामीण विकास हेतु साख सुविधा देना", "केवल औद्योगिक ऋण देना", "नोट छापना", "विदेशी मुद्रा जमा करना"], a: 0 },
+            { q: "क्षेत्रीय ग्रामीण बैंक की स्थापना सर्वप्रथम किस वर्ष हुई थी?", o: ["1975", "1980", "1969", "1991"], a: 0 },
+            { q: "स्वयं सहायता समूह (SHG) में सदस्यों की औसत संख्या कितनी होती है?", o: ["15 से 20 सदस्य", "50 से 100 सदस्य", "2 से 5 सदस्य", "200 सदस्य"], a: 0 },
+            { q: "स्वयं सहायता समूह में बचत और ऋण संबंधी निर्णय कौन लेता है?", o: ["समूह के सदस्य", "बैंक का मैनेजर", "सरकारी अधिकारी", "साहूकार"], a: 0 },
+            { q: "बिहार में स्वयं सहायता समूह के माध्यम से महिलाओं का क्या हुआ है?", o: ["आर्थिक एवं सामाजिक सशक्तिकरण", "वित्तीय हानि", "रोजगार की समाप्ति", "निर्भरता में वृद्धि"], a: 0 },
+            { q: "सूक्ष्म वित्त योजना (Microfinance) के तहत किसको ऋण दिया जाता है?", o: ["निर्धन एवं छोटे उद्यमियों को", "बड़े उद्योगपतियों को", "विदेशी कंपनियों को", "केवल सरकारी कर्मचारियों को"], a: 0 },
+            { q: "बांग्लादेश में ग्रामीण बैंक की स्थापना का श्रेय किसे दिया जाता है?", o: ["प्रोफेसर मोहम्मद यूनुस", "महबूब-उल-हक", "अमर्त्य सेन", "शेख मुजीबुर रहमान"], a: 0 },
+            { q: "प्रोफेसर मोहम्मद यूनुस को किस क्षेत्र में नोबेल पुरस्कार मिला था?", o: ["शांति", "साहित्य", "भौतिकी", "रसायन"], a: 0 },
+            { q: "व्यावसायिक बैंक का मुख्य कार्य क्या होता है?", o: ["जमा स्वीकार करना और ऋण देना", "केवल कर वसूलना", "सिक्के बनाना", "संविधान संशोधन करना"], a: 0 },
+            { q: "व्यावसायिक बैंक जमा राशि पर क्या प्रदान करते हैं?", o: ["ब्याज", "दंड", "शुल्क", "उपहार"], a: 0 },
+            { q: "व्यावसायिक बैंक द्वारा दिए जाने वाले ऋण पर बैंक क्या वसूलता है?", o: ["ब्याज", "बोनस", "अनुदान", "पेंशन"], a: 0 },
+            { q: "सहकारिता का अर्थ क्या होता है?", o: ["एक साथ मिलकर कार्य करना", "अकेले व्यापार करना", "दूसरों का शोषण करना", "कर की चोरी करना"], a: 0 },
+            { q: "सहकारिता प्रांतीय सरकारों का हस्तांतरित विषय किस वर्ष बनी?", o: ["1919", "1914", "1929", "1935"], a: 0 },
+            { q: "राष्ट्रीय कृषि एवं ग्रामीण विकास बैंक को किस नाम से जाना जाता है?", o: ["नाबार्ड", "सिडबी", "सेबी", "आरबीआई"], a: 0 },
+            { q: "भारतीय प्रतिभूति एवं विनिमय बोर्ड को संक्षेप में क्या कहते हैं?", o: ["सेबी", "नाबार्ड", "इरडा", "ट्राई"], a: 0 },
+            { q: "शेयर बाजार की नियामक संस्था कौन सी है?", o: ["सेबी", "आरबीआई", "वित्त मंत्रालय", "नीति आयोग"], a: 0 },
+            { q: "भारतीय लघु उद्योग विकास बैंक को संक्षेप में क्या कहते हैं?", o: ["सिडबी", "नाबार्ड", "सेबी", "एलआईसी"], a: 0 },
+            { q: "सिडबी का मुख्य उद्देश्य क्या है?", o: ["सूक्ष्म और छोटे उद्योगों को वित्तीय सहायता देना", "कृषि ऋण देना", "विदेशी व्यापार संभालना", "नोट छापना"], a: 0 },
+            { q: "भारतीय जीवन बीमा निगम (LIC) किस प्रकार की संस्था है?", o: ["गैर-बैंकिंग वित्तीय संस्था", "वाणिज्यिक बैंक", "क्षेत्रीय ग्रामीण बैंक", "केंद्रीय बैंक"], a: 0 },
+            { q: "एलआईसी की स्थापना किस वर्ष हुई थी?", o: ["1956", "1948", "1969", "1975"], a: 0 },
+            { q: "सामान्यता महाजनों द्वारा लिया जाने वाला ब्याज दर कैसा होता है?", o: ["अत्यधिक ऊंचा", "अत्यंत कम", "शून्य प्रतिशत", "सरकारी दर से कम"], a: 0 },
+            { q: "गांवों में किसान अल्पकालीन ऋण मुख्य रूप से किस हेतु लेते हैं?", o: ["खाद, बीज और कीटनाशक खरीदने हेतु", "ट्रैक्टर खरीदने हेतु", "स्थायी भूमि खरीदने हेतु", "मकान बनाने हेतु"], a: 0 },
+            { q: "किसानों को मध्यमकालीन ऋण किस कार्य हेतु दिया जाता है?", o: ["मशीन और मवेशी खरीदने हेतु", "दैनिक भोजन हेतु", "विदेश यात्रा हेतु", "कपड़े खरीदने हेतु"], a: 0 },
+            { q: "किसानों को दीर्घकालीन ऋण किस कार्य हेतु मिलता है?", o: ["नलकूप लगाने एवं भूमि सुधार हेतु", "खाद खरीदने हेतु", "बीज खरीदने हेतु", "मजदूरी देने हेतु"], a: 0 },
+            { q: "राज्य सहकारी बैंक किस स्तर पर कार्य करता है?", o: ["राज्य स्तर पर", "जिला स्तर पर", "ब्लॉक स्तर पर", "गांव स्तर पर"], a: 0 },
+            { q: "केंद्रीय सहकारी बैंक किस स्तर पर कार्य करता है?", o: ["जिला स्तर पर", "राज्य स्तर पर", "राष्ट्रीय स्तर पर", "अंतर्राष्ट्रीय स्तर पर"], a: 0 },
+            { q: "प्राथमिक कृषि साख समिति किस स्तर पर कार्य करती है?", o: ["ग्राम स्तर पर", "जिला स्तर पर", "राज्य स्तर पर", "देश स्तर पर"], a: 0 },
+            { q: "ओवरड्राफ्ट (अधिविकर्ष) सुविधा किस खाते पर मिलती है?", o: ["चालू खाता", "बचत खाता", "सावधि जमा खाता", "संचयी खाता"], a: 0 },
+            { q: "किसान क्रेडिट कार्ड (KCC) योजना किस वर्ष शुरू की गई थी?", o: ["1998", "1990", "2005", "2010"], a: 0 },
+            { q: "किसान क्रेडिट कार्ड का मुख्य लाभ क्या है?", o: ["किसानों को समय पर कृषि ऋण मिलना", "मुफ्त बीज मिलना", "मुफ्त बिजली मिलना", "कर में छूट मिलना"], a: 0 },
+            { q: "वित्तीय संस्थाओं से क्या अभिप्राय है?", o: ["जो संस्थाएं साख एवं वित्त का संपादन करती हैं", "जो स्कूल चलाती हैं", "जो अस्पताल चलाती हैं", "जो सड़क बनाती हैं"], a: 0 },
+            { q: "बैंकिंग प्रणाली के विकास से किसमें सहायता मिली है?", o: ["व्यापार और उद्योग के विकास में", "अकाल बढ़ाने में", "गरीबी बढ़ाने में", "शोषण बढ़ाने में"], a: 0 },
+            { q: "मुद्रा बाजार में किस प्रकार के फंड का लेनदेन होता है?", o: ["अल्पकालीन फंड", "दीर्घकालीन फंड", "असीमित फंड", "स्थायी फंड"], a: 0 },
+            { q: "पूंजी बाजार में किस प्रकार के फंड का लेनदेन होता है?", o: ["मध्यम और दीर्घकालीन फंड", "केवल एक दिन का फंड", "अल्पकालीन फंड", "दैनिक खर्च"], a: 0 },
+            { q: "स्टेट बैंक ऑफ इंडिया (SBI) की स्थापना किस वर्ष हुई थी?", o: ["1955", "1935", "1969", "1950"], a: 0 },
+            { q: "स्टेट बैंक ऑफ इंडिया का पूर्व नाम क्या था?", o: ["इम्पीरियल बैंक ऑफ इंडिया", "सेंट्रल बैंक ऑफ इंडिया", "ईस्ट इंडिया बैंक", "प्रेसिडेंसी बैंक"], a: 0 },
+            { q: "इम्पीरियल बैंक ऑफ इंडिया का गठन किन बैंकों को मिलाकर हुआ था?", o: ["तीन प्रेसिडेंसी बैंकों को मिलाकर", "दो ग्रामीण बैंकों को", "सभी विदेशी बैंकों को", "चार निजी बैंकों को"], a: 0 },
+            { q: "भारत में निजी क्षेत्र के प्रमुख बैंक का उदाहरण कौन सा है?", o: ["एचडीएफसी बैंक", "भारतीय रिज़र्व बैंक", "पंजाब नेशनल बैंक", "कैनरा बैंक"], a: 0 },
+            { q: "गैर-संस्थागत वित्तीय स्रोत की सीमा क्या है?", o: ["मनमाना ब्याज और शोषण", "कम ब्याज दर", "सरकारी नियंत्रण", "रसीद देना"], a: 0 },
+            { q: "संस्थागत वित्तीय स्रोत का प्रमुख लाभ क्या है?", o: ["निश्चित नियम और उचित ब्याज दर", "मनमाना ब्याज", "अनियोजित शोषण", "बिना रसीद ऋण"], a: 0 },
+            { q: "बिहार की विकास दर में वित्तीय संस्थाओं का क्या योगदान है?", o: ["कृषि और छोटे व्यवसायों को साख पहुँचाना", "विकास रोकना", "उद्योग बंद करना", "आयात घटाना"], a: 0 },
+            { q: "जीविका परियोजना बिहार में किस संस्था द्वारा समर्थित है?", o: ["विश्व बैंक", "अंतर्राष्ट्रीय मुद्रा कोष", "एशियाई विकास बैंक", "युनेस्को"], a: 0 },
+            { q: "जीविका परियोजना का मुख्य लक्ष्य क्या है?", o: ["ग्रामीण निर्धनता का निवारण", "शहरी निर्माण", "विदेशी व्यापार", "सैन्य विकास"], a: 0 },
+            { q: "वित्तीय समावेश का क्या उद्देश्य है?", o: ["समाज के वंचित वर्गों को बैंकिंग सेवा से जोड़ना", "केवल अमीरों को जोड़ना", "बैंक खाते बंद करना", "नकद लेनदेन रोकना"], a: 0 },
+            { q: "प्रधान मंत्री जन धन योजना का संचालन किसके माध्यम से होता है?", o: ["सभी वाणिज्यिक और ग्रामीण बैंकों द्वारा", "केवल निजी संस्थाओं द्वारा", "केवल विदेशी बैंकों द्वारा", "केवल पोस्ट ऑफिस द्वारा"], a: 0 },
+            { q: "जन धन योजना में खाता खोलने पर क्या सुविधा मिलती है?", o: ["शून्य बैलेंस पर खाता एवं एक्सीडेंट बीमा", "अत्यधिक टैक्स", "कंपलसरी लोन", "पासपोर्ट की अनिवार्य बाध्यता"], a: 0 },
+            { q: "नाबार्ड किस प्रकार की संस्था है?", o: ["शीर्ष कृषि वित्तीय संस्था", "प्राथमिक बैंक", "विदेशी संस्था", "निजी ट्रेडिंग कंपनी"], a: 0 },
+            { q: "क्षेत्रीय ग्रामीण बैंक को वित्तीय सहायता कौन प्रदान करता है?", o: ["प्रायोजक व्यावसायिक बैंक और सरकार", "केवल महाजन", "अंतर्राष्ट्रीय संस्थाएं", "केवल स्थानीय नागरिक"], a: 0 },
+            { q: "व्यावसायिक बैंक का प्राथमिक कार्य कौन सा है?", o: ["अमानत स्वीकार करना", "सिक्के बनाना", "नोट छापना", "बजट पेश करना"], a: 0 },
+            { q: "व्यावसायिक बैंक का द्वितीयक कार्य कौन सा है?", o: ["ऋण प्रदान करना एवं एजेंसी कार्य", "केवल कर जमा करना", "केवल नियम बनाना", "केवल जनगणना करना"], a: 0 },
+            { q: "शाख सृजन (Credit Creation) का कार्य मुख्य रूप से कौन करता है?", o: ["व्यावसायिक बैंक", "प्राथमिक स्कूल", "अस्पताल", "पोस्ट मास्टर"], a: 0 },
+            { q: "बैंक दर (Bank Rate) क्या होती है?", o: ["जिस दर पर आरबीआई व्यावसायिक बैंकों को ऋण देता है", "जिस दर पर जनता जमा करती है", "दुकानदार का मुनाफा", "टैक्स की दर"], a: 0 },
+            { q: "रेपो दर (Repo Rate) क्या है?", o: ["आरबीआई द्वारा अल्पकाल के लिए बैंकों को दिए गए ऋण की दर", "जनता की बचत दर", "किसान का ब्याज", "विदेशी मुद्रा की दर"], a: 0 },
+            { q: "रिवर्स रेपो दर (Reverse Repo Rate) क्या है?", o: ["जिस दर पर आरबीआई बैंकों से धन स्वीकार करता है", "जनता द्वारा दिया गया ऋण", "निजी बैंक का टैक्स", "उद्योगपति का लाभ"], a: 0 },
+            { q: "मुद्रा बाज़ार पर मुख्य नियंत्रण किसका होता है?", o: ["भारतीय रिज़र्व बैंक", "सेबी", "एलआईसी", "नाबार्ड"], a: 0 },
+            { q: "पूंजी बाज़ार पर मुख्य नियंत्रण किसका होता है?", o: ["सेबी", "आरबीआई", "वित्त आयोग", "नीति आयोग"], a: 0 },
+            { q: "मुद्रा बाज़ार में मुख्य रूप से कौन भाग लेते हैं?", o: ["वाणिज्यिक बैंक और वित्तीय संस्थाएँ", "केवल किसान", "केवल छात्र", "केवल दुकानदार"], a: 0 },
+            { q: "गैर-बैंकिंग वित्तीय कंपनियाँ (NBFC) क्या करती हैं?", o: ["वित्तीय सेवाएँ देती हैं पर पूर्ण बैंक नहीं होतीं", "नोट छापती हैं", "सिक्के ढालती हैं", "सरकारी नियम बनाती हैं"], a: 0 },
+            { q: "स्वयं सहायता समूह की बैठकों में किस विषय पर चर्चा होती है?", o: ["स्वास्थ्य, शिक्षा और स्वरोजगार पर", "केवल राजनीति पर", "केवल विदेशों पर", "फिल्मों पर"], a: 0 },
+            { q: "कृषि साख की आवश्यकताओं को कितने भागों में बाँटा जाता है?", o: ["तीन भागों में", "दो भागों में", "चार भागों में", "पांच भागों में"], a: 0 },
+            { q: "अल्पकालीन कृषि ऋण की अवधि सामान्यतः कितनी होती है?", o: ["15 महीने तक", "5 वर्ष तक", "20 वर्ष तक", "50 वर्ष तक"], a: 0 },
+            { q: "मध्यमकालीन कृषि ऋण की अवधि कितनी होती है?", o: ["15 महीने से 5 वर्ष तक", "10 वर्ष से 20 वर्ष तक", "1 महीने", "50 वर्ष से अधिक"], a: 0 },
+            { q: "दीर्घकालीन कृषि ऋण की अवधि सामान्यतः कितनी होती है?", o: ["5 वर्ष से 20 वर्ष तक", "6 महीने", "10 दिन", "100 वर्ष"], a: 0 },
+            { q: "व्यावसायिक बैंकों द्वारा कृषि क्षेत्र में साख का योगदान बढ़ा या घटा है?", o: ["राष्ट्रीयकरण के बाद बहुत बढ़ा है", "घटा है", "शून्य हो गया है", "कोई प्रभाव नहीं पड़ा"], a: 0 },
+            { q: "बिहार में महाजनों पर निर्भरता कम करने के लिए क्या आवश्यक है?", o: ["बैंकों और सहकारिता का विस्तार", "बैंक बंद करना", "ब्याज दर बढ़ाना", "ऋण बंद करना"], a: 0 },
+            { q: "डिजिटल बैंकिंग से ग्राहकों को क्या लाभ हुआ है?", o: ["समय की बचत और त्वरित लेनदेन", "ज्यादा समय लगना", "जोखिम बढ़ना", "बैंक बंद होना"], a: 0 },
+            { q: "मोबाइल बैंकिंग का उपयोग किस कार्य में होता है?", o: ["खाते की जानकारी और फंड ट्रांसफर हेतु", "केवल फोटो खींचने", "केवल गेम खेलने", "केवल कॉल करने"], a: 0 },
+            { q: "नेफ्ट (NEFT) और आरटीजीएस (RTGS) का प्रयोग किसमें होता है?", o: ["इलेक्ट्रॉनिक फंड ट्रांसफर में", "टिकट बुक करने", "बिजली बनाने", "कर लगाने"], a: 0 },
+            { q: "बैंकिंग लोकपाल (Banking Ombudsman) का मुख्य कार्य क्या है?", o: ["ग्राहकों की शिकायतों का निवारण करना", "कर वसूलना", "बैंकों पर जुर्माना लगाना", "नोट छापना"], a: 0 },
+            { q: "ग्राहक अपनी शिकायत बैंकिंग लोकपाल के पास कब दर्ज करा सकता है?", o: ["जब बैंक से संतोषजनक समाधान न मिले", "बिना बैंक गए", "पहला लेनदेन करते ही", "कभी भी नहीं"], a: 0 },
+            { q: "सहकारी साख समिति कानून किस वर्ष पारित हुआ था?", o: ["1904", "1912", "1919", "1935"], a: 0 },
+            { q: "बिहार राज्य सहकारी बैंक का मुख्यालय कहाँ स्थित है?", o: ["पटना", "गया", "मुजफ्फरपुर", "भागलपुर"], a: 0 },
+            { q: "वित्तीय संस्थाएँ किसी देश के विकास का क्या मानी जाती हैं?", o: ["रीढ़ की हड्डी", "बाधा", "अनावश्यक बोझ", "अप्रत्यक्ष समस्या"], a: 0 },
+            { q: "सूक्ष्म वित्त संस्थाएँ विशेष रूप से किस वर्ग के लिए वरदान हैं?", o: ["ग्रामीण महिलाओं और निर्धन वर्ग के लिए", "बड़े उद्योगपतियों के लिए", "विदेशी व्यापारियों के लिए", "अमीरों के लिए"], a: 0 },
+            { q: "अध्याय 'हमारी वित्तीय संस्थाएँ' का मुख्य उद्देश्य क्या समझाना है?", o: ["देश के विकास में साख और संस्थाओं की भूमिका", "केवल कर बचाना", "केवल पैसा जमा करना", "उद्योग बंद करना"], a: 0 },
+            { q: "वित्तीय प्रणाली की मजबूती से अर्थव्यवस्था में क्या आती है?", o: ["स्थिरता और समृद्धि", "मंदी और अकाल", "गरीबी और बेरोजगारी", "अराजकता"], a: 0 },
+            { q: "केंद्रीय सांख्यिकी संगठन या बैंक साख का समुचित वितरण किसमें मदद करता है?", o: ["समावेशी विकास में", "केवल शहरी विकास में", "केवल व्यक्तिगत विकास में", "विदेशी संस्थाओं में"], a: 0 },
+            { q: "भारत में संस्थागत साख का दायरा समय के साथ कैसा हुआ है?", o: ["व्यापक और सुलभ हुआ है", "संकीर्ण हुआ है", "समाप्त हुआ है", "अपरिवर्तित रहा है"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions and Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            
+            // Shuffle question order
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // Shuffle options and update correct answer index
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v11"></path><path d="M20 10v11"></path><path d="M8 14v3"></path><path d="M12 14v3"></path><path d="M16 14v3"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं अर्थशास्त्र</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 4: हमारी वित्तीय संस्थाएँ</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">चतुर्थ अध्याय पर आधारित 100 अति-महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का प्रीमियम इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने अर्थशास्त्र के इस अध्याय में पूरे अंक प्राप्त किए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बहुत अच्छी है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और दोहराएँ।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

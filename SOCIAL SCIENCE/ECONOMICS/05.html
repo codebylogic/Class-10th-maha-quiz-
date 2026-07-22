@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 अर्थशास्त्र - अध्याय 5 क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "आर्थिक विकास का तीसरा क्षेत्र कौन सा है?", o: ["सेवा क्षेत्र", "कृषि क्षेत्र", "विज्ञान क्षेत्र", "शिक्षा क्षेत्र"], a: 0 },
+            { q: "मानव पूंजी निर्माण के मुख्य घटक कौन-कौन से हैं?", o: ["स्वास्थ्य सेवाएँ", "आवास", "शिक्षा एवं प्रशिक्षण", "उपर्युक्त सभी"], a: 3 },
+            { q: "मानव पूंजी के प्रमुख घटक कितने माने जाते हैं?", o: ["पांच", "चार", "छह", "तीन"], a: 0 },
+            { q: "कौन सी सेवा गैर-सरकारी सेवा के अंतर्गत आती है?", o: ["मॉल सेवा", "सैन्य सेवा", "वित्त सेवा", "रेल सेवा"], a: 0 },
+            { q: "कौन सी सेवा पूर्णतः सरकारी सेवा का उदाहरण है?", o: ["सैन्य सेवा", "ब्यूटी पार्लर", "निजी अस्पताल", "निजी बस सेवा"], a: 0 },
+            { q: "ऊर्जा के मुख्य स्रोत कौन-कौन से हैं?", o: ["कोयला", "पेट्रोलियम", "विद्युत", "उपर्युक्त सभी"], a: 3 },
+            { q: "भारत को किस उद्योग के क्षेत्र में विश्व स्तर पर सफलता मिली है?", o: ["कंप्यूटर सॉफ्टवेयर", "लोहा उद्योग", "सूती वस्त्र", "कागज उद्योग"], a: 0 },
+            { q: "एक बीमारू (BIMARU) राज्य के रूप में इनमें से कौन जाना जाता है?", o: ["बिहार", "कर्नाटक", "तमिलनाडु", "पंजाब"], a: 0 },
+            { q: "इनमें से कौन सा राज्य बीमारू राज्य नहीं है?", o: ["कर्नाटक", "बिहार", "मध्य प्रदेश", "ओडिशा"], a: 0 },
+            { q: "सेवा क्षेत्र का निर्माण मुख्य रूप से किन सेवाओं से होता है?", o: ["परिवहन और संचार", "व्यापार एवं बैंकिंग", "होटल एवं रेस्तराँ", "उपर्युक्त सभी"], a: 3 },
+            { q: "रोजगार एवं सेवा एक-दूसरे के क्या माने जाते हैं?", o: ["पूरक", "विरोधी", "अलग", "शून्य"], a: 0 },
+            { q: "काम के बदले अनाज कार्यक्रम की शुरुआत किस वर्ष की गई थी?", o: ["1977-78", "1980-81", "1990-91", "2001-02"], a: 0 },
+            { q: "जवाहर रोजगार योजना की शुरुआत किस वर्ष हुई थी?", o: ["1989", "1985", "1992", "2000"], a: 0 },
+            { q: "नरेगा (NREGA) किस प्रकार का एक राष्ट्रीय कार्यक्रम है?", o: ["रोजगार गारंटी कार्यक्रम", "खाद्यान्न सुरक्षा", "शिक्षा अभियान", "स्वास्थ्य सेवा"], a: 0 },
+            { q: "नरेगा का नाम बदलकर किस महान पुरुष के नाम पर रखा गया?", o: ["महात्मा गांधी", "इंदिरा गांधी", "जवाहरलाल नेहरू", "राजीव गांधी"], a: 0 },
+            { q: "मनरेगा के अंतर्गत मजदूरों को वर्ष में कम से कम कितने दिन के काम की गारंटी मिलती है?", o: ["100 दिन", "150 दिन", "200 दिन", "365 दिन"], a: 0 },
+            { q: "आउटसोर्सिंग (बाह्यस्रोती) का मुख्य उदाहरण कौन सा क्षेत्र है?", o: ["कॉल सेंटर एवं आईटी सेवाएँ", "कृषि कार्य", "रेलवे परिचालन", "सैन्य सुरक्षा"], a: 0 },
+            { q: "विश्व के लिए आउटसोर्सिंग का एक मुख्य केंद्र कौन सा देश बना है?", o: ["भारत", "अमेरिका", "ब्रिटेन", "जापान"], a: 0 },
+            { q: "नागरिक सेवा के अंतर्गत इनमें से कौन शामिल होता है?", o: ["प्रशासनिक सेवाएँ", "व्यापारिक सेवा", "व्यक्तिगत ब्यूटी पार्लर", "निजी कोचिंग"], a: 0 },
+            { q: "स्वास्थ्य सेवा किस प्रकार के बुनियादी ढांचे का हिस्सा है?", o: ["सामाजिक आधारभूत संरचना", "आर्थिक आधारभूत संरचना", "तकनीकी संरचना", "व्यापारिक संरचना"], a: 0 },
+            { q: "यातायात और बिजली किस प्रकार के ढांचे का हिस्सा हैं?", o: ["आर्थिक आधारभूत संरचना", "सामाजिक आधारभूत संरचना", "सांस्कृतिक संरचना", "राजनीतिक संरचना"], a: 0 },
+            { q: "विश्व बैंक के अनुसार मानव विकास का मूल उद्देश्य क्या है?", o: ["मानवीय क्षमताओं का विकास", "केवल धन का संग्रह", "सैनिकों की संख्या बढ़ाना", "क्षेत्रफल बढ़ाना"], a: 0 },
+            { q: "शिक्षा को संविधान के किस मौलिक अधिकार के रूप में जोड़ा गया है?", o: ["शिक्षा का अधिकार", "समानता का अधिकार", "धार्मिक स्वतंत्रता", "संपत्ति का अधिकार"], a: 0 },
+            { q: "सर्व शिक्षा अभियान का मुख्य लक्ष्य किस आयु वर्ग के बच्चों के लिए है?", o: ["6 से 14 वर्ष", "1 से 5 वर्ष", "15 से 20 वर्ष", "20 से 25 वर्ष"], a: 0 },
+            { q: "सर्व शिक्षा अभियान की शुरुआत भारत में किस वर्ष हुई थी?", o: ["2001", "1995", "2010", "2015"], a: 0 },
+            { q: "आर्थिक विकास के मुख्य रूप से कितने क्षेत्र माने जाते हैं?", o: ["तीन क्षेत्र", "दो क्षेत्र", "चार क्षेत्र", "पांच क्षेत्र"], a: 0 },
+            { q: "प्राथमिक क्षेत्र मुख्य रूप से किस पर आधारित होता है?", o: ["कृषि और प्राकृतिक संसाधन", "भारी उद्योग", "बैंकिंग सेवा", "सूचना प्रौद्योगिकी"], a: 0 },
+            { q: "द्वितीयक क्षेत्र को अन्य किस नाम से जाना जाता है?", o: ["औद्योगिक क्षेत्र", "सेवा क्षेत्र", "कृषि क्षेत्र", "सरकारी क्षेत्र"], a: 0 },
+            { q: "तृतीयक क्षेत्र को अन्य किस नाम से जाना जाता है?", o: ["सेवा क्षेत्र", "औद्योगिक क्षेत्र", "कृषि क्षेत्र", "खनन क्षेत्र"], a: 0 },
+            { q: "सकल घरेलू उत्पाद (GDP) में सबसे अधिक योगदान किस क्षेत्र का है?", o: ["सेवा क्षेत्र", "कृषि क्षेत्र", "उद्योग क्षेत्र", "खनन क्षेत्र"], a: 0 },
+            { q: "जनसंख्या का अधिकांश भाग भारत में किस क्षेत्र में कार्यरत है?", o: ["कृषि क्षेत्र", "सेवा क्षेत्र", "उद्योग क्षेत्र", "परिवहन क्षेत्र"], a: 0 },
+            { q: "असंगठित क्षेत्र में काम करने वाले श्रमिकों को क्या समस्या होती है?", o: ["कम वेतन और अनिश्चित रोजगार", "उच्च पेंशन", "सवैतनिक अवकाश", "चिकित्सा बीमा"], a: 0 },
+            { q: "संगठित क्षेत्र के रोजगार की मुख्य विशेषता क्या है?", o: ["नियमित रोजगार और निश्चित कार्य घंटे", "कम मजदूरी", "बिना रसीद काम", "असुरक्षित वातावरण"], a: 0 },
+            { q: "सेवा क्षेत्र के विकास के लिए क्या अत्यधिक आवश्यक है?", o: ["मानव पूंजी और कौशल विकास", "केवल कच्चे माल का भंडार", "केवल बड़ी भूमि", "केवल मौसम की अनुकूलता"], a: 0 },
+            { q: "सूचना प्रौद्योगिकी (IT) क्षेत्र में शामिल मुख्य गतिविधि कौन सी है?", o: ["सॉफ्टवेयर निर्माण और डाटा प्रोसेसिंग", "फसल कटाई", "मकान निर्माण", "सड़क सफाई"], a: 0 },
+            { q: "कॉल सेंटर किस प्रकार की सेवा का प्रमुख उदाहरण हैं?", o: ["व्यावसायिक आउटसोर्सिंग सेवा", "कृषि सेवा", "स्वास्थ्य सेवा", "सैन्य सेवा"], a: 0 },
+            { q: "भारत में बेरोजगारी दूर करने के लिए कौन सा कार्यक्रम चलाया गया?", o: ["मनरेगा", "राष्ट्रीय ग्रामीण आजीविका मिशन", "प्रधानमंत्री कौशल विकास योजना", "उपर्युक्त सभी"], a: 3 },
+            { q: "छिपी हुई या प्रच्छन्न बेरोजगारी मुख्य रूप से किस क्षेत्र में पाई जाती है?", o: ["कृषि क्षेत्र", "बैंकिंग क्षेत्र", "सॉफ्टवेयर क्षेत्र", "रेलवे सेवा"], a: 0 },
+            { q: "मौसमी बेरोजगारी का मुख्य प्रभाव किस क्षेत्र में दिखता है?", o: ["कृषि और संबद्ध क्षेत्र", "कॉल सेंटर", "अस्पताल", "बैंक"], a: 0 },
+            { q: "शिक्षित बेरोजगारी मुख्य रूप से कहाँ देखने को मिलती है?", o: ["शहरी क्षेत्रों में", "केवल घने जंगलों में", "केवल रेगिस्तान में", "समुद्री जहाजों पर"], a: 0 },
+            { q: "मानव विकास सूचकांक (HDI) में कौन सा घटक शामिल है?", o: ["जीवन प्रत्याशा, साक्षरता और प्रतिव्यक्ति आय", "केवल सैन्य शक्ति", "केवल सड़कों की लंबाई", "केवल भवनों की संख्या"], a: 0 },
+            { q: "आजीविका कमाने के लिए व्यक्ति जो कार्य करता है उसे क्या कहते हैं?", o: ["रोजगार", "विश्राम", "मनोरंजन", "खेलकूद"], a: 0 },
+            { q: "सेवा क्षेत्र में वृद्धि होने से देश के आर्थिक विकास पर क्या प्रभाव पड़ता है?", o: ["विकास दर में वृद्धि होती है", "विकास रुक जाता है", "आर्थिक मंदी आती है", "कोई प्रभाव नहीं पड़ता"], a: 0 },
+            { q: "बैंकिंग, बीमा और परिवहन किस क्षेत्र के प्रमुख अंग हैं?", o: ["तृतीयक या सेवा क्षेत्र", "प्राथमिक क्षेत्र", "द्वितीयक क्षेत्र", "खनन क्षेत्र"], a: 0 },
+            { q: "भारत में सूचना प्रौद्योगिकी का सबसे बड़ा केंद्र किस शहर को माना जाता है?", o: ["बेंगलुरु", "पटना", "कानपुर", "रांची"], a: 0 },
+            { q: "सॉफ्टवेयर टेक्नोलॉजी पार्क ऑफ इंडिया की स्थापना क्यों की गई?", o: ["आईटी उद्योग के संवर्धन और निर्यात हेतु", "कृषि उपज बढ़ाने हेतु", "कपड़े बेचने हेतु", "सिक्के बनाने हेतु"], a: 0 },
+            { q: "स्वरोजगार के अंतर्गत व्यक्ति क्या करता है?", o: ["खुद का व्यवसाय या कार्य शुरू करता है", "सरकारी नौकरी की प्रतीक्षा करता है", "दूसरों के अधीन काम करता है", "बेरोजगार बैठता है"], a: 0 },
+            { q: "प्रधानमंत्री कौशल विकास योजना (PMKVY) का मुख्य उद्देश्य क्या है?", o: ["युवाओं को तकनीकी और व्यावसायिक प्रशिक्षण देना", "मुफ्त भोजन देना", "केवल मकान देना", "पेंशन देना"], a: 0 },
+            { q: "कौशल विकास योजना की शुरुआत किस वर्ष की गई थी?", o: ["2015", "2010", "2000", "2020"], a: 0 },
+            { q: "राष्ट्रीय ग्रामीण आजीविका मिशन (NRLM) किस पर केंद्रित है?", o: ["ग्रामीण गरीबों की आजीविका सुधारने पर", "केवल शहरी यातायात पर", "केवल विमानन सेवा पर", "विदेशी निवेश पर"], a: 0 },
+            { q: "विश्व स्तर पर भारत के सेवा क्षेत्र की मांग क्यों अधिक है?", o: ["कुशल और सस्ते मानव संसाधन के कारण", "केवल बड़ी जनसंख्या के कारण", "अंग्रेजी न जानने के कारण", "तकनीक की कमी के कारण"], a: 0 },
+            { q: "सरकारी सेवा का मुख्य उद्देश्य क्या होता है?", o: ["जन कल्याण और लोक सेवा", "अत्यधिक लाभ कमाना", "निजी धन संचय", "व्यापारिक एकाधिकार"], a: 0 },
+            { q: "गैर-सरकारी सेवा का संचालन मुख्य रूप से किसके द्वारा होता है?", o: ["निजी व्यक्तियों या संस्थाओं द्वारा", "केवल केंद्र सरकार द्वारा", "केवल राज्य सरकार द्वारा", "केवल पुलिस द्वारा"], a: 0 },
+            { q: "परिवहन सेवा का मुख्य कार्य क्या है?", o: ["वस्तुओं और व्यक्तियों को एक स्थान से दूसरे स्थान पहुँचाना", "खाद बनाना", "सिक्के ढालना", "फसल उगाना"], a: 0 },
+            { q: "संचार सेवा के मुख्य साधन कौन-कौन से हैं?", o: ["टेलीफोन, मोबाइल और इंटरनेट", "हल और बैल", "ट्रैक्टर", "ईंट और पत्थर"], a: 0 },
+            { q: "बैंकिंग सेवा का मुख्य योगदान क्या है?", o: ["पूंजी निर्माण और साख सुविधा प्रदान करना", "केवल कागज़ छापना", "फसल का भंडारण करना", "सड़क बनाना"], a: 0 },
+            { q: "बीमा सेवा का मुख्य लाभ क्या है?", o: ["जोखिम और आर्थिक क्षति से सुरक्षा देना", "मुफ्त यात्रा कराना", "गारंटीड लॉटरी देना", "कर से पूरी छूट देना"], a: 0 },
+            { q: "स्वास्थ्य सेवाओं में सुधार से किसमें वृद्धि होती है?", o: ["कार्यक्षमता और जीवन प्रत्याशा में", "बेरोजगारी में", "बीमारियों में", "गरीबी में"], a: 0 },
+            { q: "शिक्षा का मुख्य योगदान क्या माना जाता है?", o: ["ज्ञान, कौशल और चेतना का विकास", "अज्ञानता बढ़ाना", "रोजगार समाप्त करना", "केवल कागजी डिग्री देना"], a: 0 },
+            { q: "आधारभूत संरचना (Infrastructure) कितने भागों में बांटी जाती है?", o: ["दो भागों में (आर्थिक एवं सामाजिक)", "तीन भागों में", "चार भागों में", "पांच भागों में"], a: 0 },
+            { q: "आर्थिक आधारभूत संरचना का उदाहरण कौन सा है?", o: ["ऊर्जा, परिवहन और संचार", "स्कूल और कॉलेज", "अस्पताल", "पार्क"], a: 0 },
+            { q: "सामाजिक आधारभूत संरचना का उदाहरण कौन सा है?", o: ["शिक्षा, स्वास्थ्य और आवास", "सड़क और पुल", "रेलवे लाइन", "बिजली घर"], a: 0 },
+            { q: "बिहार में सेवा क्षेत्र के विकास में मुख्य बाधा क्या है?", o: ["पूंजी और आधारभूत संरचना की कमी", "अत्यधिक कारखाने", "अधिक कुशल श्रमिक", "अत्यधिक बिजली"], a: 0 },
+            { q: "बिहार से युवाओं का पलायन मुख्य रूप से किस कारण होता है?", o: ["उच्च शिक्षा एवं गुणवत्तापूर्ण रोजगार की तलाश में", "पर्यटन हेतु", "मौसम के कारण", "केवल घूमने हेतु"], a: 0 },
+            { q: "मानव संसाधन का कुशल उपयोग किसमें सहायक होता है?", o: ["देश की राष्ट्रीय आय और जीडीपी बढ़ाने में", "गरीबी बढ़ाने में", "बेरोजगारी बढ़ाने में", "संसाधन नष्ट करने में"], a: 0 },
+            { q: "डिजिटल इंडिया कार्यक्रम का मुख्य उद्देश्य क्या है?", o: ["सरकारी सेवाओं को इलेक्ट्रॉनिक रूप से जनता तक पहुँचाना", "नकद लेनदेन बढ़ाना", "कागजी काम बढ़ाना", "इंटरनेट बंद करना"], a: 0 },
+            { q: "ई-गवर्नेंस (E-Governance) का क्या अर्थ है?", o: ["इलेक्ट्रॉनिक माध्यमों से सरकारी कार्य और सेवाएँ देना", "केवल चुनाव कराना", "केवल पुलिस सेवा देना", "निजी कंपनी चलाना"], a: 0 },
+            { q: "ई-कॉमर्स (E-Commerce) से क्या तात्पर्य है?", o: ["इंटरनेट के माध्यम से वस्तुओं और सेवाओं का क्रय-विक्रय", "केवल नकद व्यापार", "केवल स्थानीय हाट-बाज़ार", "कृषि कार्य"], a: 0 },
+            { q: "पर्यटन उद्योग किस क्षेत्र के अंतर्गत आता है?", o: ["सेवा क्षेत्र", "कृषि क्षेत्र", "प्राथमिक क्षेत्र", "खनन क्षेत्र"], a: 0 },
+            { q: "पर्यटन उद्योग से देश को क्या लाभ होता है?", o: ["विदेशी मुद्रा और रोजगार का सृजन", "पर्यावरण का विनाश", "खाद्यान्न की कमी", "कर में हानि"], a: 0 },
+            { q: "होटल और रेस्तराँ व्यवसाय किस क्षेत्र का अंग हैं?", o: ["सेवा क्षेत्र", "द्वितीयक क्षेत्र", "प्राथमिक क्षेत्र", "कृषि क्षेत्र"], a: 0 },
+            { q: "सूचना प्रौद्योगिकी क्रांति का भारत पर क्या प्रभाव पड़ा?", o: ["लाखों युवाओं को नए तकनीकी रोजगार मिले", "रोजगार समाप्त हो गए", "व्यापार बंद हो गया", "कृषि नष्ट हो गई"], a: 0 },
+            { q: "ज्ञान आधारित अर्थव्यवस्था (Knowledge Economy) में मुख्य बल किस पर होता है?", o: ["ज्ञान, सूचना और तकनीकी क्षमता पर", "केवल शारीरिक श्रम पर", "केवल भूमि पर", "केवल खनिजों पर"], a: 0 },
+            { q: "भारत में सेवा क्षेत्र का कुल जीडीपी में योगदान लगभग कितना प्रतिशत है?", o: ["50 प्रतिशत से अधिक", "10 प्रतिशत", "20 प्रतिशत", "30 प्रतिशत"], a: 0 },
+            { q: "असंगठित क्षेत्र के श्रमिकों को सामाजिक सुरक्षा देने हेतु कौन सा अधिनियम बना?", o: ["असंगठित कर्मकार सामाजिक सुरक्षा अधिनियम", "नरेगा कानून", "बैंक अधिनियम", "कंपनी अधिनियम"], a: 0 },
+            { q: "मध्याह्न भोजन योजना (Mid-Day Meal) का मुख्य उद्देश्य क्या है?", o: ["बच्चों में नामांकन और पोषण स्तर बढ़ाना", "केवल शिक्षकों को भोजन देना", "व्यापार बढ़ाना", "कौशल विकास करना"], a: 0 },
+            { q: "राष्ट्रीय कार्य के बदले अनाज योजना किस वर्ष शुरू हुई थी?", o: ["2004", "1990", "1980", "2015"], a: 0 },
+            { q: "ग्रामीण क्षेत्रों में स्वरोजगार हेतु कौन सी योजना चलाई गई थी?", o: ["समन्वित ग्रामीण विकास कार्यक्रम (IRDP)", "डिजिटल इंडिया", "मेक इन इंडिया", "स्मार्ट सिटी"], a: 0 },
+            { q: "शहरी क्षेत्रों में रोजगार देने हेतु कौन सी योजना प्रसिद्ध थी?", o: ["स्वर्ण जयंती शहरी रोजगार योजना", "मनरेगा", "कृषि बीमा योजना", "नाबार्ड योजना"], a: 0 },
+            { q: "मानव पूंजी और भौतिक पूंजी में मुख्य अंतर क्या है?", o: ["मानव पूंजी अदृश्य और अमूर्त है जबकि भौतिक पूंजी दृश्य है", "दोनों समान हैं", "मानव पूंजी बेची जा सकती है", "भौतिक पूंजी सोच सकती है"], a: 0 },
+            { q: "मानव संसाधन का विकास किसके बिना संभव नहीं है?", o: ["गुणवत्तापूर्ण शिक्षा और स्वास्थ्य सेवाओं के", "केवल टीवी देखने के", "केवल वाहन खरीदने के", "केवल मकान बनाने के"], a: 0 },
+            { q: "भारत की विशाल जनसंख्या को किसमें बदला जा सकता है?", o: ["एक उत्पादक मानव संपत्ति और शक्ति में", "केवल समस्या में", "केवल बोझ में", "निष्क्रिय बल में"], a: 0 },
+            { q: "कौशल युक्त मानव संसाधन को क्या कहा जाता है?", o: ["मानव पूंजी", "भौतिक संपत्ति", "प्राकृतिक आपदा", "निष्क्रिय संसाधन"], a: 0 },
+            { q: "भारत में केंद्रीय सांख्यिकी संगठन (CSO) सेवा क्षेत्र के आंकड़ों की क्या करता है?", o: ["गणना और विश्लेषण", "कर संग्रह", "सिक्के ढालना", "नियम बनाना"], a: 0 },
+            { q: "आउटसोर्सिंग से भारतीय युवाओं को क्या लाभ मिला है?", o: ["अंतर्राष्ट्रीय स्तर के रोजगार के अवसर", "केवल कृषि कार्य", "स्थानीय मजदूरी", "कोई लाभ नहीं"], a: 0 },
+            { q: "विश्व स्तरीय कंपनियों द्वारा भारत को बीपीओ (BPO) हेतु चुनने का मुख्य कारण क्या है?", o: ["अंग्रेजी भाषी और तकनीकी रूप से कुशल युवा", "अत्यधिक ठंड", "बड़ा समुद्र", "कम जनसंख्या"], a: 0 },
+            { q: "बीपीओ (BPO) का पूर्ण रूप क्या है?", o: ["बिजनेस प्रोसेस आउटसोर्सिंग", "बैंक प्रोसेस ऑफिस", "भारत पेट्रोलियम ऑर्गनाइजेशन", "बेसिक पीसी ऑपरेटर"], a: 0 },
+            { q: "केपीओ (KPO) का पूर्ण रूप क्या है?", o: ["नॉलेज प्रोसेस आउटसोर्सिंग", "की प्रोसेस ऑफिस", "कोयला प्रोसेसिंग ऑर्गनाइजेशन", "नॉलेज पावर ऑफिस"], a: 0 },
+            { q: "निजीकरण और उदारीकरण से सेवा क्षेत्र में क्या परिवर्तन आया?", o: ["तेजी से वृद्धि और नए अवसरों का सृजन", "सेवा क्षेत्र बंद हो गया", "केवल सरकारी नियंत्रण बढ़ा", "कोई बदलाव नहीं हुआ"], a: 0 },
+            { q: "वैश्वीकरण ने सेवा क्षेत्र को कैसा बना दिया है?", o: ["अंतर्राष्ट्रीय और सीमाहीन", "केवल स्थानीय", "केवल राज्य स्तर का", "अत्यंत सीमित"], a: 0 },
+            { q: "बिहार में आईटी पार्क और तकनीकी संस्थानों की स्थापना से क्या होगा?", o: ["युवाओं को राज्य में ही रोजगार मिलेगा", "पलायन बढ़ेगा", "कृषि नष्ट होगी", "उद्योग बंद होंगे"], a: 0 },
+            { q: "ग्रामीण क्षेत्रों में बिजली और सड़क पहुँचने से किस सेवा का विकास होता है?", o: ["व्यापार, परिवहन और कुटीर उद्योगों का", "केवल बड़े शहरों का", "केवल विदेशों का", "किसी का नहीं"], a: 0 },
+            { q: "स्वास्थ्य सेवाओं में निजी क्षेत्र के प्रवेश से क्या हुआ है?", o: ["आधुनिक चिकित्सा सेवाएँ बढ़ी हैं परंतु महंगी हुई हैं", "सेवाएँ मुफ्त हो गई हैं", "अस्पताल बंद हो गए हैं", "कोई बदलाव नहीं हुआ"], a: 0 },
+            { q: "उच्च शिक्षा में गुणवत्ता सुधार से किसका निर्माण होता है?", o: ["उच्च स्तरीय विशेषज्ञों और शोधकर्ताओं का", "केवल अनपढ़ों का", "केवल शारीरिक मजदूरों का", "अकुशल श्रमिकों का"], a: 0 },
+            { q: "सेवा क्षेत्र को अर्थव्यवस्था का कौन सा इंजन माना जाता है?", o: ["ग्रोथ इंजन या विकास का चालक", "धीमा ब्रेक", "व्यर्थ बोझ", "अप्रत्यक्ष रुकावट"], a: 0 },
+            { q: "रोजगार सृजन में सूक्ष्म एवं लघु उद्योगों की क्या भूमिका है?", o: ["कम पूंजी में अधिक रोजगार देना", "रोजगार समाप्त करना", "केवल विदेशी व्यापार करना", "केवल मशीन बनाना"], a: 0 },
+            { q: "अध्याय 'रोजगार एवं सेवाएँ' का मुख्य संदेश क्या है?", o: ["मानव पूंजी निर्माण ही रोजगार और विकास का आधार है", "केवल कृषि पर निर्भर रहना", "पढ़ाई छोड़ देना", "केवल विदेश जाना"], a: 0 },
+            { q: "विकासशील देशों में सेवा क्षेत्र का योगदान लगातार कैसा हो रहा है?", o: ["बढ़ रहा है", "घट रहा है", "स्थिर है", "शून्य हो गया है"], a: 0 },
+            { q: "मानव संसाधन का सही प्रशिक्षण देश को किस ओर ले जाता है?", o: ["आर्थिक समृद्धि और आत्मनिर्भरता की ओर", "गरीबी की ओर", "मंदी की ओर", "कर्ज की ओर"], a: 0 },
+            { q: "एक स्वस्थ और शिक्षित नागरिक देश के लिए क्या होता है?", o: ["एक अनमोल संपत्ति", "एक बड़ा बोझ", "एक समस्या", "एक अनिश्चित दायित्व"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions and Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            
+            // Shuffle question order
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // Shuffle options and update correct answer index
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं अर्थशास्त्र</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 5: रोजगार एवं सेवाएँ</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">पंचम अध्याय पर आधारित 100 अति-महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का प्रीमियम इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने अर्थशास्त्र के इस अध्याय में पूरे अंक प्राप्त किए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बहुत अच्छी है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और दोहराएँ।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

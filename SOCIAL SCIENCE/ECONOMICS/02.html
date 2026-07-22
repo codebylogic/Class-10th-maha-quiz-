@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 अर्थशास्त्र - अध्याय 2 क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "सन 2008-09 के अनुसार भारत की औसत प्रतिव्यक्ति आय कितनी बताई गई थी?", o: ["22553 रुपये", "25494 रुपये", "6610 रुपये", "54850 रुपये"], a: 1 },
+            { q: "भारत में राष्ट्रीय आय की गणना किस संस्था द्वारा की जाती है?", o: ["केन्द्रीय सांख्यिकी संगठन", "भारतीय रिज़र्व बैंक", "योजना आयोग", "वित्त मंत्रालय"], a: 0 },
+            { q: "केन्द्रीय सांख्यिकी संगठन की स्थापना किस वर्ष हुई थी?", o: ["1950", "1954", "1956", "1960"], a: 1 },
+            { q: "भारत में किस राज्य की प्रतिव्यक्ति आय सर्वाधिक है?", o: ["बिहार", "पंजाब", "हरियाणा", "गोवा"], a: 3 },
+            { q: "बिहार के किस जिले की प्रतिव्यक्ति आय सर्वाधिक है?", o: ["पटना", "गया", "शिवहर", "नालंदा"], a: 0 },
+            { q: "बिहार के किस जिले की प्रतिव्यक्ति आय सबसे कम है?", o: ["वैशाली", "शिवहर", "सारण", "मुंगेर"], a: 1 },
+            { q: "प्रत्यक्ष कर के अंतर्गत निम्न में से किसे शामिल किया जाता है?", o: ["आयकर", "उत्पाद कर", "बिक्री कर", "सीमा शुल्क"], a: 0 },
+            { q: "दादाभाई नौरोजी ने सर्वप्रथम राष्ट्रीय आय का अनुमान किस वर्ष लगाया था?", o: ["1868", "1867", "1968", "1998"], a: 0 },
+            { q: "दादाभाई नौरोजी की प्रसिद्ध पुस्तक का नाम क्या है?", o: ["पावर्टी एंड अनब्रिटिश रूल इन इंडिया", "इकोनॉमिक्स ऑफ इंडिया", "भारत में गरीबी", "राष्ट्रीय आय एवं संपत्ति"], a: 0 },
+            { q: "वर्ष 1949 में गठित राष्ट्रीय आय समिति के अध्यक्ष कौन थे?", o: ["प्रोफेसर पी सी महालनोबिस", "डॉ वी के आर वी राव", "प्रोफेसर गाडगिल", "दादाभाई नौरोजी"], a: 0 },
+            { q: "आय और उपभोग का अंतर क्या कहलाता है?", o: ["बचत", "विनियोजन", "उपभोग", "आर्थिक विकास"], a: 0 },
+            { q: "बचत मुख्य रूप से कितने प्रकार की होती है?", o: ["दो प्रकार", "तीन प्रकार", "चार प्रकार", "पांच प्रकार"], a: 0 },
+            { q: "वास्तविक आय तथा उपभोग का अंतर क्या कहलाता है?", o: ["वास्तविक बचत", "नकद बचत", "सकल लाभ", "निवेश"], a: 0 },
+            { q: "साग पत्र कितने प्रकार के होते हैं?", o: ["4 प्रकार", "8 प्रकार", "10 प्रकार", "12 प्रकार"], a: 1 },
+            { q: "राष्ट्रीय आय का अर्थ क्या होता है?", o: ["सरकार की आय", "पारिवारिक आय", "उत्पादन के साधनों की आय", "सार्वजनिक उपक्रमों की आय"], a: 2 },
+            { q: "किसी देश की सीमा के अंदर एक वर्ष में उत्पादित अंतिम वस्तुओं तथा सेवाओं का मूल्य क्या कहलाता है?", o: ["सकल घरेलू उत्पाद", "कुल राष्ट्रीय उत्पाद", "शुद्ध राष्ट्रीय उत्पाद", "प्रतिव्यक्ति आय"], a: 0 },
+            { q: "सकल घरेलू उत्पाद को संक्षेप में क्या कहा जाता है?", o: ["जीडीपी", "जीएनपी", "एनएनपी", "एनआई"], a: 0 },
+            { q: "जीएनपी का पूर्ण रूप क्या होता है?", o: ["सकल राष्ट्रीय उत्पाद", "शुद्ध राष्ट्रीय उत्पाद", "सकल घरेलू उत्पाद", "प्रतिव्यक्ति आय"], a: 0 },
+            { q: "एनएनपी प्राप्त करने के लिए जीडीपी में से क्या घटाया जाता है?", o: ["मूल्यह्रास", "अप्रत्यक्ष कर", "सब्सिडी", "आयात"], a: 0 },
+            { q: "प्रतिव्यक्ति आय ज्ञात करने के लिए राष्ट्रीय आय में किससे भाग दिया जाता है?", o: ["देश की कुल जनसंख्या से", "कुल क्षेत्रफल से", "कुल पूंजी से", "कुल कार्यबल से"], a: 0 },
+            { q: "किस राज्य की प्रतिव्यक्ति आय भारत में सबसे कम है?", o: ["बिहार", "ओडिशा", "झारखंड", "उत्तर प्रदेश"], a: 0 },
+            { q: "बिहार की आय में किस क्षेत्र का योगदान सबसे अधिक है?", o: ["कृषि क्षेत्र", "सेवा क्षेत्र", "औद्योगिक क्षेत्र", "खनन क्षेत्र"], a: 1 },
+            { q: "बिहार की आय में सबसे कम योगदान किस क्षेत्र का है?", o: ["सेवा क्षेत्र", "उद्योग क्षेत्र", "कृषि क्षेत्र", "व्यापार"], a: 1 },
+            { q: "राष्ट्रीय आय में वृद्धि होने पर प्रतिव्यक्ति आय पर क्या प्रभाव पड़ता है?", o: ["वृद्धि होती है", "कमी होती है", "कोई प्रभाव नहीं पड़ता", "स्थिर रहती है"], a: 0 },
+            { q: "राष्ट्रीय आय गणना की प्रमुख विधियाँ कौन-कौन सी हैं?", o: ["आय विधि", "उत्पादन एवं मूल्य वृद्धि विधि", "व्यय विधि", "उपर्युक्त सभी"], a: 3 },
+            { q: "राष्ट्रीय आय की गणना में आने वाली मुख्य कठिनाई क्या है?", o: ["आंकड़ों को एकत्र करने में कठिनाई", "दोहरी गणना की संभावना", "मूल्य मापने में कठिनाई", "उपर्युक्त सभी"], a: 3 },
+            { q: "आय एक ऐसा प्रवाह है जो किसी साधन द्वारा प्राप्त होता है, यह समय के किस चक्र से जुड़ा है?", o: ["दैनिक", "मासिक", "वार्षिक", "उपर्युक्त सभी"], a: 3 },
+            { q: "जिस देश की राष्ट्रीय आय अधिक होती है, वह देश कहलाता है?", o: ["अविकसित", "विकसित", "अर्द्धविकसित", "विकासशील"], a: 1 },
+            { q: "केन्द्रीय सांख्यिकी संगठन को संक्षेप में क्या कहते हैं?", o: ["सीएसओ", "एनएसओ", "आरबीआई", "सेबी"], a: 0 },
+            { q: "सीएसओ का मुख्यालय कहाँ स्थित है?", o: ["नई दिल्ली", "मुंबई", "कोलकाता", "चेन्नई"], a: 0 },
+            { q: "वैज्ञानिक आधार पर राष्ट्रीय आय की पहली सटीक गणना किसने की थी?", o: ["डॉ वी के आर वी राव", "दादाभाई नौरोजी", "प्रोफेसर सेरास", "प्रोफेसर नाइट"], a: 0 },
+            { q: "डॉ वी के आर वी राव ने किस वर्ष राष्ट्रीय आय का वैज्ञानिक अनुमान लगाया था?", o: ["1931-32", "1921-22", "1941-42", "1951-52"], a: 0 },
+            { q: "उत्पादन, आय और व्यय का चक्र क्या कहलाता है?", o: ["आर्थिक चक्र", "संवहन चक्र", "उत्पादन चक्र", "मौद्रिक प्रवाह"], a: 0 },
+            { q: "वस्तु विनिमय प्रणाली में किसका विनिमय होता है?", o: ["वस्तु से वस्तु का", "वस्तु से मुद्रा का", "मुद्रा से मुद्रा का", "सेवा से मुद्रा का"], a: 0 },
+            { q: "मुद्रा वह है जो मुद्रा का कार्य करे, यह परिभाषा किसने दी थी?", o: ["हार्टले विदर्स", "मार्शल", "नेप", "क्राउथर"], a: 0 },
+            { q: "आय का वह भाग जो उपभोग पर खर्च नहीं होता, क्या कहलाता है?", o: ["बचत", "व्यय", "ऋण", "निवेश"], a: 0 },
+            { q: "उत्पादक कार्यों में लगाई गई बचत को क्या कहते हैं?", o: ["निवेश", "उपभोग", "संचय", "ऋण"], a: 0 },
+            { q: "आय का सृजन मुख्य रूप से किसके द्वारा होता है?", o: ["उत्पादन साधनों द्वारा", "उपभोग द्वारा", "बचत द्वारा", "वितरण द्वारा"], a: 0 },
+            { q: "भारत में वित्तीय वर्ष की अवधि क्या है?", o: ["1 अप्रैल से 31 मार्च", "1 जनवरी से 31 दिसंबर", "1 जुलाई से 30 जून", "1 सितंबर से 31 अगस्त"], a: 0 },
+            { q: "राष्ट्रीय आय समिति का गठन किस वर्ष हुआ था?", o: ["1949", "1948", "1950", "1951"], a: 0 },
+            { q: "राष्ट्रीय आय समिति ने 1948-49 के लिए भारत की कुल राष्ट्रीय आय कितनी बताई थी?", o: ["8650 करोड़ रुपये", "9600 करोड़ रुपये", "10500 करोड़ रुपये", "5000 करोड़ रुपये"], a: 0 },
+            { q: "भारत में राष्ट्रीय आय की गणना का मुख्य आधार क्या है?", o: ["चालू और स्थिर मूल्य", "केवल चालू मूल्य", "केवल बाजार मूल्य", "केवल निर्यात मूल्य"], a: 0 },
+            { q: "किसी राष्ट्र की आर्थिक प्रगति का सबसे सही सूचक क्या है?", o: ["प्रतिव्यक्ति आय में वृद्धि", "कुल जनसंख्या में वृद्धि", "उद्योगों की संख्या", "बैंक जमा में वृद्धि"], a: 0 },
+            { q: "पूंजी का निर्माण मुख्य रूप से किसके द्वारा होता है?", o: ["बचत द्वारा", "उपभोग द्वारा", "ऋण द्वारा", "व्यापार द्वारा"], a: 0 },
+            { q: "गरीबी का कुचक्र अवधारणा के अनुसार कम आय से क्या कम होता है?", o: ["बचत और निवेश", "उपभोग", "जनसंख्या", "उत्पादन क्षमता"], a: 0 },
+            { q: "बिहार की घरेलू उत्पत्ति में कृषि का योगदान लगभग कितना है?", o: ["20 प्रतिशत से अधिक", "50 प्रतिशत", "80 प्रतिशत", "10 प्रतिशत"], a: 0 },
+            { q: "मुद्रा के प्रयोग से किसको लाभ हुआ है?", o: ["उपभोक्ताओं को", "उत्पादकों को", "अर्थव्यवस्था को", "उपर्युक्त सभी"], a: 3 },
+            { q: "प्लास्टिक मनी का उदाहरण कौन सा है?", o: ["डेबिट कार्ड", "कागजी नोट", "धातु का सिक्का", "हुंडी"], a: 0 },
+            { q: "क्रेडिट कार्ड किस प्रकार की मुद्रा का रूप है?", o: ["प्लास्टिक मनी", "कागजी मनी", "धातु मनी", "वर्चुअल मनी"], a: 0 },
+            { q: "एटीएम का सेवा क्षेत्र किस प्रकार का होता है?", o: ["24 घंटे निरन्तर", "12 घंटे", "8 घंटे", "केवल व्यावसायिक समय"], a: 0 },
+            { q: "चेक किस प्रकार की मुद्रा का उदाहरण है?", o: ["साख मुद्रा", "वैध ग्राह्य मुद्रा", "प्लास्टिक मुद्रा", "धातु मुद्रा"], a: 0 },
+            { q: "वैध ग्राह्य मुद्रा किसे कहा जाता है?", o: ["सरकार द्वारा घोषित नोट और सिक्के", "चेक और ड्राफ्ट", "विनिमय पत्र", "प्रतिज्ञा पत्र"], a: 0 },
+            { q: "भारत की केंद्रीय बैंक कौन सी है?", o: ["भारतीय रिज़र्व बैंक", "भारतीय स्टेट बैंक", "पंजाब नेशनल बैंक", "बैंक ऑफ बड़ौदा"], a: 0 },
+            { q: "भारतीय रिज़र्व बैंक की स्थापना किस वर्ष हुई थी?", o: ["1935", "1947", "1950", "1955"], a: 0 },
+            { q: "भारत में कागजी नोट जारी करने का अधिकार किसे प्राप्त है?", o: ["भारतीय रिज़र्व बैंक", "केन्द्रीय वित्त मंत्रालय", "भारतीय स्टेट बैंक", "संसद"], a: 0 },
+            { q: "एक रुपये का नोट और सिक्के कौन जारी करता है?", o: ["वित्त मंत्रालय भारत सरकार", "भारतीय रिज़र्व बैंक", "गृह मंत्रालय", "संसद"], a: 0 },
+            { q: "आर्थिक विकास के साथ-साथ राष्ट्रीय आय में क्या परिवर्तन होता है?", o: ["वृद्धि होती है", "कमी होती है", "स्थिरता आती है", "कोई प्रभाव नहीं पड़ता"], a: 0 },
+            { q: "राष्ट्रीय आय में गैर-कानूनी कार्यों से प्राप्त आय को शामिल किया जाता है या नहीं?", o: ["शामिल नहीं किया जाता", "शामिल किया जाता है", "आंशिक शामिल होता है", "स्थिति पर निर्भर करता है"], a: 0 },
+            { q: "हस्तांतरण भुगतान जैसे पेंशन और छात्रवृत्ति को राष्ट्रीय आय में शामिल किया जाता है?", o: ["शामिल नहीं किया जाता", "पूर्ण शामिल किया जाता है", "आधा शामिल किया जाता है", "कर लगाकर शामिल करते हैं"], a: 0 },
+            { q: "स्वयं के उपभोग के लिए किए गए उत्पादन का मूल्य राष्ट्रीय आय में जोड़ा जाता है?", o: ["हाँ जोड़ा जाता है", "नहीं जोड़ा जाता", "केवल 50 प्रतिशत जोड़ा जाता है", "केवल उद्योग में जोड़ा जाता है"], a: 0 },
+            { q: "निम्न में से कौन सी विधि राष्ट्रीय आय मापने की प्रत्यक्ष विधि है?", o: ["उत्पादन गणना विधि", "अनुमानित विधि", "सैद्धांतिक विधि", "अप्रत्यक्ष विधि"], a: 0 },
+            { q: "व्यय विधि में राष्ट्रीय आय की गणना किस आधार पर की जाती है?", o: ["कुल उपभोग और निवेश व्यय", "कुल बचत", "कुल ऋण", "कुल कर संग्रह"], a: 0 },
+            { q: "सकल राष्ट्रीय उत्पाद में से मूल्यह्रास घटाने पर क्या प्राप्त होता है?", o: ["शुद्ध राष्ट्रीय उत्पाद", "सकल घरेलू उत्पाद", "प्रतिव्यक्ति आय", "व्यक्तिगत आय"], a: 0 },
+            { q: "व्यक्तिगत आय में से प्रत्यक्ष कर घटाने पर कौन सी आय प्राप्त होती है?", o: ["प्रयोज्य आय", "राष्ट्रीय आय", "सकल आय", "बचत आय"], a: 0 },
+            { q: "प्रयोज्य आय का उपयोग व्यक्ति किस कार्य में करता है?", o: ["उपभोग और बचत", "केवल कर देने में", "केवल दान देने में", "केवल व्यापार में"], a: 0 },
+            { q: "जीवन स्तर में सुधार का मुख्य कारण क्या है?", o: ["प्रतिव्यक्ति आय में वृद्धि", "कीमतों में वृद्धि", "कर में वृद्धि", "आयात में वृद्धि"], a: 0 },
+            { q: "बिहार की साक्षरता दर का राष्ट्रीय आय और विकास पर कैसा प्रभाव पड़ता है?", o: ["अनुकूल प्रभाव हेतु सुधार आवश्यक", "कोई प्रभाव नहीं पड़ता", "ऋणात्मक प्रभाव पड़ता है", "केवल शहरी विकास होता है"], a: 0 },
+            { q: "बिहार में प्रतिव्यक्ति आय कम होने का मुख्य कारण क्या है?", o: ["अत्यधिक जनसंख्या और बाढ़", "उद्योगों की भरमार", "उच्च साक्षरता", "कम कृषि क्षेत्र"], a: 0 },
+            { q: "किसी देश की आर्थिक कल्याण की स्थिति किससे स्पष्ट होती है?", o: ["प्रतिव्यक्ति वास्तविक आय से", "कुल कागजी नोटों से", "विदेश यात्राओं से", "बैंकों की संख्या से"], a: 0 },
+            { q: "राष्ट्रीय आय में प्राथमिक क्षेत्र का योगदान घटने पर क्या संकेत मिलता है?", o: ["अर्थव्यवस्था का विकास हो रहा है", "देश पिछड़ा हो रहा है", "कृषि नष्ट हो रही है", "व्यापार बंद हो रहा है"], a: 0 },
+            { q: "विकसित अर्थव्यवस्थाओं में तृतीयक क्षेत्र का योगदान कैसा होता है?", o: ["अत्यधिक उच्च", "अत्यंत कम", "शून्य", "नगण्य"], a: 0 },
+            { q: "उपभोग फलन किसका संबंध व्यक्त करता है?", o: ["आय और उपभोग का", "आय और बचत का", "बचत और निवेश का", "मूल्य और मांग का"], a: 0 },
+            { q: "बचत फलन किसका संबंध व्यक्त करता है?", o: ["आय और बचत का", "आय और उपभोग का", "व्यय और निवेश का", "मूल्य और आपूर्ति का"], a: 0 },
+            { q: "सीमांत उपभोग प्रवृत्ति का मान सदैव किसके बीच होता है?", o: ["0 और 1 के बीच", "1 और 10 के बीच", "10 और 100 के बीच", "शून्य से कम"], a: 0 },
+            { q: "यदि आय बढ़ती है तो उपभोग व्यय पर क्या प्रभाव पड़ता है?", o: ["बढ़ता है लेकिन आय से कम अनुपात में", "घटता है", "स्थिर रहता है", "दोगुना हो जाता है"], a: 0 },
+            { q: "मुद्रा की क्रय शक्ति में कमी का राष्ट्रीय आय पर क्या प्रभाव दिखता है?", o: ["मौद्रिक आय बढ़ती है पर वास्तविक आय घटती है", "वास्तविक आय बढ़ती है", "कोई प्रभाव नहीं पड़ता", "उत्पादन बढ़ जाता है"], a: 0 },
+            { q: "स्थिर मूल्यों पर निकाली गई राष्ट्रीय आय को क्या कहते हैं?", o: ["वास्तविक राष्ट्रीय आय", "मौद्रिक राष्ट्रीय आय", "सकल आय", "बाजार आय"], a: 0 },
+            { q: "चालू मूल्यों पर निकाली गई राष्ट्रीय आय को क्या कहते हैं?", o: ["मौद्रिक राष्ट्रीय आय", "वास्तविक राष्ट्रीय आय", "शुद्ध आय", "स्थिर आय"], a: 0 },
+            { q: "मूल्यह्रास (Depreciation) का क्या अर्थ है?", o: ["पूंजीगत संपत्तियों का घिसावट व्यय", "कच्चे माल की कीमत", "मजदूरों की मजदूरी", "सरकारी कर"], a: 0 },
+            { q: "मध्यवर्ती वस्तुओं के मूल्य को राष्ट्रीय आय में शामिल करने से क्या होता है?", o: ["दोहरी गणना की समस्या", "सटीक गणना", "आय में कमी", "कर में वृद्धि"], a: 0 },
+            { q: "अंतिम वस्तुओं का अर्थ क्या होता है?", o: ["जो उपभोग हेतु तैयार हों", "जो कच्चे माल के रूप में हों", "जो कारखाने में अधूरी हों", "जो नष्ट हो चुकी हों"], a: 0 },
+            { q: "ब्लैक मनी या अघोषित आय को राष्ट्रीय आय में शामिल न करने से क्या होता है?", o: ["राष्ट्रीय आय का सही अनुमान नहीं लगता", "राष्ट्रीय आय बढ़ जाती है", "विकास दर तेज होती है", "कोई प्रभाव नहीं पड़ता"], a: 0 },
+            { q: "भारत में राष्ट्रीय आय का पहला आधिकारिक अनुमान कब जारी हुआ था?", o: ["1951 में", "1947 में", "1960 में", "1970 में"], a: 0 },
+            { q: "राष्ट्रीय प्रतिदर्श सर्वेक्षण संगठन (NSSO) का मुख्य कार्य क्या है?", o: ["सांख्यिकी और सर्वेक्षण आंकड़े एकत्र करना", "कर वसूलना", "सिक्के ढालना", "नियम बनाना"], a: 0 },
+            { q: "NSSO और CSO का विलय कर हाल ही में कौन सी संस्था बनाई गई?", o: ["राष्ट्रीय सांख्यिकी कार्यालय (NSO)", "केन्द्रीय बैंक", "योजना आयोग", "नीति आयोग"], a: 0 },
+            { q: "किसी देश में शुद्ध विदेशी साधन आय धनात्मक होने पर क्या प्रभाव पड़ता है?", o: ["GNP GDP से अधिक होता है", "GDP GNP से अधिक होता है", "दोनों शून्य होते हैं", "कोई प्रभाव नहीं पड़ता"], a: 0 },
+            { q: "आर्थिक विकास का प्रमुख गैर-आर्थिक कारक कौन सा है?", o: ["सामाजिक और संस्थागत घटक", "प्राकृतिक संसाधन", "पूंजी निर्माण", "तकनीक"], a: 0 },
+            { q: "बिहार में प्रतिव्यक्ति आय कम होने से बचत पर क्या प्रभाव पड़ता है?", o: ["बचत दर बहुत कम होती है", "बचत अत्यधिक होती है", "निवेश बहुत बढ़ता है", "पूंजी निर्माण तेज होता है"], a: 0 },
+            { q: "गरीबी के दुष्चक्र को तोड़ने के लिए क्या आवश्यक है?", o: ["निवेश और पूंजी निर्माण में वृद्धि", "उपभोग कम करना", "जनसंख्या बढ़ाना", "आयात बढ़ाना"], a: 0 },
+            { q: "यदि किसी देश में प्रतिव्यक्ति आय तेजी से बढ़े तो जीवन की गुणवत्ता कैसी होगी?", o: ["उच्च और बेहतर होगी", "निम्न होगी", "अपरिवर्तित रहेगी", "खराब होगी"], a: 0 },
+            { q: "मानव पूंजी में निवेश के मुख्य घटक कौन से हैं?", o: ["शिक्षा, स्वास्थ्य और प्रशिक्षण", "केवल भवन निर्माण", "केवल वाहन खरीद", "केवल बैंक जमा"], a: 0 },
+            { q: "साख का मुख्य आधार क्या होता है?", o: ["विश्वास और ईमानदारी", "केवल धन", "केवल भूमि", "केवल कागजी दस्तावेज"], a: 0 },
+            { q: "प्रतिज्ञा पत्र किस प्रकार का पत्र है?", o: ["साख पत्र", "सरकारी पत्र", "कागजी नोट", "मुद्रा का रूप"], a: 0 },
+            { q: "बैंक ड्राफ्ट का उपयोग मुख्य रूप से किस कार्य में होता है?", o: ["धन को एक स्थान से दूसरे स्थान भेजने में", "वस्तु खरीदने में", "ऋण चुकाने में", "कर भरने में"], a: 0 },
+            { q: "राष्ट्रीय आय लेखांकन के जन्मदाता किसे माना जाता है?", o: ["साइमन कुजनेट्स", "ऐडम स्मिथ", "मार्शल", "केन्स"], a: 0 },
+            { q: "साइमन कुजनेट्स को किस कार्य हेतु नोबेल पुरस्कार मिला था?", o: ["राष्ट्रीय आय लेखांकन हेतु", "मुद्रा सिद्धांत हेतु", "व्यापार सिद्धांत हेतु", "बैंक सुधार हेतु"], a: 0 },
+            { q: "बिहार की आर्थिक स्थिति सुधारने हेतु कौन सा क्षेत्र सबसे महत्त्वपूर्ण है?", o: ["कृषि एवं कृषि आधारित उद्योग", "भारी खनन उद्योग", "समुद्री व्यापार", "सॉफ्टवेयर निर्यात"], a: 0 },
+            { q: "राज्य एवं राष्ट्र की आय अध्याय का मुख्य संदेश क्या है?", o: ["आय, बचत और निवेश ही विकास का आधार हैं", "केवल कर बढ़ाना चाहिए", "उद्योगों को बंद करना चाहिए", "केवल आयात पर निर्भर रहना चाहिए"], a: 0 },
+            { q: "सकल घरेलू उत्पाद में से विदेशों से प्राप्त शुद्ध आय जोड़ने पर क्या बनता है?", o: ["सकल राष्ट्रीय उत्पाद (GNP)", "शुद्ध घरेलू उत्पाद", "प्रतिव्यक्ति आय", "व्यक्तिगत आय"], a: 0 },
+            { q: "बिहार में प्रतिव्यक्ति आय का मुख्य आधार किस पर निर्भर करता है?", o: ["कृषि उत्पादन की स्थिति पर", "विदेशी निवेश पर", "खनिज उत्खनन पर", "भारी उद्योग पर"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions and Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            
+            // Shuffle question order
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // Shuffle options and update correct answer index
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं अर्थशास्त्र</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 2: राज्य एवं राष्ट्र की आय</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">द्वितीय अध्याय पर आधारित 100 अति-महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का प्रीमियम इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने अर्थशास्त्र के इस अध्याय में पूरे अंक प्राप्त किए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बहुत अच्छी है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और दोहराएँ।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

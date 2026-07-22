@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 अर्थशास्त्र - अध्याय 6 क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "वैश्वीकरण का क्या अर्थ होता है?", o: ["विदेशी व्यापार एवं निवेश द्वारा अर्थव्यवस्थाओं का एकीकरण", "केबल स्थानीय व्यापार बढ़ाना", "विदेशी वस्तुओं पर प्रतिबंध लगाना", "केवल कृषि उत्पादन बढ़ाना"], a: 0 },
+            { q: "वैश्वीकरण के मुख्य अंग कितने माने जाते हैं?", o: ["पांच अंग", "दो अंग", "तीन अंग", "छह अंग"], a: 0 },
+            { q: "विश्व व्यापार संगठन (WTO) की स्थापना किस वर्ष हुई थी?", o: ["1995", "1990", "2000", "1985"], a: 0 },
+            { q: "विश्व व्यापार संगठन का मुख्यालय कहाँ स्थित है?", o: ["जेनेवा", "न्यूयार्क", "पेरिस", "लंदन"], a: 0 },
+            { q: "भारत में नई आर्थिक नीति (NEP) की घोषणा किस वर्ष की गई थी?", o: ["1991", "1985", "1995", "2001"], a: 0 },
+            { q: "नई आर्थिक नीति में किसे शामिल किया गया था?", o: ["उदारीकरण, निजीकरण और वैश्वीकरण", "केवल कृषि सुधार", "केवल सैन्य विकास", "केवल कर वृद्धि"], a: 0 },
+            { q: "उदारीकरण का मुख्य अर्थ क्या होता है?", o: ["सरकारी नियंत्रण और प्रतिबंधों को हटाना", "टैक्स में अत्यधिक वृद्धि करना", "विदेश यात्रा पर रोक लगाना", "उद्योगों को बंद करना"], a: 0 },
+            { q: "निजीकरण से क्या तात्पर्य है?", o: ["निजी क्षेत्र को अर्थव्यवस्था में अधिक भूमिका देना", "सभी उद्योगों का सरकारीकरण करना", "विदेशी व्यापार बंद करना", "केवल बैंक खोलना"], a: 0 },
+            { q: "बहुराष्ट्रीय कंपनी (MNC) किसे कहा जाता है?", o: ["जो एक से अधिक देशों में उत्पादन पर नियंत्रण रखती है", "जो केवल एक गाँव में काम करती है", "जो केवल सरकारी स्वामित्व में हो", "जो केवल अनाज बेचती है"], a: 0 },
+            { q: "इनमें से कौन सी बहुराष्ट्रीय कंपनी का उदाहरण है?", o: ["फोर्ड मोटर्स, सैमसंग और कोका कोला", "केवल स्थानीय आटा चक्की", "केवल सरकारी डाकघर", "केवल स्थानीय डेयरी"], a: 0 },
+            { q: "विदेशी निवेश का क्या अर्थ होता है?", o: ["बहुराष्ट्रीय कंपनियों द्वारा दूसरे देशों में किया गया निवेश", "केवल बैंक में पैसा जमा करना", "स्थानीय बाज़ार से खरीददारी", "सरकारी कर का भुगतान"], a: 0 },
+            { q: "विदेशी व्यापार मुख्य रूप से किनके बीच होता है?", o: ["दो या दो से अधिक देशों के बीच", "दो गाँवों के बीच", "दो परिवारों के बीच", "दो दुकानों के बीच"], a: 0 },
+            { q: "आयात पर कर (Tariff) लगाना किस प्रकार का उपाय है?", o: ["व्यापार अवरोधक (Trade Barrier)", "मुक्त व्यापार नीति", "वैश्वीकरण का अंग", "उदारीकरण की प्रक्रिया"], a: 0 },
+            { q: "भारत में स्वतंत्रता के बाद व्यापार अवरोधक क्यों लगाए गए थे?", o: ["घरेलू उद्योगों को संरक्षण देने हेतु", "विदेशी व्यापार बढ़ाने हेतु", "उत्पादन बंद करने हेतु", "निर्यात बढ़ाने हेतु"], a: 0 },
+            { q: "1991 की नई आर्थिक नीति का मुख्य उद्देश्य क्या था?", o: ["भारतीय अर्थव्यवस्था को वैश्विक बाज़ार से जोड़ना", "विदेशी कंपनियों को भगाना", "केवल कृषि पर ध्यान देना", "आयात पूर्णतः बंद करना"], a: 0 },
+            { q: "वैश्वीकरण से सबसे अधिक लाभ किस वर्ग को मिला है?", o: ["शहरी क्षेत्रों के धनी उपभोक्ताओं और उत्पादकों को", "केवल छोटे किसानों को", "अकुशल ग्रामीण मजदूरों को", "केवल कुटीर उद्योगपतियों को"], a: 0 },
+            { q: "वैश्वीकरण के कारण किस क्षेत्र में सबसे अधिक विदेशी निवेश आया है?", o: ["दूरसंचार, ऑटोमोबाइल और सूचना प्रौद्योगिकी", "केवल पारंपरिक हस्तशिल्प", "केवल खादी वस्त्र", "केवल पशुपालन"], a: 0 },
+            { q: "बहुराष्ट्रीय कंपनियाँ उत्पादन लागत कम करने के लिए कहाँ कारखाने लगाती हैं?", o: ["जहाँ कच्चा माल और सस्ता श्रम उपलब्ध हो", "जहाँ अत्यधिक कर हो", "जहाँ श्रम बहुत महंगा हो", "जहाँ बाज़ार न हो"], a: 0 },
+            { q: "गैट (GATT) का नाम बदलकर क्या रखा गया?", o: ["विश्व व्यापार संगठन (WTO)", "विश्व बैंक", "अंतर्राष्ट्रीय मुद्रा कोष", "संयुक्त राष्ट्र संघ"], a: 0 },
+            { q: "विश्व व्यापार संगठन का मुख्य उद्देश्य क्या है?", o: ["अंतर्राष्ट्रीय व्यापार को उदार और मुक्त बनाना", "केवल अमीर देशों की रक्षा करना", "व्यापार पर रोक लगाना", "कर वसूलना"], a: 0 },
+            { q: "वर्तमान में विश्व व्यापार संगठन में कितने सदस्य देश शामिल हैं?", o: ["160 से अधिक", "50", "100", "200"], a: 0 },
+            { q: "वैश्वीकरण से छोटे और कुटीर उद्योगों पर क्या प्रभाव पड़ा है?", o: ["कड़ी प्रतिस्पर्धा के कारण संकट और बंदी का सामना", "अत्यधिक लाभ हुआ", "कोई प्रभाव नहीं पड़ा", "उत्पादन दोगुना हो गया"], a: 0 },
+            { q: "विशेष आर्थिक क्षेत्र (SEZ) की स्थापना क्यों की जाती है?", o: ["विदेशी निवेश और उद्योगों को आकर्षित करने हेतु", "केवल कृषि भूमि संरक्षित करने हेतु", "आवास बनाने हेतु", "पार्क बनाने हेतु"], a: 0 },
+            { q: "आयात और निर्यात के बीच के अंतर को क्या कहा जाता है?", o: ["व्यापार संतुलन (Balance of Trade)", "सकल घरेलू उत्पाद", "राष्ट्रीय आय", "राजकोषीय घाटा"], a: 0 },
+            { q: "यदि निर्यात मूल्य आयात मूल्य से अधिक हो तो उसे क्या कहते हैं?", o: ["अनुकूल व्यापार संतुलन", "प्रतिकूल व्यापार संतुलन", "संतुलित व्यापार", "शून्य व्यापार"], a: 0 },
+            { q: "यदि आयात मूल्य निर्यात मूल्य से अधिक हो तो उसे क्या कहते हैं?", o: ["प्रतिकूल व्यापार संतुलन", "अनुकूल व्यापार संतुलन", "विदेशी मुद्रा लाभ", "आर्थिक समृद्धि"], a: 0 },
+            { q: "वैश्वीकरण की प्रक्रिया में किसकी भूमिका सबसे महत्त्वपूर्ण रही है?", o: ["सूचना एवं संचार प्रौद्योगिकी (IT)", "केवल बैलगाड़ी परिवहन", "केवल पारंपरिक डाक सेवा", "केवल समाचार पत्र"], a: 0 },
+            { q: "ई-मेल और इंटरनेट ने संदेश भेजने की गति को कैसा बना दिया है?", o: ["अत्यंत तीव्र और सुलभ", "अत्यंत धीमा", "खर्चीला और जटिल", "असंभव"], a: 0 },
+            { q: "आउटसोर्सिंग (बाह्यस्रोती) वैश्वीकरण का कैसा परिणाम है?", o: ["एक प्रमुख और सकारात्मक परिणाम", "एक नकारात्मक रुकावट", "अप्रासंगिक प्रक्रिया", "केवल स्थानीय व्यवस्था"], a: 0 },
+            { q: "भारत आउटसोर्सिंग का पसंदीदा केंद्र क्यों है?", o: ["सस्ते एवं कुशल अंग्रेजी भाषी श्रम के कारण", "बड़ी भूमि के कारण", "ठंडे मौसम के कारण", "कम जनसंख्या के कारण"], a: 0 },
+            { q: "कॉल सेंटर और सॉफ्टवेयर आईटी सेवाएँ किसका उदाहरण हैं?", o: ["सेवा क्षेत्र के आउटसोर्सिंग का", "प्राथमिक क्षेत्र के उत्पादन का", "कृषि निर्यात का", "खनन कार्य का"], a: 0 },
+            { q: "फेमा (FEMA) का मुख्य संबंध किससे है?", o: ["विदेशी मुद्रा प्रबंधन से", "खाद्यान्न वितरण से", "शिक्षा नीति से", "पर्यावरण संरक्षण से"], a: 0 },
+            { q: "फेमा से पहले भारत में कौन सा कानून लागू था?", o: ["फेरा (FERA)", "सेबी (SEBI)", "नाबार्ड (NABARD)", "एमआरटीपी (MRTP)"], a: 0 },
+            { q: "बहुराष्ट्रीय कंपनियाँ स्थानीय कंपनियों को कैसे नियंत्रित करती हैं?", o: ["उन्हें खरीदकर या उनके साथ संयुक्त उत्पादन करके", "उन पर केस करके", "उन्हें बंद करवाकर", "सरकारी आदेश देकर"], a: 0 },
+            { q: "सैमसंग किस देश की प्रमुख बहुराष्ट्रीय कंपनी है?", o: ["दक्षिण कोरिया", "जापान", "अमेरिका", "चीन"], a: 0 },
+            { q: "नोकिया किस देश की बहुराष्ट्रीय कंपनी रही है?", o: ["फिनलैंड", "भारत", "जर्मनी", "फ्रांस"], a: 0 },
+            { q: "फोर्ड मोटर्स किस देश की बहुराष्ट्रीय कंपनी है?", o: ["अमेरिका", "जापान", "भारत", "इटली"], a: 0 },
+            { q: "टाटा मोटर्स किस देश की बहुराष्ट्रीय कंपनी है?", o: ["भारत", "अमेरिका", "ब्रिटेन", "चीन"], a: 0 },
+            { q: "इन्फोसिस और विप्रो किस क्षेत्र की भारतीय बहुराष्ट्रीय कंपनियाँ हैं?", o: ["सूचना प्रौद्योगिकी (IT)", "ऑटोमोबाइल", "खाद्यान्न प्रसंस्करण", "कपड़ा उद्योग"], a: 0 },
+            { q: "ऐशियन पेंट्स किस क्षेत्र से जुड़ी भारतीय बहुराष्ट्रीय कंपनी है?", o: ["पेंट एवं रसायन", "सॉफ्टवेयर", "कार निर्माण", "मोबाइल निर्माण"], a: 0 },
+            { q: "रैनबैक्सी किस क्षेत्र की प्रसिद्ध भारतीय कंपनी रही है?", o: ["दवा निर्माण (फार्मास्युटिकल)", "आईटी सेवा", "जूता निर्माण", "चाय उत्पादन"], a: 0 },
+            { q: "वैश्वीकरण से उपभोक्ताओं को क्या लाभ मिला है?", o: ["कम कीमत पर बेहतर गुणवत्ता वाली वस्तुओं के विकल्प", "कीमतों में अत्यधिक वृद्धि", "वस्तुओं की कमी", "खराब गुणवत्ता"], a: 0 },
+            { q: "वैश्वीकरण के कारण श्रम बाज़ार पर क्या प्रभाव पड़ा है?", o: ["रोजगार में अनिश्चितता और लचीलापन बढ़ा है", "स्थायी नौकरियां बढ़ी हैं", "वेतन बहुत बढ़ गया है", "काम के घंटे घट गए हैं"], a: 0 },
+            { q: "असंगठित क्षेत्र में रोजगार बढ़ने का मुख्य कारण क्या है?", o: ["प्रतिस्पर्धा के कारण लागत कम करने का दबाव", "सरकारी नियम", "टैक्स में छूट", "सख्त श्रम कानून"], a: 0 },
+            { q: "न्यायसंगत वैश्वीकरण से क्या तात्पर्य है?", o: ["जिसका लाभ समाज के सभी वर्गों को मिले", "केवल अमीर देशों को लाभ मिले", "केवल बड़ी कंपनियों को लाभ मिले", "केवल सरकार को लाभ मिले"], a: 0 },
+            { q: "न्यायसंगत वैश्वीकरण सुनिश्चित करने में किसकी भूमिका मुख्य होती है?", o: ["सरकार और उसकी नीतियों की", "केवल विदेशी कंपनियों की", "केवल स्थानीय दुकानदारों की", "किसी की नहीं"], a: 0 },
+            { q: "सरकार न्यायसंगत वैश्वीकरण हेतु क्या कर सकती है?", o: ["सख्त श्रम कानून बनाना और छोटे उत्पादकों की मदद", "सभी टैक्स समाप्त करना", "केवल विदेशी कंपनियों को सब्सिडी देना", "व्यापार बंद करना"], a: 0 },
+            { q: "विश्व बैंक की स्थापना किस वर्ष हुई थी?", o: ["1944", "1950", "1960", "1995"], a: 0 },
+            { q: "विश्व बैंक का मुख्यालय कहाँ स्थित है?", o: ["वाशिंगटन डीसी", "जेनेवा", "पेरिस", "टोक्यो"], a: 0 },
+            { q: "अंतर्राष्ट्रीय मुद्रा कोष (IMF) का मुख्य कार्य क्या है?", o: ["सदस्य देशों को भुगतान संतुलन हेतु वित्तीय सहायता देना", "केवल कृषि ऋण देना", "केवल स्कूल खोलना", "सिक्के बनाना"], a: 0 },
+            { q: "मुद्रा के अंतर्राष्ट्रीय विनिमय दर का निर्धारण कैसे होता है?", o: ["विदेशी मुद्रा बाज़ार में माँग और पूर्ति द्वारा", "केवल भारत सरकार द्वारा", "केवल रिज़र्व बैंक द्वारा", "स्थानीय दुकानदार द्वारा"], a: 0 },
+            { q: "डॉलर की तुलना में रुपये के मूल्य में गिरावट को क्या कहते हैं?", o: ["रुपये का अवमूल्यन या ह्रास", "रुपये का मजबूत होना", "मुद्रास्फीति का रुकना", "आर्थिक विकास"], a: 0 },
+            { q: "वैश्वीकरण के दौर में व्यापारिक सूचनाएँ प्राप्त करने का मुख्य माध्यम क्या है?", o: ["इंटरनेट और डिजिटल नेटवर्क", "केवल पत्र लिखना", "केवल व्यक्तिगत यात्रा", "रेडियो प्रसारण"], a: 0 },
+            { q: "ई-कॉमर्स के माध्यम से ग्राहक क्या कर सकता है?", o: ["घर बैठे ऑनलाइन वस्तुओं का क्रय-विक्रय", "केवल टीवी देख सकता है", "केवल बातें कर सकता है", "केवल समाचार पढ़ सकता है"], a: 0 },
+            { q: "अमेज़न और फ्लिपकार्ट किस प्रकार की कंपनियाँ हैं?", o: ["ई-कॉमर्स कंपनियाँ", "कृषि फार्म", "सरकारी बैंक", "सैन्य संस्थाएँ"], a: 0 },
+            { q: "ब्रांड (Brand) का मुख्य कार्य क्या होता है?", o: ["उत्पाद की विशिष्ट पहचान और गुणवत्ता का प्रतीक बनना", "कीमत बढ़ाना", "टैक्स बचाना", "केवल नाम छापना"], a: 0 },
+            { q: "पेटेंट (Patent) अधिकार का क्या अर्थ है?", o: ["नवाचार या खोज पर एक निश्चित समय हेतु कानूनी एकाधिकार", "सबके लिए मुफ्त उपयोग", "सरकारी स्वामित्व", "विदेशी बिक्री पर रोक"], a: 0 },
+            { q: "ट्रेडमार्क (Trademark) किसे सुरक्षा प्रदान करता है?", o: ["कंपनी के नाम, लोगो और ब्रांड चिन्ह को", "केवल कर्मचारियों को", "केवल बैंक खाते को", "केवल ज़मीन को"], a: 0 },
+            { q: "कॉपीराइट (Copyright) मुख्य रूप से किस पर लागू होता है?", o: ["साहित्यिक, कलात्मक और बौद्धिक रचनाओं पर", "केवल वाहनों पर", "केवल अनाज पर", "केवल इमारतों पर"], a: 0 },
+            { q: "बौद्धिक संपदा अधिकार (IPR) में किसे शामिल किया जाता है?", o: ["पेटेंट, ट्रेडमार्क और कॉपीराइट", "केवल नकद धन", "केवल अचल संपत्ति", "केवल बैंक बैलेंस"], a: 0 },
+            { q: "डब्ल्यूटीओ के ट्रिप्स (TRIPS) समझौते का संबंध किससे है?", o: ["बौद्धिक संपदा अधिकारों से", "केवल कपड़ा व्यापार से", "केवल कृषि सब्सिडी से", "सैन्य समझौते से"], a: 0 },
+            { q: "डब्ल्यूटीओ के ट्रिम्स (TRIMS) समझौते का संबंध किससे है?", o: ["व्यापार संबंधी निवेश उपायों से", "केवल शिक्षा से", "स्वास्थ्य सेवा से", "पर्यावरण से"], a: 0 },
+            { q: "वैश्वीकरण से भारत की जीडीपी विकास दर पर क्या प्रभाव पड़ा?", o: ["विकास दर में तेजी आई", "विकास दर शून्य हो गई", "जीडीपी घट गई", "कोई प्रभाव नहीं पड़ा"], a: 0 },
+            { q: "वैश्वीकरण के कारण भारत में किस क्षेत्र की वृद्धि सबसे तेज़ रही?", o: ["सेवा क्षेत्र (Service Sector)", "कृषि क्षेत्र", "खनन क्षेत्र", "कुटीर उद्योग"], a: 0 },
+            { q: "वैश्वीकरण से कृषि क्षेत्र पर क्या प्रतिकूल प्रभाव देखने को मिला?", o: ["विदेशी प्रतिस्पर्धा और लागत वृद्धि से छोटे किसानों पर दबाव", "फसल उत्पादन बंद होना", "सिंचाई समाप्त होना", "खाद न मिलना"], a: 0 },
+            { q: "कृषि सब्सिडी में कटौती करने का दबाव किस संस्था द्वारा बनाया जाता है?", o: ["विश्व व्यापार संगठन (WTO)", "केवल स्थानीय पंचायत", "भारतीय रिज़र्व बैंक", "नाबार्ड"], a: 0 },
+            { q: "वैश्वीकरण ने सांस्कृतिक स्तर पर क्या बदलाव लाया है?", o: ["खान-पान, पहनावे और जीवनशैली में वैश्विक प्रभाव", "कोई बदलाव नहीं", "केवल भाषा का अंत", "स्थानीय संस्कृति का पूर्ण नाश"], a: 0 },
+            { q: "विदेशी प्रत्यक्ष निवेश (FDI) से देश में क्या आता है?", o: ["नवीन तकनीक, पूंजी और प्रबंधकीय कौशल", "केवल पुरानी वस्तुएँ", "केवल विदेशी कर्ज", "केवल खाद्यान्न की कमी"], a: 0 },
+            { q: "एफडीआई (FDI) का पूर्ण रूप क्या होता है?", o: ["फॉरेन डायरेक्ट इन्वेस्टमेन्ट (प्रत्यक्ष विदेशी निवेश)", "फेडरल विकास बैंक", "फंड डिपॉजिट इंडिया", "फर्स्ट डिजिटल इंडिया"], a: 0 },
+            { q: "एफआईआई (FII) का पूर्ण रूप क्या होता है?", o: ["फॉरेन इंस्टीट्यूशनल इन्वेस्टमेन्ट (विदेशी संस्थागत निवेश)", "फर्स्ट इंडिया इन्वेस्टमेन्ट", "फेडरल इंडस्ट्री इंडिया", "फॉरेन इंपोर्ट इंडिया"], a: 0 },
+            { q: "पोर्टफोलियो निवेश किसे कहते हैं?", o: ["शेयर बाज़ार में विदेशी संस्थाओं द्वारा प्रतिभूतियों की खरीद", "कारखाना लगाने हेतु निवेश", "ज़मीन खरीदने हेतु निवेश", "अनाज खरीदने हेतु निवेश"], a: 0 },
+            { q: "वैश्वीकरण से भारत में किस वर्ग का आकार तेजी से बढ़ा है?", o: ["मध्यम वर्ग (Middle Class)", "केवल अत्यंत गरीब वर्ग", "केवल शाही परिवार", "केवल निरक्षर वर्ग"], a: 0 },
+            { q: "वैश्वीकरण के कारण बिहार में किस चीज़ का विस्तार हुआ है?", o: ["संचार सेवाओं, मोबाइल और इंटरनेट का", "भारी कारखानों का", "समुद्री जहाजों का", "अंतर्राष्ट्रीय हवाई अड्डों का"], a: 0 },
+            { q: "बिहार जैसे कृषि प्रधान राज्य में वैश्वीकरण का पूर्ण लाभ क्यों नहीं मिल पाया?", o: ["आधारभूत संरचना और बुनियादी उद्योगों की कमी के कारण", "अधिक कारखाने होने से", "कम जनसंख्या होने से", "अत्यधिक बिजली होने से"], a: 0 },
+            { q: "वैश्वीकरण के दौर में कुशल श्रमिकों की मांग बढ़ी है या घटी है?", o: ["अत्यधिक बढ़ी है", "घटी है", "शून्य हो गई है", "अपरिवर्तित रही है"], a: 0 },
+            { q: "अकुशल श्रमिकों पर वैश्वीकरण का क्या प्रभाव पड़ा है?", o: ["कम वेतन और रोजगार की असुरक्षा", "बहुत उच्च वेतन", "स्थायी सरकारी नौकरी", "विदेशी यात्रा का अवसर"], a: 0 },
+            { q: "वैश्वीकरण के दौर में व्यापारिक मेलों का क्या महत्त्व है?", o: ["उत्पादों के प्रदर्शन और अंतर्राष्ट्रीय बाज़ार पहुँच हेतु", "केवल मनोरंजन हेतु", "केवल स्थानीय खेल हेतु", "केवल समय बिताने हेतु"], a: 0 },
+            { q: "मुद्रा का अंतर्राष्ट्रीयकरण किस प्रक्रिया से संभव हुआ है?", o: ["वैश्वीकरण और वित्तीय उदारीकरण से", "केवल सोने के सिक्के ढालने से", "केवल स्थानीय नोट छापने से", "व्यापार रोकने से"], a: 0 },
+            { q: "वैश्वीकरण के विरोध में उठने वाले मुख्य तर्क कौन से हैं?", o: ["असमानता बढ़ना और छोटे उद्योगों का विनाश", "अत्यधिक रोजगार मिलना", "चीजें सस्ती होना", "विकास तेज़ होना"], a: 0 },
+            { q: "एंटी-ग्लोबलाइजेशन आंदोलन का मुख्य मुद्दा क्या है?", o: ["पर्यावरण विनाश, श्रम शोषण और सामाजिक असमानता", "केवल नए फोन न खरीदना", "केवल विदेशी भाषा न बोलना", "केवल कारें न चलाना"], a: 0 },
+            { q: "विश्व सामाजिक मंच (WSF) की बैठकें क्यों आयोजित होती हैं?", o: ["वैश्वीकरण के नव-उदारवादी मॉडल के विरोध हेतु", "केवल खेलकूद बढ़ावा हेतु", "केवल पर्यटन हेतु", "केवल व्यापार बढ़ाने हेतु"], a: 0 },
+            { q: "वैश्वीकरण ने विश्व को किस अवधारणा में बदल दिया है?", o: ["ग्लोबल विलेज (वैश्विक गाँव)", "पृथक महाद्वीप", "अपरिचित राज्य", "बंद बाज़ार"], a: 0 },
+            { q: "ग्लोबल विलेज की अवधारणा का क्या अर्थ है?", o: ["समस्त विश्व का आपस में गहराई से जुड़ जाना", "पूरे विश्व को एक गाँव का नाम देना", "केवल खेती करना", "शहर समाप्त कर देना"], a: 0 },
+            { q: "कच्चे माल की आपूर्ति हेतु बहुराष्ट्रीय कंपनियाँ क्या करती हैं?", o: ["वैश्विक आपूर्ति श्रृंखला (Global Supply Chain) बनाती हैं", "केवल स्थानीय बाज़ार पर निर्भर रहती हैं", "उत्पादन बंद कर देती हैं", "सरकारी अनुमति नहीं लेतीं"], a: 0 },
+            { q: "वैश्वीकरण से भारत का विदेशी मुद्रा भंडार बढ़ा है या घटा है?", o: ["अत्यधिक बढ़ा है", "घटा है", "शून्य हो गया है", "स्थिर रहा है"], a: 0 },
+            { q: "भारत का रिज़र्व बैंक विदेशी मुद्रा भंडार का क्या करता है?", o: ["संरक्षण और प्रबंधन", "जनता में बाँटना", "विदेशों में दान देना", "नष्ट करना"], a: 0 },
+            { q: "वैश्वीकरण के अंतर्गत श्रम के आवागमन पर क्या स्थिति है?", o: ["वस्तुओं और पूंजी की तुलना में अधिक प्रतिबंध हैं", "कोई प्रतिबंध नहीं है", "पूर्णतः बंद है", "केवल भारत हेतु खुला है"], a: 0 },
+            { q: "विकासशील देश विकसित देशों से किस बात की मांग करते हैं?", o: ["श्रम के मुक्त आवागमन और निष्पक्ष व्यापार शर्तों की", "केवल आर्थिक सहायता रोकने की", "व्यापार बंद करने की", "केवल कर बढ़ाने की"], a: 0 },
+            { q: "डिजिटल विभाजन (Digital Divide) का क्या अर्थ है?", o: ["तकनीक और इंटरनेट तक पहुँच में असमानता", "कंप्यूटर को तोड़ना", "दो सॉफ्टवेयर बनाना", "मोबाइल बंद करना"], a: 0 },
+            { q: "डिजिटल विभाजन को कम करने से वैश्वीकरण का लाभ किसे मिलेगा?", o: ["ग्रामीण और निर्धन वर्ग को", "केवल धनी वर्ग को", "केवल विदेशी कंपनियों को", "किसी को नहीं"], a: 0 },
+            { q: "वैश्वीकरण के दौर में उपभोक्ता संरक्षण का महत्त्व क्यों बढ़ गया है?", o: ["बाज़ार में मिलावट और भ्रामक विज्ञापनों से बचाव हेतु", "केवल विदेशी सामान बेचने हेतु", "केवल कर वसूलने हेतु", "केवल दुकान बंद कराने हेतु"], a: 0 },
+            { q: "भारत में उपभोक्ता संरक्षण अधिनियम किस वर्ष लागू हुआ था?", o: ["1986", "1990", "1995", "2001"], a: 0 },
+            { q: "वैश्वीकरण में जनसंचार माध्यमों (Mass Media) की क्या भूमिका है?", o: ["वैश्विक सूचनाओं और उपभोक्ता संस्कृति का प्रसार", "केवल स्थानीय खबरें देना", "व्यापार रोकना", "केवल पुरानी फिल्में दिखाना"], a: 0 },
+            { q: "मेक इन इंडिया (Make in India) पहल का मुख्य उद्देश्य क्या है?", o: ["भारत को वैश्विक विनिर्माण केंद्र बनाना", "विदेशों में कारखाने लगाना", "केवल कृषि बढ़ाना", "आयात बढ़ाना"], a: 0 },
+            { q: "आत्मनिर्भर भारत अभियान का क्या लक्ष्य है?", o: ["वैश्विक स्तर पर प्रतिस्पर्धी और स्वदेशी रूप से मजबूत बनना", "वैश्वीकरण से पूर्णतः कट जाना", "विदेश व्यापार बंद करना", "केवल पुरानी तकनीक अपनाना"], a: 0 },
+            { q: "वैश्वीकरण के साथ सतत विकास (Sustainable Development) क्यों आवश्यक है?", o: ["ताकि पर्यावरण और भावी पीढ़ी के संसाधनों की रक्षा हो सके", "ताकि तुरंत सारा संसाधन समाप्त हो जाए", "ताकि कारखाने बंद हो जाएं", "ताकि केवल प्रदूषण बढ़े"], a: 0 },
+            { q: "अध्याय 'वैश्वीकरण' का मुख्य निष्कर्ष क्या है?", o: ["वैश्वीकरण के अवसरों का लाभ उठाते हुए इसके दुष्प्रभावों से रक्षा करना", "वैश्वीकरण को पूरी तरह खारिज करना", "केवल विदेशी वस्तुओं पर निर्भर होना", "केवल स्थानीय व्यापार करना"], a: 0 },
+            { q: "भारत की अर्थव्यवस्था वैश्वीकरण के बाद कैसी हुई है?", o: ["अधिक खुली, गतिशील और वैश्विक रूप से एकीकृत", "बंद और पिछड़ी", "पूर्णतः नष्ट", "अपरिवर्तित"], a: 0 },
+            { q: "भविष्य के वैश्वीकरण का रूप कैसा होना चाहिए?", o: ["समावेशी, न्यायसंगत और पर्यावरण के अनुकूल", "केवल पूंजीपतियों के हित में", "केवल अमीर देशों के हित में", "अत्यंत कठोर और प्रतिबंधात्मक"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions and Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            
+            // Shuffle question order
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // Shuffle options and update correct answer index
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं अर्थशास्त्र</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 6: वैश्वीकरण</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">षष्ठम अध्याय पर आधारित 100 अति-महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का प्रीमियम इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने अर्थशास्त्र के इस अध्याय में पूरे अंक प्राप्त किए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बहुत अच्छी है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और दोहराएँ।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>
