@@ -1,17 +1,21 @@
 {
-  "plugin": "org.smartide.plugin.editor",
-  "run": "echo 'change command from .si.json file'",
+  "plugin": "org.smartide.plugin.web",
+  "run": "npx http-server -a localhost -p 8080 -o /011.html",
   "intelligence": {
-    ".md": {
+    ".json": {
       "enabled": true,
-      "run": "marksman server"
+      "run": "sh -c 'vscode-json-language-server --stdio'"
     },
     ".js": {
-      "enabled": false,
-      "run": "typescript-language-server --stdio"
+      "enabled": true,
+      "run": "sh -c 'typescript-language-server --stdio'"
+    },
+    ".css": {
+      "enabled": true,
+      "run": "sh -c 'vscode-css-language-server --stdio'"
     },
     ".html": {
-      "enabled": true,
+      "enabled": false,
       "run": "vscode-html-language-server --stdio"
     }
   }
