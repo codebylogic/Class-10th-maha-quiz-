@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 राजनीतिक विज्ञान - अध्याय 2 क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "भारत में किस प्रकार की शासन प्रणाली पाई जाती है?", o: ["संसदीय एवं संघीय", "अध्यक्षीय एवं एकात्मक", "राजतंत्रीय एवं प्रांतीय", "साम्यवादी एवं एकात्मक"], a: 0 },
+            { q: "भारतीय संविधान के अनुसार भारत क्या है?", o: ["राष्‍ट्रीय संघ", "राज्यों का संघ", "केंद्रशासित प्रदेश", "स्वतंत्र राज्य"], a: 1 },
+            { q: "भारतीय संविधान में केंद्र और राज्यों के बीच शक्तियों का बंटवारा कितनी सूचियों में है?", o: ["तीन सूचियों में", "दो सूचियों में", "चार सूचियों में", "पांच सूचियों में"], a: 0 },
+            { q: "संघ सूची के विषयों पर कानून बनाने का अधिकार किसके पास है?", o: ["केंद्र सरकार", "राज्य सरकार", "स्थानीय सरकार", "उच्च न्यायालय"], a: 0 },
+            { q: "राज्य सूची के विषयों पर कानून बनाने का मुख्य अधिकार किसके पास है?", o: ["राज्य सरकार", "केंद्र सरकार", "राष्ट्रपति", "सर्वोच्च न्यायालय"], a: 0 },
+            { q: "समवर्ती सूची के विषयों पर कानून बनाने का अधिकार किसे प्राप्त है?", o: ["केंद्र और राज्य दोनों", "केवल केंद्र सरकार", "केवल राज्य सरकार", "केवल संसद"], a: 0 },
+            { q: "यदि समवर्ती सूची के विषय पर केंद्र और राज्य के कानून में विरोध हो तो किसका कानून मान्य होगा?", o: ["केंद्र सरकार का", "राज्य सरकार का", "दोनों का रद्द होगा", "उच्च न्यायालय का"], a: 0 },
+            { q: "संविधान के अनुसार बचे हुए (अवशिष्ट) विषय किसके अधिकार क्षेत्र में आते हैं?", o: ["केंद्र सरकार", "राज्य सरकार", "पंचायती राज", "नगर निगम"], a: 0 },
+            { q: "भारत में पंचायती राज व्यवस्था को संवैधानिक दर्जा किस संशोधन से मिला?", o: ["73वाँ संशोधन", "74वाँ संशोधन", "42वाँ संशोधन", "44वाँ संशोधन"], a: 0 },
+            { q: "शहरी स्थानीय शासन को संवैधानिक दर्जा किस संशोधन से प्राप्त हुआ?", o: ["74वाँ संशोधन", "73वाँ संशोधन", "86वाँ संशोधन", "61वाँ संशोधन"], a: 0 },
+            { q: "भारत में राष्ट्रीय स्तर पर पंचायती राज की सिफारिश किस समिति ने की थी?", o: ["बलवंत राय मेहता समिति", "अशोक मेहता समिति", "सच्चर समिति", "वर्मा समिति"], a: 0 },
+            { q: "पंचायती राज व्यवस्था का सबसे निचला स्तर कौन सा है?", o: ["ग्राम पंचायत", "पंचायत समिति", "जिला परिषद", "ग्राम सभा"], a: 0 },
+            { q: "पंचायती राज व्यवस्था का मध्यवर्ती स्तर कौन सा है?", o: ["पंचायत समिति", "ग्राम पंचायत", "जिला परिषद", "नगर परिषद"], a: 0 },
+            { q: "पंचायती राज व्यवस्था का सर्वोच्च स्तर कौन सा है?", o: ["जिला परिषद", "ग्राम पंचायत", "पंचायत समिति", "नगर निगम"], a: 0 },
+            { q: "ग्राम पंचायत का प्रधान कौन होता है?", o: ["मुखिया", "सरपंच", "पंचायत सचिव", "प्रखंड विकास पदाधिकारी"], a: 0 },
+            { q: "ग्राम कचहरी का प्रधान कौन होता है?", o: ["सरपंच", "मुखिया", "वार्ड सदस्य", "कचहरी सचिव"], a: 0 },
+            { q: "बिहार में पंचायती राज संस्थाओं में महिलाओं के लिए कितना आरक्षण है?", o: ["50 प्रतिशत", "33 प्रतिशत", "25 प्रतिशत", "40 प्रतिशत"], a: 0 },
+            { q: "भारत के अन्य राज्यों में स्थानीय निकायों में महिलाओं को सामान्यतः कितना आरक्षण प्राप्त है?", o: ["33 प्रतिशत", "50 प्रतिशत", "20 प्रतिशत", "25 प्रतिशत"], a: 0 },
+            { q: "पंचायत समिति का प्रधान कौन होता है?", o: ["प्रमुख", "मुखिया", "सरपंच", "जिलाध्यक्ष"], a: 0 },
+            { q: "पंचायत समिति का कार्यपालक पदाधिकारी कौन होता है?", o: ["प्रखंड विकास पदाधिकारी", "जिलाधिकारी", "मुखिया", "पंचायत सचिव"], a: 0 },
+            { q: "जिला परिषद का प्रशासनिक प्रधान कौन होता है?", o: ["उप विकास आयुक्त", "प्रखंड विकास पदाधिकारी", "अंचल अधिकारी", "थाना प्रभारी"], a: 0 },
+            { q: "नगर निगम के अध्यक्ष को क्या कहा जाता है?", o: ["महापौर", "नगर आयुक्त", "चेयरमैन", "वार्ड पार्षद"], a: 0 },
+            { q: "नगर निगम का मुख्य प्रशासनिक अधिकारी कौन होता है?", o: ["नगर आयुक्त", "महापौर", "वार्ड पार्षद", "मुख्य सचिव"], a: 0 },
+            { q: "बिहार में नगर निगम की स्थापना के लिए न्यूनतम जनसंख्या कितनी आवश्यक है?", o: ["3 लाख से अधिक", "1 लाख", "2 लाख", "50 हजार"], a: 0 },
+            { q: "पटना नगर निगम की स्थापना किस वर्ष की गई थी?", o: ["1952", "1950", "1956", "1960"], a: 0 },
+            { q: "भारत का पहला नगर निगम कहाँ स्थापित हुआ था?", o: ["मद्रास", "कोलकाता", "मुंबई", "दिल्ली"], a: 0 },
+            { q: "मद्रास नगर निगम की स्थापना किस वर्ष हुई थी?", o: ["1688", "1757", "1857", "1905"], a: 0 },
+            { q: "बिहार में त्रिस्तरीय पंचायती राज अधिनियम किस वर्ष लागू हुआ?", o: ["2006", "1993", "2001", "2010"], a: 0 },
+            { q: "ग्राम सभा की बैठक वर्ष में कम से कम कितनी बार होना अनिवार्य है?", o: ["चार बार", "दो बार", "छह बार", "एक बार"], a: 0 },
+            { q: "ग्राम कचहरी में अधिकतम कितने रुपये तक के मामलों की सुनवाई हो सकती है?", o: ["10 हजार रुपये", "5 हजार रुपये", "20 हजार रुपये", "50 हजार रुपये"], a: 0 },
+            { q: "सोवियत संघ का विघटन किस वर्ष हुआ था?", o: ["1991", "1989", "1995", "1985"], a: 0 },
+            { q: "बेल्जियम में किस प्रकार की सरकार पाई जाती है?", o: ["संघीय सरकार", "एकात्मक सरकार", "सैनिक सरकार", "राजतंत्रीय सरकार"], a: 0 },
+            { q: "भारत में संघ सूची में वर्तमान में कितने विषय शामिल हैं?", o: ["97 विषय", "66 विषय", "47 विषय", "52 विषय"], a: 0 },
+            { q: "मूल संविधान में राज्य सूची में कुल कितने विषय थे?", o: ["66 विषय", "97 विषय", "47 विषय", "50 विषय"], a: 0 },
+            { q: "मूल संविधान में समवर्ती सूची में कितने विषय थे?", o: ["47 विषय", "52 विषय", "66 विषय", "97 विषय"], a: 0 },
+            { q: "बैंकिंग, विदेशी मामले और रक्षा किस सूची के अंतर्गत आते हैं?", o: ["संघ सूची", "राज्य सूची", "समवर्ती सूची", "अवशिष्ट सूची"], a: 0 },
+            { q: "पुलिस, कृषि और व्यापार किस सूची में शामिल हैं?", o: ["राज्य सूची", "संघ सूची", "समवर्ती सूची", "अवशिष्ट सूची"], a: 0 },
+            { q: "शिक्षा, वन और विवाह किस सूची के अंतर्गत आते हैं?", o: ["समवर्ती सूची", "संघ सूची", "राज्य सूची", "विशेष सूची"], a: 0 },
+            { q: "साइबर कानून और कंप्यूटर सॉफ्टवेयर किस क्षेत्र में आते हैं?", o: ["अवशिष्ट विषय", "संघ सूची", "राज्य सूची", "समवर्ती सूची"], a: 0 },
+            { q: "भारत में भाषा के आधार पर बनने वाला पहला राज्य कौन सा था?", o: ["आंध्र प्रदेश", "महाराष्ट्र", "तमिलनाडु", "पंजाब"], a: 0 },
+            { q: "राज्य पुनर्गठन आयोग की स्थापना किस वर्ष हुई थी?", o: ["1953", "1950", "1956", "1960"], a: 0 },
+            { q: "राज्य पुनर्गठन आयोग की रिपोर्ट कब लागू की गई थी?", o: ["1956", "1953", "1958", "1962"], a: 0 },
+            { q: "भारतीय संविधान की 8वीं अनुसूची में कुल कितनी भाषाओं को मान्यता दी गई है?", o: ["22 भाषाएँ", "18 भाषाएँ", "14 भाषाएँ", "25 भाषाएँ"], a: 0 },
+            { q: "भारत की राष्ट्रभाषा कौन सी है?", o: ["कोई राष्ट्रभाषा नहीं है", "हिंदी", "अंग्रेजी", "संस्कृत"], a: 0 },
+            { q: "भारत की आधिकारिक राजभाषा किसे माना गया है?", o: ["हिंदी", "अंग्रेजी", "उर्दू", "संस्कृत"], a: 0 },
+            { q: "केंद्र-राज्य संबंधों में सुधार के लिए 1983 में किस आयोग का गठन किया गया?", o: ["सरकारिया आयोग", "पुंछी आयोग", "शाह आयोग", "मण्डल आयोग"], a: 0 },
+            { q: "पुंछी आयोग का गठन केंद्र-राज्य संबंधों की समीक्षा के लिए कब हुआ?", o: ["2007", "2000", "2005", "2010"], a: 0 },
+            { q: "भारत में नीति आयोग का अध्यक्ष कौन होता है?", o: ["प्रधानमंत्री", "राष्ट्रपति", "वित्त मंत्री", "गृह मंत्री"], a: 0 },
+            { q: "राष्ट्रीय विकास परिषद का गठन किस वर्ष हुआ था?", o: ["1952", "1950", "1951", "1955"], a: 0 },
+            { q: "समवर्ती सूची का विचार भारतीय संविधान में किस देश से लिया गया है?", o: ["ऑस्ट्रेलिया", "अमेरिका", "ब्रिटेन", "कनाडा"], a: 0 },
+            { q: "संघीय व्यवस्था की प्रेरणा भारत ने मुख्य रूप से किस देश से ली है?", o: ["कनाडा", "अमेरिका", "ब्रिटेन", "रूस"], a: 0 },
+            { q: "संसदीय शासन प्रणाली भारत ने किस देश से ग्रहण की है?", o: ["ब्रिटेन", "अमेरिका", "फ्रांस", "जर्मनी"], a: 0 },
+            { q: "भारत में संघ और राज्यों के बीच विवादों का निपटारा कौन करता है?", o: ["सर्वोच्च न्यायालय", "संसद", "राष्ट्रपति", "प्रधान मंत्री"], a: 0 },
+            { q: "संसद के किस सदन को 'उच्च सदन' कहा जाता है?", o: ["राज्यसभा", "लोकसभा", "विधानसभा", "विधान परिषद"], a: 0 },
+            { q: "संसद के किस सदन को 'निम्न सदन' कहा जाता है?", o: ["लोकसभा", "राज्यसभा", "विधान परिषद", "ग्राम सभा"], a: 0 },
+            { q: "राज्यसभा के सदस्यों का कार्यकाल कितने वर्षों का होता है?", o: ["6 वर्ष", "5 वर्ष", "4 वर्ष", "2 वर्ष"], a: 0 },
+            { q: "लोकसभा के सदस्यों का कार्यकाल सामान्यतः कितने वर्ष का होता है?", o: ["5 वर्ष", "6 वर्ष", "4 वर्ष", "3 वर्ष"], a: 0 },
+            { q: "भारत में वर्तमान में कुल कितने राज्य हैं?", o: ["28 राज्य", "29 राज्य", "27 राज्य", "30 राज्य"], a: 0 },
+            { q: "भारत में वर्तमान में कितने केंद्र शासित प्रदेश हैं?", o: ["8", "7", "9", "6"], a: 0 },
+            { q: "चंडीगढ़ किस प्रकार का क्षेत्र है?", o: ["केंद्र शासित प्रदेश", "राज्य", "स्वायत्त जिला", "ग्राम पंचायत"], a: 0 },
+            { q: "लक्षद्वीप किस प्रकार की प्रशासनिक इकाई है?", o: ["केंद्र शासित प्रदेश", "पूर्ण राज्य", "नगर निगम", "प्रांत"], a: 0 },
+            { q: "किसी राज्य में राष्ट्रपति शासन संविधान के किस अनुच्छेद के तहत लगता है?", o: ["अनुच्छेद 356", "अनुच्छेद 352", "अनुच्छेद 360", "अनुच्छेद 370"], a: 0 },
+            { q: "राष्ट्रीय आपातकाल का प्रावधान संविधान के किस अनुच्छेद में है?", o: ["अनुच्छेद 352", "अनुच्छेद 356", "अनुच्छेद 360", "अनुच्छेद 368"], a: 0 },
+            { q: "वित्तीय आपातकाल का उल्लेख किस अनुच्छेद में किया गया है?", o: ["अनुच्छेद 360", "अनुच्छेद 352", "अनुच्छेद 356", "अनुच्छेद 370"], a: 0 },
+            { q: "संविधान संशोधन की प्रक्रिया किस अनुच्छेद में वर्णित है?", o: ["अनुच्छेद 368", "अनुच्छेद 360", "अनुच्छेद 356", "अनुच्छेद 352"], a: 0 },
+            { q: "बिहार विधान परिषद में सदस्यों की संख्या कितनी है?", o: ["75", "243", "40", "16"], a: 0 },
+            { q: "बिहार विधानसभा में कुल कितनी सीटें हैं?", o: ["243", "75", "40", "250"], a: 0 },
+            { q: "बिहार से लोकसभा के लिए कितने सदस्य चुने जाते हैं?", o: ["40", "16", "243", "75"], a: 0 },
+            { q: "बिहार से राज्यसभा के कितने सदस्य प्रतिनिधित्व करते हैं?", o: ["16", "40", "75", "243"], a: 0 },
+            { q: "पंचायती राज संस्थाओं का कार्यकाल कितने वर्ष का होता है?", o: ["5 वर्ष", "6 वर्ष", "4 वर्ष", "3 वर्ष"], a: 0 },
+            { q: "पंचायती राज चुनाव कराने की जिम्मेदारी किसकी होती है?", o: ["राज्य निर्वाचन आयोग", "केंद्रीय निर्वाचन आयोग", "जिलाधिकारी", "मुख्य न्यायधीश"], a: 0 },
+            { q: "राज्य निर्वाचन आयुक्त की नियुक्ति कौन करता है?", o: ["राज्यपाल", "मुख्यमंत्री", "राष्ट्रपति", "प्रधान मंत्री"], a: 0 },
+            { q: "पंचायती राज संस्थाओं की वित्तीय स्थिति की समीक्षा कौन करता है?", o: ["राज्य वित्त आयोग", "केंद्रीय वित्त आयोग", "रिजर्व बैंक", "नीति आयोग"], a: 0 },
+            { q: "नगर परिषद के सदस्यों को क्या कहा जाता है?", o: ["वार्ड पार्षद", "मुखिया", "सरपंच", "पंच"], a: 0 },
+            { q: "छोटे शहरी क्षेत्रों में किस स्थानीय निकाय का गठन किया जाता है?", o: ["नगर परिषद", "नगर निगम", "ग्राम पंचायत", "जिला परिषद"], a: 0 },
+            { q: "संक्रमणशील क्षेत्रों (गांव से शहर बनते क्षेत्र) में क्या गठित होता है?", o: ["नगर पंचायत", "नगर निगम", "जिला परिषद", "ग्राम सभा"], a: 0 },
+            { q: "बड़े महानगरों में किस स्थानीय निकाय की व्यवस्था होती है?", o: ["नगर निगम", "नगर पंचायत", "ग्राम पंचायत", "पंचायत समिति"], a: 0 },
+            { q: "बलवंत राय मेहता समिति ने कितने स्तरीय पंचायती राज की सिफारिश की थी?", o: ["त्रिस्तरीय", "द्विस्तरीय", "चार-स्तरीय", "एक-स्तरीय"], a: 0 },
+            { q: "अशोक मेहता समिति ने कितने स्तरीय पंचायती राज का सुझाव दिया था?", o: ["द्विस्तरीय", "त्रिस्तरीय", "चार-स्तरीय", "एक-स्तरीय"], a: 0 },
+            { q: "भारत में स्थानीय स्वशासन का जनक किसे माना जाता है?", o: ["लॉर्ड रिपन", "लॉर्ड कर्जन", "लॉर्ड डलहौजी", "लॉर्ड माउंटबेटन"], a: 0 },
+            { q: "लॉर्ड रिपन ने स्थानीय स्वशासन संबंधी प्रस्ताव कब प्रस्तुत किया था?", o: ["1882 में", "1857 में", "1905 में", "1919 में"], a: 0 },
+            { q: "संविधान के किस भाग में पंचायती राज का उल्लेख है?", o: ["भाग 9", "भाग 4", "भाग 3", "भाग 12"], a: 0 },
+            { q: "संविधान के किस भाग में नगर पालिकाओं का उल्लेख है?", o: ["भाग 9 क", "भाग 9", "भाग 4", "भाग 8"], a: 0 },
+            { q: "11वीं अनुसूची का संबंध किससे है?", o: ["पंचायती राज से", "नगर पालिका से", "दलबदल से", "भाषाओं से"], a: 0 },
+            { q: "12वीं अनुसूची का संबंध किससे है?", o: ["नगर पालिका से", "पंचायती राज से", "केंद्र-राज्य संबंध से", "भू-सुधार से"], a: 0 },
+            { q: "11वीं अनुसूची में पंचायती राज को कार्य करने के लिए कितने विषय दिए गए हैं?", o: ["29 विषय", "18 विषय", "12 विषय", "22 विषय"], a: 0 },
+            { q: "12वीं अनुसूची में नगर पालिकाओं को कितने कार्यों की जिम्मेदारी दी गई है?", o: ["18 विषय", "29 विषय", "25 विषय", "15 विषय"], a: 0 },
+            { q: "ग्राम पंचायत की आय का मुख्य स्रोत क्या है?", o: ["सरकारी अनुदान एवं मेला कर", "आयकर", "निगम कर", "व्यापार कर"], a: 0 },
+            { q: "सरपंच और पंचों का चुनाव किस आधार पर होता है?", o: ["प्रत्यक्ष मतदान द्वारा", "अप्रत्यक्ष मतदान द्वारा", "मनोनयन द्वारा", "वंशानुगत व्यवस्था द्वारा"], a: 0 },
+            { q: "उप-मुखिया का चुनाव किसके द्वारा किया जाता है?", o: ["वार्ड सदस्यों द्वारा", "जनता द्वारा सीधे", "मुखिया द्वारा", "प्रखंड विकास पदाधिकारी द्वारा"], a: 0 },
+            { q: "उप-सरपंच का चुनाव कौन करते हैं?", o: ["पंच और सरपंच मिलकर", "जनता सीधे", "मुखिया", "जिलाधिकारी"], a: 0 },
+            { q: "पंचायत समिति का उप-प्रमुख किसके द्वारा चुना जाता है?", o: ["पंचायत समिति सदस्यों द्वारा", "जनता सीधे", "मुखिया द्वारा", "प्रमुख द्वारा"], a: 0 },
+            { q: "जिला परिषद का अध्यक्ष किसके द्वारा चुना जाता है?", o: ["जिला परिषद सदस्यों द्वारा", "जनता सीधे", "विधायकों द्वारा", "जिलाधिकारी द्वारा"], a: 0 },
+            { q: "संसदीय शासन प्रणाली को अन्य किस नाम से जाना जाता है?", o: ["उत्तरदायी सरकार", "अध्यक्षीय सरकार", "निरंकुश सरकार", "सैनिक सरकार"], a: 0 },
+            { q: "एकात्मक शासन व्यवस्था में पूरी शक्ति किसके हाथ में होती है?", o: ["केंद्र सरकार", "राज्य सरकार", "स्थानीय सरकार", "न्यायपालिका"], a: 0 },
+            { q: "ब्रिटेन में किस प्रकार की शासन व्यवस्था विद्यमान है?", o: ["एकात्मक शासन", "संघीय शासन", "अध्यक्षीय शासन", "साम्यवादी शासन"], a: 0 },
+            { q: "अमेरिका में किस प्रकार की शासन प्रणाली लागू है?", o: ["अध्यक्षीय एवं संघीय", "संसदीय एवं एकात्मक", "राजतंत्रीय", "साम्यवादी"], a: 0 },
+            { q: "बेल्जियम ने भाषाई तनाव को दूर करने के लिए कौन सा मार्ग अपनाया?", o: ["सत्ता में साझेदारी", "बहुसंख्यकवाद", "सैनिक शासन", "विभाजन"], a: 0 },
+            { q: "श्रीलंका ने भाषाई और जातीय समस्या के हल के लिए क्या अपनाया?", o: ["बहुसंख्यकवाद", "सत्ता में साझेदारी", "धर्मनिरपेक्षता", "संघीय ढांचा"], a: 0 },
+            { q: "सच्चे लोकतंत्र का आधार क्या माना जाता है?", o: ["विकेंद्रीकरण और साझेदारी", "सशक्त केंद्रीकरण", "एकदलीय शासन", "सैनिक वर्चस्व"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions and Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            
+            // Shuffle question order
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // Shuffle options and update correct answer index
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं राजनीतिक विज्ञान</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 2: सत्ता में साझेदारी की कार्यप्रणाली</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">द्वितीय अध्याय पर आधारित 100 अति-महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का प्रीमियम इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने राजनीतिक विज्ञान के इस अध्याय में पूरे अंक प्राप्त किए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बहुत अच्छी है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और दोहराएँ।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

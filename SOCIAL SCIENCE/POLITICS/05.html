@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 राजनीतिक विज्ञान - अध्याय 5 क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "लोकतंत्र के मार्ग में सबसे बड़ी चुनौती निम्नलिखित में से क्या है?", o: ["गैर-लोकतांत्रिक शासन से लोकतंत्र स्थापित करना", "चुनाव कराना", "संविधान लिखना", "राजनीतिक दल बनाना"], a: 0 },
+            { q: "भारत में लोकतंत्र की सफलता के मार्ग में मुख्य बाधा क्या है?", o: ["अशिक्षा, गरीबी और जातिवाद", "उच्च साक्षरता", "स्वतंत्र न्यायपालिका", "निष्पक्ष चुनाव"], a: 0 },
+            { q: "विश्व के कितने भाग में आज भी गैर-लोकतांत्रिक शासन व्यवस्था है?", o: ["लगभग एक-चौथाई भाग में", "आधे भाग में", "तीन-चौथाई भाग में", "दसवें भाग में"], a: 0 },
+            { q: "नेपाल में राजतंत्र समाप्त कर लोकतंत्र की स्थापना किस वर्ष हुई?", o: ["2008 में", "2006 में", "2000 में", "2012 में"], a: 0 },
+            { q: "नेपाल में लोकतंत्र की पुनर्स्थापना के लिए किस गठबंधन ने आंदोलन किया?", o: ["सप्तदलीय गठबंधन", "वाममोर्चा", "संयुक्त राष्ट्रीय मोर्चा", "जनता गठबंधन"], a: 0 },
+            { q: "लोकतांत्रिक सुधारों का मुख्य कार्य किसके द्वारा किया जाना चाहिए?", o: ["राजनीतिक कार्यकर्ताओं और नागरिकों द्वारा", "केवल सेना द्वारा", "विदेशी ताकतों द्वारा", "केवल न्यायालय द्वारा"], a: 0 },
+            { q: "भारत में किस प्रकार का लोकतंत्र विद्यमान है?", o: ["अप्रत्यक्ष एवं प्रतिनिध्यात्मक", "प्रत्यक्ष लोकतंत्र", "साम्यवादी लोकतंत्र", "सैनिक लोकतंत्र"], a: 0 },
+            { q: "लोकतंत्र में सुधार का सबसे बेहतरीन माध्यम किसे माना जाता है?", o: ["जन-जागरूकता और सशक्त कानून", "सैन्य बल", "हिंसक आंदोलन", "अधिकारों पर प्रतिबंध"], a: 0 },
+            { q: "लोकतंत्र की बुनियादी चुनौती निम्नलिखित में से कौन सी है?", o: ["सैनिक शासन हटाकर लोकतांत्रिक व्यवस्था बनाना", "चुनाव खर्च बढ़ाना", "नेताओं का वेतन बढ़ाना", "मंत्रियों की संख्या बढ़ाना"], a: 0 },
+            { q: "लोकतंत्र की विस्तार की चुनौती का मुख्य अर्थ क्या है?", o: ["लोकतांत्रिक सिद्धान्तों को समाज के सभी स्तरों पर लागू करना", "विदेशों पर कब्जा करना", "क्षेत्रफल बढ़ाना", "सैनिक शक्ति बढ़ाना"], a: 0 },
+            { q: "लोकतंत्र को मजबूत करने की चुनौती का क्या तात्पर्य है?", o: ["लोकतांत्रिक संस्थाओं को सुदृढ़ एवं पारदर्शी बनाना", "चुनाव रद्द करना", "पार्टियों पर प्रतिबंध लगाना", "सेना को कमान सौंपना"], a: 0 },
+            { q: "जनता को सरकार के कामकाज की जानकारी देने वाला प्रमुख कानून कौन सा है?", o: ["सूचना का अधिकार कानून", "शिक्षा का अधिकार कानून", "काम का अधिकार कानून", "सुरक्षा कानून"], a: 0 },
+            { q: "भारत में सूचना का अधिकार कानून संसद में कब पास हुआ?", o: ["2005 में", "2001 में", "2008 में", "2010 में"], a: 0 },
+            { q: "सूचना के अधिकार आंदोलन की शुरुआत किस राज्य से हुई थी?", o: ["राजस्थान", "बिहार", "उत्तर प्रदेश", "तमिलनाडु"], a: 0 },
+            { q: "राजनीतिक दलों में आंतरिक लोकतंत्र न होना किस प्रकार की चुनौती है?", o: ["लोकतंत्र को गहरा करने की चुनौती", "विस्तार की चुनौती", "बुनियादी चुनौती", "विदेशी चुनौती"], a: 0 },
+            { q: "दल-बदल कानून किस पर अंकुश लगाने के लिए बनाया गया?", o: ["सांसदों और विधायकों के दल बदल पर", "राष्ट्रपति के निर्णय पर", "आम जनता पर", "व्यापारियों पर"], a: 0 },
+            { q: "भारतीय संविधान की किस अनुसूची में दल-बदल निरोधक कानून शामिल है?", o: ["10वीं अनुसूची", "8वीं अनुसूची", "9वीं अनुसूची", "11वीं अनुसूची"], a: 0 },
+            { q: "दल-बदल कानून किस संशोधन द्वारा लागू किया गया था?", o: ["52वें संविधान संशोधन द्वारा", "42वें संशोधन द्वारा", "44वें संशोधन द्वारा", "73वें संशोधन द्वारा"], a: 0 },
+            { q: "चुनाव में अत्यधिक धनबल और बाहुबल का प्रयोग लोकतंत्र के लिए क्या है?", o: ["एक गंभीर चुनौती", "एक बड़ी उपलब्धि", "सामान्य प्रक्रिया", "सकारात्मक गुण"], a: 0 },
+            { q: "राजनीति में अपराधीकरण का बढ़ना लोकतंत्र के लिए कैसा प्रभाव डालता है?", o: ["नकारात्मक और घातक प्रभाव", "सकारात्मक प्रभाव", "शांतिपूर्ण प्रभाव", "आर्थिक सुधार"], a: 0 },
+            { q: "क्षेत्रवाद की भावना का एक कुपरिणाम क्या है?", o: ["अलगाववाद और विघटन", "राष्ट्रीय एकता", "स्थानीय विकास", "लोकतांत्रिक मजबूती"], a: 0 },
+            { q: "साम्प्रदायिकता लोकतंत्र के लिए किस प्रकार खतरा है?", o: ["यह समाज में वैमनस्य और हिंसा फैलाती है", "यह आर्थिक विकास करती है", "यह साक्षरता बढ़ाती है", "यह शांति लाती है"], a: 0 },
+            { q: "जातिवाद का राजनीति में प्रवेश लोकतंत्र के लिए क्या उत्पन्न करता है?", o: ["विभाजन एवं सामाजिक तनाव", "आर्थिक समानता", "स्वच्छ राजनीति", "बंधुत्व"], a: 0 },
+            { q: "मेक्सिको में ओलंपिक खेलों के दौरान किन खिलाड़ियों ने नागरिक अधिकारों के लिए विरोध जताया?", o: ["टोमी स्मिथ और जॉन कार्लोस", "मार्टिन लूथर", "अब्राहम लिंकन", "नेल्सन मंडेला"], a: 0 },
+            { q: "अश्वेत शक्ति आंदोलन का संबंध मुख्य रूप से किस देश से था?", o: ["संयुक्त राज्य अमेरिका", "दक्षिण अफ्रीका", "ब्रिटेन", "फ्रांस"], a: 0 },
+            { q: "दक्षिण अफ्रीका में रंगभेद की नीति का डटकर मुकाबला किसने किया?", o: ["नेल्सन मंडेला", "मार्टिन लूथर", "महात्मा गांधी", "अब्राहम लिंकन"], a: 0 },
+            { q: "नेल्सन मंडेला किस देश के प्रथम अश्वेत राष्ट्रपति बने?", o: ["दक्षिण अफ्रीका", "नाइजीरिया", "केन्या", "घाना"], a: 0 },
+            { q: "लोकतंत्र में फैसले किसके द्वारा लिए जाने चाहिए?", o: ["जनप्रतिनिधियों द्वारा विचार-विमर्श से", "एक व्यक्ति द्वारा तानाशाही से", "सैन्य प्रमुखों द्वारा", "विदेशी अधिकारियों द्वारा"], a: 0 },
+            { q: "बोलीविया में जल युद्ध किस चीज के खिलाफ लड़ा गया था?", o: ["पानी के निजीकरण और मूल्य वृद्धि के खिलाफ", "बिजली बिल के खिलाफ", "सड़क कर के खिलाफ", "खाद्यान्न संकट के खिलाफ"], a: 0 },
+            { q: "बोलीविया का आंदोलन किस महाद्वीप की घटना है?", o: ["दक्षिण अमेरिका", "यूरोप", "एशिया", "अफ्रीका"], a: 0 },
+            { q: "म्यानमार (बर्मा) में लोकतंत्र की स्थापना के लिए किसने लंबा संघर्ष किया?", o: ["आंग सान सू की", "बेनजीर भुट्टो", "शेख हसीना", "कोराज़ोन एक्विनो"], a: 0 },
+            { q: "आंग सान सू की को किस क्षेत्र में नोबेल पुरस्कार प्राप्त हुआ?", o: ["शांति", "साहित्य", "अर्थशास्त्र", "भौतिकी"], a: 0 },
+            { q: "संसार का सबसे बड़ा लोकतांत्रिक देश कौन सा है?", o: ["भारत", "अमेरिका", "चीन", "रूस"], a: 0 },
+            { q: "प्रत्यक्ष लोकतंत्र का प्रमुख उदाहरण कौन सा देश है?", o: ["स्विट्जरलैंड", "भारत", "अमेरिका", "ब्रिटेन"], a: 0 },
+            { q: "स्विट्जरलैंड में महिलाओं को मताधिकार किस वर्ष प्राप्त हुआ?", o: ["1971 में", "1950 में", "1947 में", "1990 में"], a: 0 },
+            { q: "भारत में महिलाओं के लिए स्थानीय निकायों में कितना आरक्षण है?", o: ["50 प्रतिशत (बिहार में)", "10 प्रतिशत", "20 प्रतिशत", "75 प्रतिशत"], a: 0 },
+            { q: "संसद में महिलाओं के प्रतिनिधित्व को बढ़ाने के लिए कौन सा विधेयक चर्चा में रहा?", o: ["महिला आरक्षण विधेयक", "शिक्षा अधिकार विधेयक", "श्रम कानून विधेयक", "कृषि विधेयक"], a: 0 },
+            { q: "15वीं लोकसभा में महिला सांसदों की संख्या कितनी थी?", o: ["59", "78", "45", "30"], a: 0 },
+            { q: "17वीं लोकसभा में महिला सांसदों की संख्या बढ़कर कितनी हो गई?", o: ["78", "50", "60", "90"], a: 0 },
+            { q: "लोकतंत्र के सामने सबसे बड़ी प्रशासनिक चुनौती क्या है?", o: ["भ्रष्टाचार और लालफीताशाही", "पारदर्शिता", "निष्पक्षता", "जनसेवा"], a: 0 },
+            { q: "लालफीताशाही का अर्थ क्या होता है?", o: ["सरकारी कार्यों में अत्यधिक देरी और जटिलता", "सैन्य शासन", "स्वतंत्र न्यायपालिका", "त्वरित निर्णय"], a: 0 },
+            { q: "लोकतंत्र में राजनीतिक दलों का प्रमुख उद्देश्य क्या होता है?", o: ["सत्ता प्राप्त करना और जन-सेवा करना", "धन जमा करना", "दंगे कराना", "कानून तोड़ना"], a: 0 },
+            { q: "किस देश में एकदलीय व्यवस्था पाई जाती है?", o: ["चीन", "भारत", "अमेरिका", "ब्रिटेन"], a: 0 },
+            { q: "द्विदलीय शासन प्रणाली का मुख्य उदाहरण कौन सा देश है?", o: ["अमेरिका और ब्रिटेन", "भारत और पाकिस्तान", "चीन और उत्तर कोरिया", "नेपाल और भूटान"], a: 0 },
+            { q: "बहुदलीय प्रणाली का उदाहरण कौन सा देश है?", o: ["भारत", "अमेरिका", "चीन", "ब्रिटेन"], a: 0 },
+            { q: "लोकतंत्र में निष्पक्ष चुनाव कराने की जिम्मेदारी किसकी होती है?", o: ["निर्वाचन आयोग (चुनाव आयोग)", "गृह मंत्रालय", "संसद", "उच्चतम न्यायालय"], a: 0 },
+            { q: "भारत में मुख्य निर्वाचन आयुक्त की नियुक्ति कौन करता है?", o: ["राष्ट्रपति", "प्रधानमंत्री", "मुख्य न्यायाधीश", "संसद"], a: 0 },
+            { q: "लोकतंत्र में स्वतंत्र न्यायपालिका क्यों आवश्यक है?", o: ["संविधान और नागरिकों के मौलिक अधिकारों की रक्षा हेतु", "सरकार का समर्थन करने हेतु", "चुनाव रद्द करने हेतु", "टैक्स बढ़ाने हेतु"], a: 0 },
+            { q: "लोकतंत्र में मीडिया या प्रेस का स्वतंत्र होना क्यों आवश्यक है?", o: ["सत्य और निष्पक्ष सूचना जनता तक पहुँचाने के लिए", "सरकार का प्रचार करने के लिए", "विज्ञापन छापने के लिए", "विपक्ष पर प्रतिबंध लगाने के लिए"], a: 0 },
+            { q: "लोकतंत्र की सफलता के लिए नागरिकों का कैसा होना जरूरी है?", o: ["जागरूक, शिक्षित और अधिकार-सचेत", "अशिक्षित और मूक", "जातिवादी", "उदासीन"], a: 0 },
+            { q: "लोकतंत्र में जनमत का निर्माण करने में किसकी भूमिका महत्वपूर्ण है?", o: ["राजनीतिक दल, समाचार पत्र और मीडिया", "गुप्त पुलिस", "सैनिक अधिकारी", "केवल व्यापारी"], a: 0 },
+            { q: "लोकतांत्रिक सुधार के कानूनी उपाय कितने कारगर होते हैं?", o: ["सीमित, जब तक नागरिक खुद जागरूक न हों", "पूर्णतः सफल", "पूरी तरह व्यर्थ", "केवल सेना लागू करती है"], a: 0 },
+            { q: "किस प्रकार का कानून लोकतंत्र को मजबूत करने में सबसे अधिक मददगार है?", o: ["अधिकार देने वाले कानून (जैसे सूचना का अधिकार)", "प्रतिबंध लगाने वाले कानून", "दंडात्मक कानून", "सैन्य कानून"], a: 0 },
+            { q: "राजनीतिक दलों में पारदर्शिता लाने के लिए क्या जरूरी है?", o: ["चुनावी चंदे का ब्योरा सार्वजनिक करना", "चुनाव बंद करना", "गुप्त बैठकें करना", "केवल एक नेता रखना"], a: 0 },
+            { q: "राजनीतिक दलों के कामकाज को नियंत्रित करने के लिए क्या आवश्यक है?", o: ["सख्त चुनावी सुधार और कानून", "सैन्य हस्तक्षेप", "जनता पर कर लगाना", "विपक्ष को समाप्त करना"], a: 0 },
+            { q: "लोकतंत्र में सभी समस्याओं का समाधान किसके माध्यम से होना चाहिए?", o: ["लोकतांत्रिक प्रक्रियाओं और संवाद द्वारा", "हिंसा द्वारा", "सैन्य बल द्वारा", "विदेशी दबाव द्वारा"], a: 0 },
+            { q: "भारतीय लोकतंत्र के सामने 'परिवारवाद' किस प्रकार की समस्या है?", o: ["योग्यता की जगह एक ही परिवार को प्राथमिकता देना", "परिवार का विकास करना", "सबको रोजगार देना", "जनसंख्या नियंत्रण"], a: 0 },
+            { q: "वंशवाद या परिवारवाद से किस चीज़ को नुकसान पहुँचता है?", o: ["आम और योग्य कार्यकर्ताओं के अवसरों को", "पार्टी के फंड को", "विदेशी संबंधों को", "सैनिक शक्ति को"], a: 0 },
+            { q: "लोकतंत्र में आर्थिक विकेंद्रीकरण का क्या अर्थ है?", o: ["आर्थिक शक्तियों और संसाधनों का समान वितरण", "धन का एक जगह जमा होना", "केवल अमीरों को व्यापार देना", "कर बढ़ाना"], a: 0 },
+            { q: "लोकतांत्रिक व्यवस्था में गरीबी और भुखमरी लोकतंत्र के लिए क्या है?", o: ["एक बड़ी सामाजिक-आर्थिक चुनौती", "एक उपलब्धि", "सामान्य बात", "राजनीतिक लाभ"], a: 0 },
+            { q: "लोकतंत्र में आर्थिक विषमता को कैसे कम किया जा सकता है?", o: ["जनकल्याणकारी योजनाओं और न्यायसंगत कर व्यवस्था से", "टैक्स समाप्त करके", "शिक्षा बंद करके", "उद्योगों को बंद करके"], a: 0 },
+            { q: "भारत में चुनाव में भाग लेने के लिए मतदाता की न्यूनतम आयु क्या है?", o: ["18 वर्ष", "21 वर्ष", "25 वर्ष", "16 वर्ष"], a: 0 },
+            { q: "किस संविधान संशोधन द्वारा मतदान की आयु 21 से घटाकर 18 वर्ष की गई?", o: ["61वें संविधान संशोधन द्वारा", "42वें संशोधन द्वारा", "44वें संशोधन द्वारा", "73वें संशोधन द्वारा"], a: 0 },
+            { q: "61वाँ संविधान संशोधन किस वर्ष लागू हुआ था?", o: ["1989 में", "1985 में", "1992 में", "1995 में"], a: 0 },
+            { q: "लोकतंत्र में चुनाव खर्च की सीमा कौन तय करता है?", o: ["निर्वाचन आयोग", "वित्त मंत्रालय", "संसद", "रिजर्व बैंक"], a: 0 },
+            { q: "ईवीएम (EVM) का पूर्ण रूप क्या है?", o: ["इलेक्ट्रॉनिक वोटिंग मशीन", "इलेक्ट्रिक वोटिंग मेथड", "इलेक्शन वोट मशीन", "इलेक्ट्रॉनिक वैलिडेट मशीन"], a: 0 },
+            { q: "वीवीपैट (VVPAT) मशीन का प्रयोग चुनाव में किसलिए होता है?", o: ["वोट की पुष्टि एवं पर्ची देखने हेतु", "वोट गिनने हेतु", "ऑनलाइन वोट देने हेतु", "नामांकन हेतु"], a: 0 },
+            { q: "भारत में पहली बार ईवीएम का प्रयोग किस राज्य के चुनाव में हुआ था?", o: ["केरल", "बिहार", "उत्तर प्रदेश", "महाराष्ट्र"], a: 0 },
+            { q: "लोकतंत्र में गठबंधन सरकारों का मुख्य कारण क्या होता है?", o: ["किसी एक दल को स्पष्ट बहुमत न मिलना", "राष्ट्रपति का आदेश", "चुनाव न कराना", "सैनिक दबाव"], a: 0 },
+            { q: "गठबंधन सरकार में स्थायित्व की कमी को दूर करने के लिए क्या आवश्यक है?", o: ["न्यूनतम साझा कार्यक्रम और आपसी सहमति", "तानाशाही", "विपक्ष को जेल भेजना", "बार-बार चुनाव"], a: 0 },
+            { q: "लोकतंत्र में विपक्ष की भूमिका को किस रूप में देखा जाता है?", o: ["정부 (सरकार) पर अंकुश और विकल्प प्रदान करने वाला", "शत्रु के रूप में", "अवैध संस्था के रूप में", "अनावश्यक बोझ"], a: 0 },
+            { q: "लोकतंत्र में जनांदोलनों का क्या महत्व है?", o: ["जनता की मांगों को सरकार तक पहुँचाना", "दंगे फैलाना", "संविधान तोड़ना", "अर्थव्यवस्था नष्ट करना"], a: 0 },
+            { q: "लोकतंत्र की जड़ों को मजबूत करने के लिए सबसे आवश्यक तत्व क्या है?", o: ["जन-सहभागिता और नैतिक मूल्य", "हिंसा", "धनबल", "केंद्रीकरण"], a: 0 },
+            { q: "भारत में संविधान की रक्षा करने का अंतिम दायित्व किसका है?", o: ["सर्वोच्च न्यायालय (उच्चतम न्यायालय)", "संसद", "राष्ट्रपति", "प्रधानमंत्री"], a: 0 },
+            { q: "लोकतंत्र में कानून का शासन (विधि का शासन) का क्या अर्थ है?", o: ["कानून के सामने सभी नागरिक समान हैं", "राजा का हुक्म ही कानून है", "अमीरों के लिए अलग कानून", "नेताओं को छूट"], a: 0 },
+            { q: "लोकतंत्र में सत्ता का दुरुपयोग रोकने के लिए क्या किया जाता है?", o: ["शक्तियों का पृथक्करण और नियंत्रण-संतुलन", "एक व्यक्ति को सारी शक्ति देना", "सैनिक शासन", "संविधान समाप्त करना"], a: 0 },
+            { q: "लोकतांत्रिक संस्थाओं की साख बचाने के लिए क्या जरूरी है?", o: ["निष्पक्षता, ईमानदारी और पारदर्शिता", "गोपनीयता", "भ्रष्टाचार", "पक्षपात"], a: 0 },
+            { q: "लोकतंत्र में अल्पसंख्यकों के अधिकारों का संरक्षण क्यों जरूरी है?", o: ["ताकि बहुसंख्यकवाद की तानाशाही न पनपे", "ताकि वे अलग देश बना सकें", "ताकि चुनाव न हो", "ताकि वे कर न दें"], a: 0 },
+            { q: "लोकतांत्रिक व्यवस्था की एक मुख्य विशेषता क्या है?", o: ["उत्तरदायी, जिम्मेदार और वैध सरकार", "अवैध शासन", "अस्थिर निर्णय", "गोपनीय प्रणाली"], a: 0 },
+            { q: "लोकतंत्र में जब फैसले देर से होते हैं, तो वे फिर भी क्यों स्वीकार्य होते हैं?", o: ["क्योंकि वे जन-सहमति और नियमों पर आधारित होते हैं", "क्योंकि वे दबाव में होते हैं", "क्योंकि कोई विकल्प नहीं होता", "क्योंकि सेना का डर होता है"], a: 0 },
+            { q: "विश्व में लोकतंत्र की साख क्यों बढ़ रही है?", o: ["क्योंकि यह व्यक्तिगत स्वतंत्रता और समानता देती है", "क्योंकि यह सैनिक ताकत बढ़ाती है", "क्योंकि इसमें कोई नियम नहीं होते", "क्योंकि इसमें कर नहीं लगता"], a: 0 },
+            { q: "भारतीय लोकतंत्र की एक प्रमुख ताकत क्या है?", o: ["अनेकता में एकता और निष्पक्ष चुनाव", "एक ही धर्म का होना", "एक ही भाषा का होना", "सैनिक प्रभुत्व"], a: 0 },
+            { q: "लोकतंत्र में जन-कल्याणकारी राज्य का क्या अर्थ है?", o: ["कमजोर और वंचित वर्गों के कल्याण हेतु काम करना", "केवल अमीरों की मदद", "केवल शासकीय वर्ग को सुविधा", "टैक्स जमा करना"], a: 0 },
+            { q: "लोकतंत्र में चुनाव सुधारों का क्या उद्देश्य होता है?", o: ["चुनाव को स्वतंत्र, निष्पक्ष और स्वच्छ बनाना", "चुनाव को महंगा बनाना", "चुनाव को रोकना", "केवल एक दल को जिताना"], a: 0 },
+            { q: "लोकतंत्र के पुनरुद्धार के लिए सबसे शक्तिशाली साधन क्या है?", o: ["शिक्षा और जागरूक नागरिकता", "अशिक्षा", "सैन्य कार्रवाई", "विदेशी मदद"], a: 0 },
+            { q: "लोकतंत्र में राजनीतिक समानता का वास्तविक आधार क्या है?", o: ["एक व्यक्ति, एक वोट, एक मूल्य", "जिसके पास ज्यादा धन, उसके ज्यादा वोट", "शिक्षा के आधार पर वोट", "पद के आधार पर वोट"], a: 0 },
+            { q: "लोकतांत्रिक सरकारों की वैधता का प्रमाण क्या है?", o: ["जनता द्वारा नियमित चुनाव में चुना जाना", "सैनिकों का समर्थन", "विदेशी मान्यता", "विरासत में मिलना"], a: 0 },
+            { q: "लोकतंत्र में सामाजिक विभाजन को संभालने का सबसे अच्छा तरीका क्या है?", o: ["सत्ता में सभी समूहों को साझेदारी देना", "विभाजन को दबा देना", "एक समूह का शासन थोपना", "हिंसा का प्रयोग"], a: 0 },
+            { q: "लोकतंत्र की चुनौती का सामना करने के लिए सबसे जरूरी कदम क्या है?", o: ["लोकतांत्रिक संस्थाओं को मजबूत और पारदर्शी बनाना", "संविधान को रद्द करना", "सैन्य शासन लाना", "चुनाव बंद करना"], a: 0 },
+            { q: "भारत में लोकतंत्र को और बेहतर बनाने के लिए नागरिकों को क्या करना चाहिए?", o: ["मतदान में सक्रिय भाग लेना और सजग रहना", "चुनाव का बहिष्कार करना", "कानून तोड़ना", "राजनीति से दूर रहना"], a: 0 },
+            { q: "लोकतंत्र में समस्याओं का समाधान किससे होता है?", o: ["अधिक लोकतंत्र और जन-सहभागिता से", "कम लोकतंत्र से", "तानाशाही से", "सैनिक शासन से"], a: 0 },
+            { q: "लोकतंत्र एक ऐसी प्रणाली है जो हमेशा क्या रहती है?", o: ["विकासशील और परिवर्तनशील", "स्थिर और बंद", "पूर्णतः समाप्त", "अपरिवर्तनीय"], a: 0 },
+            { q: "लोकतंत्र में 'अंतिम सत्ता' किसके पास निहित होती है?", o: ["जनता (जनार्दन) के पास", "संसद के पास", "राष्ट्रपति के पास", "न्यायाधीश के पास"], a: 0 },
+            { q: "लोकतंत्र की चुनौतियों को किस रूप में देखा जाना चाहिए?", o: ["लोकतंत्र को और मजबूत करने के अवसर के रूप में", "अंत के रूप में", "पराजय के रूप में", "असंभव कार्य के रूप में"], a: 0 },
+            { q: "भारतीय लोकतंत्र ने अपने 70 से अधिक वर्षों के सफर में क्या सिद्ध किया है?", o: ["यह एक जीवंत और सफल लोकतंत्र है", "यह एक असफल प्रणाली है", "यह तानाशाही की ओर बढ़ रहा है", "यह समाप्त हो चुका है"], a: 0 },
+            { q: "लोकतंत्र का मुख्य संदेश क्या है?", o: ["समानता, स्वतंत्रता और बंधुत्व", "सैनिक बल और अधिकार", "असमानता और भेदभाव", "वंशवाद और एकतंत्र"], a: 0 },
+            { q: "लोकतंत्र में जनता और सरकार के बीच की सबसे मजबूत कड़ी क्या है?", o: ["राजनीतिक दल और प्रतिनिधि", "सैनिक अधिकारी", "विदेशी राजदूत", "ठेकेदार"], a: 0 },
+            { q: "लोकतांत्रिक व्यवस्थाओं में 'नागरिक अधिकारों' का क्या महत्व है?", o: ["ये नागरिक के विकास और गरिमा की गारंटी हैं", "ये केवल कागजी बातें हैं", "इनका कोई उपयोग नहीं है", "ये केवल नेताओं के लिए हैं"], a: 0 },
+            { q: "लोकतंत्र में 'पारदर्शिता' से किस चीज़ पर लगाम लगती है?", o: ["भ्रष्टाचार और तानाशाही पर", "विकास पर", "शिक्षा पर", "समानता पर"], a: 0 },
+            { q: "अध्याय 5 'लोकतंत्र की चुनौतियाँ' का मुख्य निष्कर्ष क्या है?", o: ["सजग नागरिक ही लोकतंत्र की चुनौतियों का समाधान हैं", "लोकतंत्र व्यर्थ है", "तानाशाही ही एकमात्र उपाय है", "राजनीति से दूर रहना चाहिए"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions and Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            
+            // Shuffle question order
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // Shuffle options and update correct answer index
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं राजनीतिक विज्ञान</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 5: लोकतंत्र की चुनौतियाँ</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">पंचम अध्याय पर आधारित 100 अति-महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का प्रीमियम इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने राजनीतिक विज्ञान के इस अध्याय में पूरे अंक प्राप्त किए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बहुत अच्छी है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और दोहराएँ।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

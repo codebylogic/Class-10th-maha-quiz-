@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 राजनीतिक विज्ञान - अध्याय 3 क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "वर्ष 1975 भारतीय राजनीति में किस लिए जाना जाता है?", o: ["देश में आपातकाल लागू हुआ था", "लोकसभा चुनाव हुए थे", "इंदिरा गांधी प्रधानमंत्री बनी थीं", "जनता पार्टी की सरकार बनी थी"], a: 0 },
+            { q: "भारतीय लोकतंत्र में 1970 का दशक किसलिए प्रसिद्ध है?", o: ["राजनीतिक उथल-पुथल एवं जनांदोलन", "आर्थिक समृद्धि", "हरित क्रांति", "विदेशी आक्रमण"], a: 0 },
+            { q: "बिहार में संपूर्ण क्रांति का नेतृत्व किसने किया था?", o: ["जयप्रकाश नारायण", "मोरारजी देसाई", "इन्दिरा गांधी", "करपूरी ठाकुर"], a: 0 },
+            { q: "1974 में छात्र आंदोलन की शुरुआत किस राज्य से हुई थी?", o: ["बिहार", "उत्तर प्रदेश", "पश्चिम बंगाल", "पंजाब"], a: 0 },
+            { q: "1977 के आम चुनाव में किस पार्टी को बहुमत प्राप्त हुआ था?", o: ["जनता पार्टी", "भारतीय राष्ट्रीय कांग्रेस", "भारतीय कम्युनिस्ट पार्टी", "द्रविड़ मुनेत्र कड़गम"], a: 0 },
+            { q: "केंद्र में पहली बार गैर-कांग्रेसी सरकार कब बनी थी?", o: ["1977 में", "1971 में", "1980 में", "1989 में"], a: 0 },
+            { q: "1977 में बनी जनता पार्टी सरकार के प्रधानमंत्री कौन बने थे?", o: ["मोरारजी देसाई", "चरण सिंह", "अटल बिहारी वाजपेयी", "जगजीवन राम"], a: 0 },
+            { q: "चिपको आंदोलन की शुरुआत किस राज्य से हुई थी?", o: ["उत्तराखंड", "बिहार", "मध्य प्रदेश", "राजस्थान"], a: 0 },
+            { q: "चिपको आंदोलन के मुख्य नेता कौन थे?", o: ["सुंदरलाल बहुगुणा", "मेधा पाटकर", "बाबा आमटे", "चंडी प्रसाद भट्ट"], a: 0 },
+            { q: "चिपको आंदोलन का मुख्य उद्देश्य क्या था?", o: ["पर्यावरण एवं पेड़ों की सुरक्षा", "शराबबंदी", "कृषि मूल्य वृद्धि", "रोजगार की मांग"], a: 0 },
+            { q: "दलित पैंथर्स नामक संगठन की स्थापना किस राज्य में हुई थी?", o: ["महाराष्ट्र", "गुजरात", "कर्नाटक", "आंध्र प्रदेश"], a: 0 },
+            { q: "भारतीय किसान यूनियन के प्रमुख नेता कौन थे?", o: ["महेंद्र सिंह टिकैत", "चौधरी चरण सिंह", "शरद जोशी", "राकेश टिकैत"], a: 0 },
+            { q: "ताड़ी विरोधी आंदोलन किस राज्य में शुरू हुआ था?", o: ["आंध्र प्रदेश", "बिहार", "तमिलनाडु", "केरल"], a: 0 },
+            { q: "ताड़ी विरोधी आंदोलन का मुख्य रूप से संचालन किसने किया था?", o: ["महिलाओं ने", "किसानों ने", "छात्रों ने", "मजदूरों ने"], a: 0 },
+            { q: "नर्मदा बचाओ आंदोलन का मुख्य उद्देश्य क्या था?", o: ["विस्थापितों का पुनर्वास एवं पर्यावरण", "जल कर में कमी", "कृषि सिंचाई", "बिजली उत्पादन"], a: 0 },
+            { q: "नर्मदा बचाओ आंदोलन का नेतृत्व किसने किया था?", o: ["मेधा पाटकर", "सुंदरलाल बहुगुणा", "अरुंधति रॉय", "बाबा आमटे"], a: 0 },
+            { q: "सूचना के अधिकार का आंदोलन किस राज्य से शुरू हुआ था?", o: ["राजस्थान", "बिहार", "तमिलनाडु", "कर्नाटक"], a: 0 },
+            { q: "सूचना का अधिकार अधिनियम संसद द्वारा कब पारित हुआ?", o: ["2005 में", "2000 में", "2008 में", "2010 में"], a: 0 },
+            { q: "नेपाल में लोकतंत्र की पुनर्स्थापना के लिए सप्तदलीय गठबंधन (7 पार्टी अलायंस) कब बना?", o: ["2006 में", "2002 में", "2000 में", "2008 में"], a: 0 },
+            { q: "बोलीविया में जल युद्ध (पानी के निजीकरण के खिलाफ) का मुख्य कारण क्या था?", o: ["पानी की कीमत में अत्यधिक वृद्धि", "पानी की कमी", "प्रदूषित जल", "नहर निर्माण"], a: 0 },
+            { q: "बोलीविया किस महाद्वीप का एक देश है?", o: ["दक्षिण अमेरिका", "एशिया", "यूरोप", "अफ्रीका"], a: 0 },
+            { q: "राजनीतिक दल को लोकतंत्र का क्या कहा जाता है?", o: ["प्राण", "मस्तिष्क", "हृदय", "आत्मा"], a: 0 },
+            { q: "निम्नलिखित में से कौन सा कार्य राजनीतिक दल का नहीं है?", o: ["सरकारी अधिकारियों की नियुक्ति करना", "चुनाव लड़ना", "नीतियों का निर्माण", "जनमत का निर्माण"], a: 0 },
+            { q: "निम्नलिखित में से कौन राष्ट्रीय राजनीतिक दल है?", o: ["भारतीय जनता पार्टी", "जनता दल यूनाईटेड", "लोक जनशक्ति पार्टी", "समाजवादी पार्टी"], a: 0 },
+            { q: "भारतीय राष्ट्रीय कांग्रेस की स्थापना किस वर्ष हुई थी?", o: ["1885 में", "1890 में", "1905 में", "1920 में"], a: 0 },
+            { q: "भारतीय जनता पार्टी की स्थापना किस वर्ष हुई थी?", o: ["1980 में", "1977 में", "1984 में", "1951 में"], a: 0 },
+            { q: "भारतीय कम्युनिस्ट पार्टी (मार्क्सवादी) यानी माकपा का गठन कब हुआ था?", o: ["1964 में", "1925 में", "1970 में", "1952 में"], a: 0 },
+            { q: "बहुजन समाज पार्टी (बसपा) के संस्थापक कौन थे?", o: ["कांशीराम", "मायावती", "बी. आर. अंबेडकर", "करपूरी ठाकुर"], a: 0 },
+            { q: "बहुजन समाज पार्टी की स्थापना किस वर्ष हुई थी?", o: ["1984 में", "1980 में", "1990 में", "1992 में"], a: 0 },
+            { q: "राष्ट्रवादी कांग्रेस पार्टी (एनसीपी) की स्थापना किस वर्ष हुई थी?", o: ["1999 में", "1995 में", "2001 में", "1990 में"], a: 0 },
+            { q: "तृणमूल कांग्रेस का चुनाव चिह्न क्या है?", o: ["जोड़ा फूल", "कमल", "साइकिल", "हाथी"], a: 0 },
+            { q: "जनता दल यूनाइटेड (जदयू) किस राज्य की क्षेत्रीय पार्टी है?", o: ["बिहार", "उत्तर प्रदेश", "झाखंड", "पश्चिम बंगाल"], a: 0 },
+            { q: "लोक जनशक्ति पार्टी (लोजपा) का चुनाव चिह्न क्या है?", o: ["बंगला", "तीर", "साइकिल", "घड़ा"], a: 0 },
+            { q: "समाजवादी पार्टी का मुख्य चुनाव चिह्न क्या है?", o: ["साइकिल", "हाथ", "तीर", "कार"], a: 0 },
+            { q: "द्रविड़ मुनेत्र कड़गम (DMK) मुख्य रूप से किस राज्य का राजनीतिक दल है?", o: ["तमिलनाडु", "केरल", "कर्नाटक", "आंध्र प्रदेश"], a: 0 },
+            { q: "शिरोमणि अकाली दल किस राज्य का प्रमुख क्षेत्रीय दल है?", o: ["पंजाब", "हरियाणा", "हिमाचल प्रदेश", "राजस्थान"], a: 0 },
+            { q: "शिवसेना किस राज्य की क्षेत्रीय राजनीतिक पार्टी है?", o: ["महाराष्ट्र", "गुजरात", "गोवा", "कर्नाटक"], a: 0 },
+            { q: "बीजू जनता दल (बीजद) किस राज्य का राजनीतिक दल है?", o: ["ओडिशा", "पश्चिम बंगाल", "असम", "छत्तीसगढ़"], a: 0 },
+            { q: "झारखंड मुक्ति मोर्चा (झामुमो) का गठन किस राज्य में हुआ?", o: ["झारखंड", "बिहार", "ओडिशा", "पश्चिम बंगाल"], a: 0 },
+            { q: "तेलंगाना राष्ट्र समिति (अब बीआरएस) किस राज्य से संबंधित है?", o: ["तेलंगाना", "आंध्र प्रदेश", "तमिलनाडु", "कर्नाटक"], a: 0 },
+            { q: "दल-बदल कानून किस पर लागू होता है?", o: ["सांसदों और विधायकों पर", "राष्ट्रपति पर", "उपराष्ट्रपति पर", "प्रधानमंत्री पर"], a: 0 },
+            { q: "दल-बदल निरोधक कानून किस संविधान संशोधन द्वारा पारित हुआ?", o: ["52वाँ संशोधन", "42वाँ संशोधन", "44वाँ संशोधन", "73वाँ संशोधन"], a: 0 },
+            { q: "भारतीय संविधान की किस अनुसूची में दल-बदल कानून का प्रावधान है?", o: ["10वीं अनुसूची", "8वीं अनुसूची", "9वीं अनुसूची", "11वीं अनुसूची"], a: 0 },
+            { q: "राजनीतिक दलों को मान्यता और चुनाव चिह्न कौन प्रदान करता है?", o: ["निर्वाचन आयोग", "राष्ट्रपति", "संसद", "उच्चतम न्यायालय"], a: 0 },
+            { q: "किसी मान्यता प्राप्त दल से अलग होकर नया दल बनाना क्या कहलाता है?", o: ["दल-बदल या विखंडन", "गठबंधन", "विलय", "सत्याग्रह"], a: 0 },
+            { q: "ब्रिटेन में मुख्य रूप से किस प्रकार की दलीय प्रणाली है?", o: ["द्विदलीय प्रणाली", "एकदलीय प्रणाली", "बहुदलीय प्रणाली", "अदलीय प्रणाली"], a: 0 },
+            { q: "संयुक्त राज्य अमेरिका में कौन सी दलीय व्यवस्था विद्यमान है?", o: ["द्विदलीय व्यवस्था", "बहुदलीय व्यवस्था", "एकदलीय व्यवस्था", "सैन्य व्यवस्था"], a: 0 },
+            { q: "चीन में किस प्रकार की दलीय व्यवस्था पाई जाती है?", o: ["एकदलीय व्यवस्था", "द्विदलीय व्यवस्था", "बहुदलीय व्यवस्था", "अदलीय व्यवस्था"], a: 0 },
+            { q: "भारत में किस प्रकार की दलीय व्यवस्था लागू है?", o: ["बहुदलीय व्यवस्था", "द्विदलीय व्यवस्था", "एकदलीय व्यवस्था", "निरंकुश व्यवस्था"], a: 0 },
+            { q: "गठबंधन सरकार बनाने की संभावना किस प्रकार की दलीय व्यवस्था में होती है?", o: ["बहुदलीय व्यवस्था", "एकदलीय व्यवस्था", "द्विदलीय व्यवस्था", "अदलीय व्यवस्था"], a: 0 },
+            { q: "राष्ट्रीय जनता दल (आरजेडी) का चुनाव चिह्न क्या है?", o: ["लालटेन", "तीर", "बंगला", "साइकिल"], a: 0 },
+            { q: "चिपको आंदोलन किस जिले से प्रारंभ हुआ था?", o: ["चमोली जिला", "पौड़ी जिला", "उत्तरकाशी जिला", "टिहरी जिला"], a: 0 },
+            { q: "दलित शोषित समाज संघर्ष समिति (डीएस-4) की स्थापना किसने की थी?", o: ["कांशीराम", "बी. आर. अंबेडकर", "जगजीवन राम", "ज्योतिबा फुले"], a: 0 },
+            { q: "भारतीय जनता पार्टी का मुख्य प्रेरक सिद्धांत क्या है?", o: ["सांस्कृतिक राष्ट्रवाद", "धर्मनिरपेक्षता", "समाजवाद", "मार्क्सवाद"], a: 0 },
+            { q: "भारतीय राष्ट्रीय कांग्रेस का चुनाव चिह्न क्या है?", o: ["हाथ का पंजा", "कमल", "हाथी", "साइकिल"], a: 0 },
+            { q: "कम्युनिस्ट पार्टी ऑफ इंडिया (सीपीआई) की स्थापना किस वर्ष हुई थी?", o: ["1925 में", "1934 में", "1942 में", "1950 में"], a: 0 },
+            { q: "2014 के आम चुनाव में किस राजनीतिक दल को स्पष्ट बहुमत मिला था?", o: ["भारतीय जनता पार्टी", "भारतीय राष्ट्रीय कांग्रेस", "बहुजन समाज पार्टी", "माकपा"], a: 0 },
+            { q: "15वीं लोकसभा चुनाव में कांग्रेस नीत गठबंधन को क्या कहा गया था?", o: ["संप्रग (यूपीए)", "राजग (एनडीए)", "वाममोर्चा", "तीसरा मोर्चा"], a: 0 },
+            { q: "भाजपा नीत राजनीतिक गठबंधन को किस नाम से जाना जाता है?", o: ["राजग (एनडीए)", "संप्रग (यूपीए)", "संयुक्त मोर्चा", "जनता मोर्चा"], a: 0 },
+            { q: "बांग्लादेश का निर्माण (स्वतंत्रता) किस वर्ष हुआ था?", o: ["1971 में", "1965 में", "1975 में", "1980 में"], a: 0 },
+            { q: "नेपाल में किस वर्ष राजतंत्र को पूरी तरह समाप्त कर लोकतंत्र अपनाया गया?", o: ["2008 में", "2006 में", "2010 में", "2005 में"], a: 0 },
+            { q: "म्यानमार में लोकतंत्र की बहाली के लिए संघर्ष करने वाली प्रमुख नेता कौन हैं?", o: ["आंग सान सू की", "बेनजीर भुट्टो", "शेख हसीना", "विद्या देवी भंडारी"], a: 0 },
+            { q: "श्रीलंका किस वर्ष स्वतंत्र हुआ था?", o: ["1948 में", "1947 में", "1950 में", "1952 में"], a: 0 },
+            { q: "चिपको आंदोलन में महिलाओं ने पेड़ों से चिपककर किसकी रक्षा की थी?", o: ["अंगू के पेड़ों की", "सागौन के पेड़ों की", "शीशम के पेड़ों की", "पीपल के पेड़ों की"], a: 0 },
+            { q: "आंदोलन का मुख्य आधार क्या होता है?", o: ["जनभागीदारी एवं जनसंघर्ष", "सरकारी आदेश", "सैन्य बल", "अदालती फैसला"], a: 0 },
+            { q: "दबाव समूह का मुख्य उद्देश्य क्या होता है?", o: ["अपने हितों के लिए सरकार पर दबाव बनाना", "चुनाव लड़ना", "सरकार बनाना", "संविधान बदलना"], a: 0 },
+            { q: "निम्नलिखित में से कौन सा एक दबाव समूह का उदाहरण है?", o: ["व्यापारी संघ एवं छात्र संघ", "भारतीय जनता पार्टी", "कांग्रेस पार्टी", "चुनाव आयोग"], a: 0 },
+            { q: "राजनीतिक दल और दबाव समूह में मुख्य अंतर क्या है?", o: ["राजनीतिक दल चुनाव लड़ते हैं, दबाव समूह नहीं", "दबाव समूह चुनाव लड़ते हैं", "दोनों एक ही हैं", "राजनीतिक दल गैर-सरकारी होते हैं"], a: 0 },
+            { q: "भारत में लोकतंत्र की सफलता के लिए क्या आवश्यक है?", o: ["जागरूक एवं शिक्षित नागरिक", "निरक्षरता", "साम्प्रदायिकता", "गरीबी"], a: 0 },
+            { q: "लोकतंत्र में जनसंघर्ष का मुख्य परिणाम क्या होता है?", o: ["लोकतंत्र का सुदृढ़ीकरण", "तानाशाही की स्थापना", "गृहयुद्ध", "विदेशी हस्तक्षेप"], a: 0 },
+            { q: "किस देश में जल के निजीकरण के विरुद्ध विशाल जनआंदोलन हुआ था?", o: ["बोलीविया", "नेपाल", "पेरू", "घाना"], a: 0 },
+            { q: "ताड़ी विरोधी आंदोलन में किस मुद्दे को प्रमुखता से उठाया गया?", o: ["घरेलू हिंसा एवं शराबबंदी", "महंगाई", "भूमि सुधार", "शिक्षा का अधिकार"], a: 0 },
+            { q: "सूचना का अधिकार कानून किस प्रकार का कानून है?", o: ["नागरिकों को अधिकार देने वाला कानून", "प्रतिबंध लगाने वाला कानून", "धार्मिक कानून", "सैन्य कानून"], a: 0 },
+            { q: "भारत में किस प्रकार की लोकतंत्र प्रणाली है?", o: ["प्रतिनिध्यात्मक या अप्रत्यक्ष लोकतंत्र", "प्रत्यक्ष लोकतंत्र", "सैनिक लोकतंत्र", "एकतंत्रीय लोकतंत्र"], a: 0 },
+            { q: "राजनीतिक दलों के गठन के लिए न्यूनतम क्या आवश्यक है?", o: ["समान विचारधारा वाले लोगों का संगठन", "विशाल धन", "सरकारी अनुमति", "सैन्य सहायता"], a: 0 },
+            { q: "किसी भी देश में राजनीतिक स्थायित्व के लिए क्या जरूरी है?", o: ["रचनात्मक विपक्ष और मजबूत लोकतंत्र", "सेना का शासन", "विपक्ष का अंत", "एक ही नेता का शासन"], a: 0 },
+            { q: "निम्नलिखित में से कौन सा कार्य निर्वाचन आयोग का है?", o: ["चुनाव तिथियों की घोषणा एवं चुनाव कराना", "कानून बनाना", "बजट पास करना", "विदेश नीति तय करना"], a: 0 },
+            { q: "लोकतंत्र में अंतिम शक्ति किसके हाथ में होती है?", o: ["जनता के हाथ में", "राजा के हाथ में", "सेना के हाथ में", "अधिकारियों के हाथ में"], a: 0 },
+            { q: "चिपको आंदोलन से प्रभावित होकर उत्तर भारत में कौन सा आंदोलन चला?", o: ["एपिको आंदोलन", "नर्मदा आंदोलन", "ताड़ी विरोधी आंदोलन", "सत्याग्रह"], a: 0 },
+            { q: "एपिको आंदोलन किस राज्य में चलाया गया था?", o: ["कर्नाटक", "तमिलनाडु", "केरल", "महाराष्ट्र"], a: 0 },
+            { q: "नर्मदा नदी पर कौन सी विशाल परियोजना बनाई जा रही थी?", o: ["सरदार सरोवर परियोजना", "भाखड़ा नांगल परियोजना", "हीराकुंड परियोजना", "टिहरी परियोजना"], a: 0 },
+            { q: "सरदार सरोवर बांध किस नदी पर स्थित है?", o: ["नर्मदा नदी", "ताप्ती नदी", "गोदावरी नदी", "कृष्णा नदी"], a: 0 },
+            { q: "नर्मदा घाटी परियोजना से कौन-कौन से राज्य लाभान्वित होते हैं?", o: ["गुजरात, मध्य प्रदेश, महाराष्ट्र, राजस्थान", "बिहार, यूपी, बंगाल", "पंजाब, हरियाणा, राजस्थान", "तमिलनाडु, केरल, कर्नाटक"], a: 0 },
+            { q: "आंदोलनों का मुख्य लाभ लोकतंत्र को क्या मिलता है?", o: ["जनता की मांगों का सरकार तक पहुँचना", "सरकार का गिरना", "अराजकता", "कानून व्यवस्था का अंत"], a: 0 },
+            { q: "1974 के बिहार आंदोलन के समय भारत के प्रधानमंत्री कौन थे?", o: ["इन्दिरा गांधी", "मोरारजी देसाई", "राजीव गांधी", "लाल बहादुर शास्त्री"], a: 0 },
+            { q: "जयप्रकाश नारायण ने संपूर्ण क्रांति का नारा कहाँ दिया था?", o: ["पटना के गांधी मैदान में", "दिल्ली के रामलीला मैदान में", "कोलकाता में", "वाराणसी में"], a: 0 },
+            { q: "जयप्रकाश नारायण को किस नाम से भी जाना जाता है?", o: ["लोकनायक", "जननायक", "देशरत्न", "नेताजी"], a: 0 },
+            { q: "करपूरी ठाकुर को किस उपनाम से जाना जाता है?", o: ["जननायक", "लोकनायक", "पंजाब केसरी", "महामना"], a: 0 },
+            { q: "भारत में पहली बार आपातकाल किस अनुच्छेद के तहत 1975 में लागू हुआ था?", o: ["अनुच्छेद 352", "अनुच्छेद 356", "अनुच्छेद 360", "अनुच्छेद 368"], a: 0 },
+            { q: "आपातकाल के दौरान नागरिकों के किस अधिकार को निलंबित कर दिया जाता है?", o: ["मौलिक अधिकार", "आर्थिक अधिकार", "धार्मिक कर्तव्य", "सामाजिक परंपराएं"], a: 0 },
+            { q: "जनता पार्टी का विलय बाद में किस दल के गठन का आधार बना?", o: ["भारतीय जनता पार्टी", "कांग्रेस पार्टी", "बसपा", "माकपा"], a: 0 },
+            { q: "क्षेत्रीय दलों का मुख्य ध्यान किस पर होता है?", o: ["विशिष्ट राज्य या क्षेत्र के विकास पर", "अंतर्राष्ट्रीय मामलों पर", "विदेशी नीति पर", "रक्षा बजट पर"], a: 0 },
+            { q: "राष्ट्रीय दलों का प्रभाव किस स्तर पर होता है?", o: ["पूरे देश में", "केवल एक जिले में", "केवल एक राज्य में", "केवल गांव में"], a: 0 },
+            { q: "निर्वाचन आयोग द्वारा राष्ट्रीय दल का दर्जा पाने के लिए कितना प्रतिशत मत आवश्यक है?", o: ["लोकसभा या राज्य चुनावों में कम से कम 6 प्रतिशत", "2 प्रतिशत", "10 प्रतिशत", "50 प्रतिशत"], a: 0 },
+            { q: "आम चुनाव कितने वर्षों के अंतराल पर होते हैं?", o: ["5 वर्ष", "4 वर्ष", "6 वर्ष", "3 वर्ष"], a: 0 },
+            { q: "उपचुनाव कब कराए जाते हैं?", o: ["किसी सीट के रिक्त होने पर", "हर 2 साल पर", "हर 5 साल पर", "राष्ट्रपति के कहने पर"], a: 0 },
+            { q: "मध्यावधि चुनाव कब होते हैं?", o: ["पांच साल से पहले सरकार गिरने पर", "नियमित 5 साल बाद", "हर साल", "10 साल बाद"], a: 0 },
+            { q: "भारत में मतदाता बनने की न्यूनतम आयु क्या है?", o: ["18 वर्ष", "21 वर्ष", "25 वर्ष", "16 वर्ष"], a: 0 },
+            { q: "61वें संविधान संशोधन द्वारा मतदान की आयु 21 से घटाकर कितनी की गई?", o: ["18 वर्ष", "19 वर्ष", "20 वर्ष", "16 वर्ष"], a: 0 },
+            { q: "लोकतंत्र की सफलता किस पर निर्भर करती है?", o: ["नागरिकों की विवेकपूर्ण सहभागिता पर", "हिंसा पर", "जातिवाद पर", "धनबल पर"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions and Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            
+            // Shuffle question order
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // Shuffle options and update correct answer index
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10वीं राजनीतिक विज्ञान</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 3: लोकतंत्र में प्रतिस्पर्धा एवं संघर्ष</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">तृतीय अध्याय पर आधारित 100 अति-महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का प्रीमियम इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let emoji = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने राजनीतिक विज्ञान के इस अध्याय में पूरे अंक प्राप्त किए हैं!"; emoji = "🏆"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बहुत अच्छी है।"; emoji = "🌟"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और दोहराएँ।"; emoji = "👍"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; emoji = "📚"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 24px;">क्विज़ परिणाम ${emoji}</h2>
+                    
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 28px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #f8fafc;">${score}</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #94a3b8;">/ ${questions.length}</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #f8fafc;">${percentage}% अंक</p>
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 32px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action btn-next" style="padding: 14px 36px; border-radius: 12px; font-size: 1.05rem;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>
