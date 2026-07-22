@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 आपदा प्रबंधन - अध्याय 2 क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+        .stats-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; margin-bottom: 24px; width: 100%; max-width: 480px; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "नदियों में बाढ़ आने का मुख्य कारण क्या है?", o: ["जल की अधिकता", "नदी की तली में अवसाद जमा होना", "वर्षा की अधिकता", "उपर्युक्त सभी"], a: 3 },
+            { q: "बिहार का कौन सा क्षेत्र बाढ़ से अत्यधिक प्रभावित रहता है?", o: ["उत्तरी बिहार", "दक्षिणी बिहार", "पूर्वी बिहार", "पश्चिमी बिहार"], a: 0 },
+            { q: "निम्नलिखित में से किस नदी को बिहार का शोक कहा जाता है?", o: ["कोशी नदी", "गंगा नदी", "गंडक नदी", "पुनपुन नदी"], a: 0 },
+            { q: "सूखा (सूखाड़) किस प्रकार की आपदा है?", o: ["प्राकृतिक आपदा", "मानव जनित आपदा", "सामान्य आपदा", "जैविक आपदा"], a: 0 },
+            { q: "सूखे के लिए जिम्मेदार मुख्य कारक कौन सा है?", o: ["वर्षा की कमी", "वनों की कटाई", "तापमान में वृद्धि", "भू-क्षरण"], a: 0 },
+            { q: "कुहासा किस प्रकार की प्राकृतिक आपदा का उदाहरण है?", o: ["वायुमंडलीय आपदा", "जलीय आपदा", "भौमिक आपदा", "जैविक आपदा"], a: 0 },
+            { q: "भाखड़ा नांगल बांध किस नदी पर बनाया गया है?", o: ["सतलज नदी", "रावी नदी", "ब्यास नदी", "झेलम नदी"], a: 0 },
+            { q: "पश्चिम बंगाल में बाढ़ की विभीषिका वाली नदी कौन सी है?", o: ["दामोदर नदी", "गंगा नदी", "हुगली नदी", "तीस्ता नदी"], a: 0 },
+            { q: "कृषि सूखा किस स्थिति में होता है?", o: ["जल के अभाव में", "मिट्टी की नमी के क्षय से", "मिट्टी के क्षय के कारण", "मिट्टी में लवणता के कारण"], a: 0 },
+            { q: "बाढ़ के समय लोगों को निम्नलिखित में से किस स्थान पर जाना चाहिए?", o: ["ऊंचे स्थान पर", "गांव के बाहर", "खेतों में", "जंगल में"], a: 0 },
+            { q: "सतलज नदी पर बना कृत्रिम जलाशय किस नाम से जाना जाता है?", o: ["गोविंद सागर", "सरदार सरोवर", "नागार्जुन सागर", "गांधी सागर"], a: 0 },
+            { q: "सूखे से बचाव का एक मुख्य और प्रभावी तरीका क्या है?", o: ["वर्षा जल संग्रहण", "नदियों को जोड़ना", "तालाब बनाना", "कुआं खोदना"], a: 0 },
+            { q: "बिहार में बाढ़ की विभीषिका मुख्यतः किस ऋतु में आती है?", o: ["वर्षा ऋतु", "ग्रीष्म ऋतु", "शीत ऋतु", "वसन्त ऋतु"], a: 0 },
+            { q: "तटबंध के टूटने से किस आपदा का खतरा अचानक बढ़ जाता है?", o: ["बाढ़", "सूखा", "भूकंप", "सुनामी"], a: 0 },
+            { q: "बिहार का कौन सा जिला बाढ़ से सबसे कम प्रभावित माना जाता है?", o: ["जमुई", "दरभंगा", "सहरसा", "मुजफ्फरपुर"], a: 0 },
+            { q: "उत्तरी बिहार की प्रमुख नदियों में कौन सी नदी शामिल है?", o: ["कोशी और गंडक", "सोन और पुनपुन", "फल्गु और अजय", "कर्मनाशा"], a: 0 },
+            { q: "दक्षिण बिहार की प्रमुख नदियों में कौन सी नदी शामिल है?", o: ["सोन और फल्गु", "कोशी और बागमती", "गंडक और बूढ़ी गंडक", "महानंदा"], a: 0 },
+            { q: "रिंग बांध (Ring Dam) किसके नियंत्रण के लिए अत्यधिक उपयोगी होता है?", o: ["बाढ़ नियंत्रण के लिए", "सूखा रोकने के लिए", "भूकंप रोकने के लिए", "आग बुझाने के लिए"], a: 0 },
+            { q: "कृषि में सूखे का प्रभाव कम करने के लिए कौन सा उपाय सबसे उपयुक्त है?", o: ["जल संरक्षण एवं ड्रिप सिंचाई", "अधिक पेड़ काटना", "रासायनिक खाद का प्रयोग", "नदी का जल रोकना"], a: 0 },
+            { q: "किस देश को प्रायः 'बाढ़ का देश' कहा जाता है?", o: ["बांग्लादेश", "भारत", "पाकिस्तान", "नेपाल"], a: 0 },
+            { q: "सामान्य वर्षा से कितने प्रतिशत कम वर्षा होने पर सूखा घोषित किया जाता है?", o: ["25 प्रतिशत से कम", "10 प्रतिशत से कम", "50 प्रतिशत से कम", "75 प्रतिशत से कम"], a: 0 },
+            { q: "गंभीर सूखा किस स्थिति में माना जाता है जब वर्षा की कमी हो जाती है?", o: ["50 प्रतिशत से अधिक", "20 प्रतिशत से अधिक", "30 प्रतिशत से अधिक", "10 प्रतिशत से अधिक"], a: 0 },
+            { q: "बाढ़ से सबसे अधिक हानि किसको होती है?", o: ["उपर्युक्त सभी को", "फसलों को", "पशुओं को", "भवनों को"], a: 0 },
+            { q: "सूखे की स्थिति किस प्रकार आती है?", o: ["धीरे-धीरे", "अचानक", "चुपके से", "पूर्व सूचना के साथ"], a: 0 },
+            { q: "बाढ़ किस प्रकार की आपदा मानी जाती है?", o: ["प्राकृतिक आपदा", "मानव जनित आपदा", "सामान्य आपदा", "रासायनिक आपदा"], a: 0 },
+            { q: "नागार्जुन सागर परियोजना किस नदी पर स्थित है?", o: ["कृष्णा नदी", "कावेरी नदी", "गोदावरी नदी", "नर्मदा नदी"], a: 0 },
+            { q: "इंद्रावती परियोजना किस राज्य से संबंधित है?", o: ["ओडिशा", "बिहार", "झारखंड", "पश्चिम बंगाल"], a: 0 },
+            { q: "सरदार सरोवर बांध किस नदी पर स्थित है?", o: ["नर्मदा नदी", "ताप्ती नदी", "साबरमती नदी", "महि नदी"], a: 0 },
+            { q: "हीराकुंड बांध किस नदी पर बनाया गया है?", o: ["महानदी", "गोदावरी नदी", "कृष्णा नदी", "गंगा नदी"], a: 0 },
+            { q: "भारत में बाढ़ की चेतावनी कौन सी संस्था जारी करती है?", o: ["केंद्रीय जल आयोग", "मौसम विभाग", "गृह मंत्रालय", "कृषि मंत्रालय"], a: 0 },
+            { q: "नदियों के किनारे वृक्षारोपण करने से किस समस्या पर रोक लगती है?", o: ["मृदा अपरदन और कटाव", "जल प्रदूषण", "वायु प्रदूषण", "ध्वनि प्रदूषण"], a: 0 },
+            { q: "बाढ़ के दौरान पेजयल की आपूर्ति के लिए क्या उपाय करना चाहिए?", o: ["उबला हुआ जल पीना", "नदी का सीधा पानी पीना", "कुएं का पानी पीना", "तालाब का पानी पीना"], a: 0 },
+            { q: "बाढ़ प्रभावित क्षेत्रों में संक्रामक बीमारियों से बचने के लिए क्या छिड़काव किया जाता है?", o: ["चूना और ब्लीचिंग पाउडर", "नमक", "यूरिया", "पोटाश"], a: 0 },
+            { q: "आपदा प्रबंधन में सबसे महत्वपूर्ण भूमिका किसकी होती है?", o: ["स्थानीय समुदाय की", "केवल केंद्र सरकार की", "केवल राज्य सरकार की", "विदेशी सहायकों की"], a: 0 },
+            { q: "सूखे के समय मवेशियों के लिए सबसे बड़ी समस्या क्या होती है?", o: ["चारे और पानी की कमी", "रहने की जगह", "बीमारी", "ठंड"], a: 0 },
+            { q: "जल-संग्रहण (Rainwater Harvesting) का मुख्य लाभ क्या है?", o: ["भूजल स्तर में सुधार", "मिट्टी की कटाई", "बाढ़ का आना", "फसल नष्ट होना"], a: 0 },
+            { q: "कोशी नदी पर बना हनुमाननगर बैराज किस वर्ष तैयार हुआ था?", o: ["1965", "1955", "1975", "1985"], a: 0 },
+            { q: "बिहार के दक्षिणी मैदानी भाग में सूखे की स्थिति क्यों बनती है?", o: ["कम वर्षा और नदियों में जल की कमी", "अत्यधिक वृक्षारोपण", "बाढ़ का आना", "पहाड़ों की उपस्थिति"], a: 0 },
+            { q: "नदियों में गाद (सिल्ट) जमा होने से क्या प्रभाव पड़ता है?", o: ["जलधारण क्षमता घट जाती है", "जल शुद्ध हो जाता है", "प्रवाह तेज हो जाता है", "नदी गहरी हो जाती है"], a: 0 },
+            { q: "बाढ़ सुरक्षा समिति का गठन किस स्तर पर किया जाता है?", o: ["ग्राम स्तर पर", "राष्ट्रीय स्तर पर", "अंतर्राष्ट्रीय स्तर पर", "राज्य स्तर पर"], a: 0 },
+            { q: "सूखाड़ प्रबंधन के लिए राष्ट्रीय स्तर पर कौन सी नीति बनाई गई है?", o: ["राष्ट्रीय जल नीति", "राष्ट्रीय वन नीति", "राष्ट्रीय कृषि नीति", "राष्ट्रीय शिक्षा नीति"], a: 0 },
+            { q: "सूखे की स्थिति में फसलों को बचाने के लिए कौन सी तकनीक अपनाई जाती है?", o: ["स्प्रिंकलर (छिड़काव) सिंचाई", "अत्यधिक जल बहाव", "नहर बनाना", "कुआं खोदना"], a: 0 },
+            { q: "बाढ़ के बाद पुनर्वास का कार्य किसके द्वारा किया जाता है?", o: ["सरकार और स्वयंसेवी संस्थाएं", "केवल व्यक्तिगत लोग", "केवल विदेशी संस्थाएं", "व्यापारी वर्ग"], a: 0 },
+            { q: "बिहार के किस भाग में हर साल बाढ़ आना लगभग तय होता है?", o: ["उत्तर-पूर्वी भाग", "दक्षिण-पश्चिमी भाग", "मध्य भाग", "दक्षिणी भाग"], a: 0 },
+            { q: "गंगा नदी में बिहार के किस शहर के पास बाढ़ का खतरा अधिक रहता है?", o: ["पटना", "गया", "नवादा", "औरंगाबाद"], a: 0 },
+            { q: "बाढ़ से बचाव के लिए नदियों के दोनों ओर क्या बनाया जाता है?", o: ["तटबंध (Embankments)", "सड़क", "रेलवे लाइन", "दीवार"], a: 0 },
+            { q: "तटबंध की चौड़ाई और ऊँचाई का निर्धारण किस आधार पर किया जाता है?", o: ["अधिकतम जल स्तर के आधार पर", "सड़क की चौड़ाई पर", "पेड़ों की संख्या पर", "जनसंख्या के आधार पर"], a: 0 },
+            { q: "सूखे के दौरान ग्रामीण क्षेत्रों में रोजगार देने वाली प्रमुख योजना कौन सी है?", o: ["मनरेगा", "प्रधानमंत्री आवास योजना", "डिजिटल इंडिया", "मेक इन इंडिया"], a: 0 },
+            { q: "वर्षा के जल को रोककर बनाए गए छोटे जलाशयों को क्या कहा जाता है?", o: ["आहर और पाइन", "नहर", "झील", "तालाब"], a: 0 },
+            { q: "बिहार में पारंपरिक जल संरक्षण प्रणाली कौन सी है?", o: ["आहर-पाइन प्रणाली", "ड्रिप प्रणाली", "बांस ड्रिप प्रणाली", "खदीन प्रणाली"], a: 0 },
+            { q: "आपदा के समय राहत सामग्री पहुँचाने के लिए किस वाहन का उपयोग आसान होता है?", o: ["हेलीकॉप्टर और नाव", "ट्रेन", "भारी ट्रक", "बस"], a: 0 },
+            { q: "बाढ़ की पूर्व चेतावनी मिलने पर सबसे पहला कदम क्या होना चाहिए?", o: ["सुरक्षित स्थान पर पलायन", "घर की मरम्मत", "खेती करना", "दुकान खोलना"], a: 0 },
+            { q: "मौसम विज्ञान विभाग सूखे का पूर्वानुमान किस आधार पर लगाता है?", o: ["मानसून की गति और वर्षा के आंकड़े", "तापमान", "हवा की दिशा", "मिट्टी का प्रकार"], a: 0 },
+            { q: "अत्यधिक भूजल दोहन से किस आपदा की तीव्रता बढ़ जाती है?", o: ["सूखा", "बाढ़", "सुनामी", "चक्रवात"], a: 0 },
+            { q: "बिहार का कौन सा क्षेत्र सूखा और बाढ़ दोनों से अलग-अलग समय पर प्रभावित होता है?", o: ["मध्य बिहार", "उत्तर बिहार", "दक्षिण बिहार", "पहाड़ी बिहार"], a: 0 },
+            { q: "बाढ़ के पानी के साथ आने वाली उपजाऊ मिट्टी को क्या कहते हैं?", o: ["जलोढ़ मिट्टी", "काली मिट्टी", "लाल मिट्टी", "लैटेराइट मिट्टी"], a: 0 },
+            { q: "बाढ़ का एक सकारात्मक पहलू क्या है?", o: ["मिट्टी की उर्वरता में वृद्धि", "फसल का विनाश", "घर टूटना", "बीमारी फैलना"], a: 0 },
+            { q: "बाढ़ के पानी का तेजी से प्रसार रोकने के लिए किसका निर्माण किया जाता है?", o: ["स्पर्श (Spurs) और तटबंध", "सड़कें", "पुलिया", "मकान"], a: 0 },
+            { q: "सूखे के दौरान पशुओं के लिए किस प्रकार के भोजन की व्यवस्था की जाती है?", o: ["ड्राई फोडर (सूखा चारा)", "हरी घास", "अनाज", "फल"], a: 0 },
+            { q: "किस राज्य में बाढ़ और चक्रवात दोनों का प्रकोप अक्सर देखा जाता है?", o: ["ओडिशा", "राजस्थान", "पंजाब", "हरियाणा"], a: 0 },
+            { q: "राजस्थान में सूखे से निपटने के लिए पारंपरिक संरचना कौन सी है?", o: ["टांका और जोहड़", "आहर-पाइन", "बांस ड्रिप", "कुआं"], a: 0 },
+            { q: "बाढ़ शरणस्थली में किन मूलभूत सुविधाओं का होना अनिवार्य है?", o: ["पेयजल, भोजन और चिकित्सा", "केबल टीवी", "शॉपिंग मॉल", "खेल का मैदान"], a: 0 },
+            { q: "आपदा के समय गर्भवती महिलाओं और बच्चों के लिए क्या विशेष व्यवस्था होनी चाहिए?", o: ["विशेष चिकित्सा और पोषण", "केवल राशन", "कपड़े", "खिलौने"], a: 0 },
+            { q: "बाढ़ के पानी से होने वाले जलभराव (Waterlogging) से क्या नुकसान है?", o: ["फसलों का सड़ना और बीमारियां", "मिट्टी की मजबूती", "पेड़ों की वृद्धि", "साफ सफाई"], a: 0 },
+            { q: "किस प्रकार की वनस्पति तटबंधों को मजबूत बनाने में मदद करती है?", o: ["गहरे जड़ों वाले वृक्ष और घास", "झाड़ियां", "छोटे पौधे", "सब्जियां"], a: 0 },
+            { q: "सूखे से निपटने का दीर्घकालिक उपाय क्या है?", o: ["व्यापक वृक्षारोपण और जल प्रबंधन", "नहरें बंद करना", "भूजल निकालना", "फसल न उगाना"], a: 0 },
+            { q: "बाढ़ के दौरान संचार के लिए किसका उपयोग सबसे कारगर होता है?", o: ["वायरलेस और सैटेलाइट फोन", "लैंडलाइन", "डाक सेवा", "समाचार पत्र"], a: 0 },
+            { q: "आपदा राहत कोष (SDRF) का गठन किस स्तर पर किया गया है?", o: ["राज्य स्तर पर", "केंद्र स्तर पर", "पंचायत स्तर पर", "ब्लॉक स्तर पर"], a: 0 },
+            { q: "NDRF का पूर्ण रूप क्या है?", o: ["राष्ट्रीय आपदा प्रतिक्रिया बल", "राष्ट्रीय आपदा राहत कोष", "राष्ट्रीय विकास राहत कोष", "राष्ट्रीय दल राहत बल"], a: 0 },
+            { q: "बाढ़ और सूखे जैसे प्राकृतिक संकटों के प्रभाव को कम करने के लिए क्या आवश्यक है?", o: ["जन जागरूकता और पूर्व तैयारी", "केवल सरकारी मदद", "उदासीनता", "भाग्य पर छोड़ना"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions and Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            
+            // Shuffle question order
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // Shuffle options and update correct answer index
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10 - आपदा प्रबंधन</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 2: प्राकृतिक आपदा: एवं प्रबंधन - बाढ़ और सूखा</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">द्वितीय अध्याय पर आधारित 70 अति-महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का प्रीमियम इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने आपदा प्रबंधन के इस अध्याय में पूरे अंक प्राप्त किए हैं!"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बहुत अच्छी है।"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और दोहराएँ।"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            let correctCount = 0;
+            let wrongCount = 0;
+            let skippedCount = 0;
+
+            questionStates.forEach(st => {
+                if(st === 'correct') correctCount++;
+                else if(st === 'wrong') wrongCount++;
+                else if(st === 'skipped') skippedCount++;
+            });
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; color: #f8fafc;">BSEB कक्षा 10 - आपदा प्रबंधन</h2>
+                    <p style="font-size: 1rem; color: #94a3b8; margin-bottom: 20px;">अध्याय 2: प्राकृतिक आपदा: एवं प्रबंधन - बाढ़ और सूखा (कुल प्रश्न: ${questions.length})</p>
+                    
+                    <h3 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 20px; color: #38bdf8;">क्विज़ पूर्ण हुई!</h3>
+
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #38bdf8;">${percentage}%</span>
+                        </div>
+                    </div>
+
+                    <div class="stats-box">
+                        <div class="flex justify-between items-center text-center">
+                            <div>
+                                <p style="font-size: 0.8rem; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">कुल प्रश्न</p>
+                                <p style="font-size: 1.4rem; font-weight: 800; color: #f8fafc;">${questions.length}</p>
+                            </div>
+                            <div>
+                                <p style="font-size: 0.8rem; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">सही उत्तर</p>
+                                <p style="font-size: 1.4rem; font-weight: 800; color: #4ade80;">${correctCount}</p>
+                            </div>
+                            <div>
+                                <p style="font-size: 0.8rem; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">गलत उत्तर</p>
+                                <p style="font-size: 1.4rem; font-weight: 800; color: #f87171;">${wrongCount}</p>
+                            </div>
+                            <div>
+                                <p style="font-size: 0.8rem; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">छोड़े गए</p>
+                                <p style="font-size: 1.4rem; font-weight: 800; color: #facc15;">${skippedCount}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 28px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="padding: 14px 40px; border-radius: 12px; font-size: 1.05rem; background: #22c55e; color: white;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>

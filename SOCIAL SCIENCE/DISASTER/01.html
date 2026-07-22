@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB कक्षा 10 आपदा प्रबंधन - अध्याय 1 क्विज़</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            min-height: 620px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+        }
+        .correct {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+        }
+        .wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+        }
+        .disabled-option { opacity: 0.6; cursor: not-allowed; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flex-1 { flex: 1 1 0%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .hidden { display: none !important; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .quiz-header { padding: 24px 32px 16px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); position: relative; }
+        .progress-bar-bg { width: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(to right, #06b6d4, #3b82f6); height: 10px; border-radius: 9999px; transition: width 0.4s ease-out; }
+        .profile-icon { position: absolute; top: 20px; right: 32px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .profile-icon:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-start { padding: 16px 40px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; font-weight: bold; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        .btn-action { padding: 12px 28px; font-weight: bold; border-radius: 12px; cursor: pointer; border: none; font-size: 0.95rem; }
+        .btn-next { background-color: #38bdf8; color: #0f172a; }
+        .btn-skip { background-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        .overview-panel { position: absolute; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; padding: 24px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; padding: 16px 0; flex: 1; overflow-y: auto; }
+        .q-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; border: none; font-size: 0.85rem; }
+        
+        .state-default { background: rgba(255, 255, 255, 0.1); }
+        .state-correct { background: #22c55e !important; }
+        .state-wrong { background: #ef4444 !important; }
+        .state-skipped { background: #eab308 !important; color: #000 !important; }
+        
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 220px; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; }
+        .stats-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; margin-bottom: 24px; width: 100%; max-width: 480px; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="glass-panel"></div>
+
+    <script>
+        const rawQuestions = [
+            { q: "इनमें से कौन सी एक प्राकृतिक आपदा है?", o: ["भूकंप", "सड़क दुर्घटना", "आगजनी", "आतंकवाद"], a: 0 },
+            { q: "इनमें से कौन सी मानव-जनित आपदा नहीं है?", o: ["सुनामी", "सांप्रदायिक दंगा", "आतंकवाद", "रेल दुर्घटना"], a: 0 },
+            { q: "भोपाल गैस त्रासदी किस प्रकार की आपदा थी?", o: ["मानव-जनित", "प्राकृतिक", "वायुमंडलीय", "जैविक"], a: 0 },
+            { q: "सुनामी का प्रमुख कारण क्या होता है?", o: ["समुद्र में भूकंप आना", "स्थल पर भूकंप आना", "द्वीप पर भूकंप आना", "पर्वत पर हिमस्खलन"], a: 0 },
+            { q: "नदियों में बाढ़ आने का मुख्य कारण क्या होता है?", o: ["जल की अधिकता", "नदी के तल में गाद जमा होना", "वर्षा की अधिकता", "उपर्युक्त सभी"], a: 3 },
+            { q: "बिहार का कौन सा क्षेत्र बाढ़ से अत्यधिक प्रभावित रहता है?", o: ["उत्तरी बिहार", "दक्षिणी बिहार", "पूर्वी बिहार", "पश्चिमी बिहार"], a: 0 },
+            { q: "निम्नलिखित में से किस नदी को 'बिहार का शोक' कहा जाता है?", o: ["कोशी", "गंगा", "गंडक", "पुनपुन"], a: 0 },
+            { q: "सूखा (सूखाड़) किस प्रकार की आपदा मानी जाती है?", o: ["प्राकृतिक आपदा", "मानव-जनित आपदा", "सामान्य आपदा", "दुर्लभ आपदा"], a: 0 },
+            { q: "सूखे के लिए जिम्मेदार मुख्य कारक कौन सा है?", o: ["वर्षा की कमी", "वनों की कटाई", "तापमान में वृद्धि", "भू-क्षरण"], a: 0 },
+            { q: "कुहासा किस प्रकार की आपदा का उदाहरण है?", o: ["वायुमंडलीय", "जलीय", "भौमिक", "जैविक"], a: 0 },
+            { q: "भारत को कुल कितने भूकंपीय क्षेत्रों में बाँटा गया है?", o: ["5", "3", "4", "6"], a: 0 },
+            { q: "भाखड़ा नांगल बांध किस नदी पर स्थित है?", o: ["सतलज", "रावी", "ब्यास", "झेलम"], a: 0 },
+            { q: "पश्चिम बंगाल में बाढ़ की विभीषिका वाली नदी कौन सी है?", o: ["दामोदर", "गंगा", "हुगली", "तीस्ता"], a: 0 },
+            { q: "बिहार में भयंकर भूकंप किस वर्ष आया था?", o: ["1934", "1938", "1965", "1990"], a: 0 },
+            { q: "हिंद महासागर में विनाशकारी सुनामी किस वर्ष आई थी?", o: ["2004", "2001", "2005", "2008"], a: 0 },
+            { q: "कृषि सूखा कब होता है?", o: ["जल के अभाव में", "मिट्टी की नमी के क्षय से", "मिट्टी के क्षय के कारण", "मिट्टी में लवणता के कारण"], a: 0 },
+            { q: "मानव शरीर के जलने की स्थिति में प्राथमिक उपचार क्या करना चाहिए?", o: ["ठंडा पानी डालना चाहिए", "गर्म पानी डालना चाहिए", "अस्पताल पहुँचाना चाहिए", "बर्नोल लगाना चाहिए"], a: 0 },
+            { q: "सहानुभूतिपूर्ण आपदा प्रबंधन का मुख्य उद्देश्य क्या होता है?", o: ["क्षति को न्यूनतम करना", "धन एकत्रित करना", "प्रचार करना", "केवल सहायता बांटना"], a: 0 },
+            { q: "भूकंप केंद्र के ऊर्ध्वाधर पृथ्वी पर स्थित केंद्र को क्या कहते हैं?", o: ["अधिकेंद्र", "भूकंप केंद्र", "अनुकेंद्र", "इनमें से कोई नहीं"], a: 0 },
+            { q: "भूकंप अथवा सुनामी से बचने का सबसे अच्छा तरीका क्या है?", o: ["पूर्वानुमान को गंभीरता से लेना", "भगवान पर भरोसा रखना", "घर में छिपे रहना", "भागदौड़ करना"], a: 0 },
+            { q: "बाढ़ के समय लोगों को किस स्थान पर जाना चाहिए?", o: ["ऊंचे स्थान पर", "गांव के बाहर", "खेतों में", "जंगल में"], a: 0 },
+            { q: "मलबे के नीचे दबे हुए लोगों का पता लगाने के लिए किस कैमरे की मदद ली जाती है?", o: ["इन्फ्रारेड कैमरा", "टेलीस्कोपिक कैमरा", "थर्मल कैमरा", "साधारण कैमरा"], a: 0 },
+            { q: "आग से जलने की स्थिति में प्राथमिक उपचार में क्या नहीं करना चाहिए?", o: ["बर्फ रगड़ना नहीं चाहिए", "ठंडा पानी डालना", "बर्नोल लगाना", "अस्पताल ले जाना"], a: 0 },
+            { q: "संचार का सबसे लोकप्रिय साधन वर्तमान में कौन सा है?", o: ["मोबाइल", "सार्वजनिक टेलीफोन", "वॉक-टॉकी", "रेडियो"], a: 0 },
+            { q: "सुदूर संवेदी उपग्रह (रिमोट सेंसिंग सैटेलाइट) का प्रयोग किसलिए होता है?", o: ["संसाधनों की खोज के लिए", "मौसम विज्ञान के लिए", "दूरसंचार के लिए", "उपर्युक्त सभी"], a: 3 },
+            { q: "आपदा प्रबंधन का प्रमुख घटक कौन सा है?", o: ["स्थानीय प्रशासन", "स्वयंसेवी संगठन", "गांव के लोग", "ये सभी"], a: 3 },
+            { q: "आपदा के समय कौन सा संपर्क साधन बाधित हो जाता है?", o: ["केबल टूट जाना", "मोबाइल टावर ध्वस्त होना", "बिजली आपूर्ति बाधित होना", "उपर्युक्त सभी"], a: 3 },
+            { q: "दक्कन का पठार किस प्रकार के भूकंपीय क्षेत्र में आता है?", o: ["जोन 1", "जोन 2", "जोन 3", "जोन 4"], a: 0 },
+            { q: "भारत का सर्वाधिक भूकंप संभावित क्षेत्र कौन सा माना जाता है?", o: ["हिमालयी क्षेत्र", "मैदानी क्षेत्र", "तटीय क्षेत्र", "पठारी क्षेत्र"], a: 0 },
+            { q: "समुद्र तल पर होने वाले कंपन को किस नाम से जाना जाता है?", o: ["सुनामी", "भूकंप", "चक्रवात", "भूस्खलन"], a: 0 },
+            { q: "गुजरात का कच्छ क्षेत्र किस भूकंपीय जोन में आता है?", o: ["जोन 5", "जोन 3", "जोन 4", "जोन 2"], a: 0 },
+            { q: "26 दिसंबर 2004 को विश्व के किस हिस्से में भयंकर सुनामी आई थी?", o: ["हिंद महासागर", "प्रशांत महासागर", "अटलांटिक महासागर", "आर्कटिक महासागर"], a: 0 },
+            { q: "निम्नलिखित में कौन प्राकृतिक आपदा नहीं है?", o: ["महामारी", "बाढ़", "भूकंप", "सूखा"], a: 0 },
+            { q: "किस देश को 'बाढ़ का देश' भी कहा जाता है?", o: ["बांग्लादेश", "भारत", "पाकिस्तान", "नेपाल"], a: 0 },
+            { q: "नेपाल में वर्ष 2015 में आया भूकंप किस तीव्रता का था?", o: ["7.8", "6.5", "8.2", "9.0"], a: 0 },
+            { q: "भूकंपीय तरंगों को मापने वाले यंत्र को क्या कहते हैं?", o: ["सिस्मोग्राफ", "रिक्टर स्केल", "बैरोमीटर", "अमीटर"], a: 0 },
+            { q: "भूकंप की तीव्रता का मापन किस स्केल पर किया जाता है?", o: ["रिक्टर स्केल", "सिस्मोग्राफ", "थर्मामीटर", "डेसिबल"], a: 0 },
+            { q: "सबसे खतरनाक भूकंपीय तरंग कौन सी मानी जाती है?", o: ["L-तरंग", "P-तरंग", "S-तरंग", "T-तरंग"], a: 0 },
+            { q: "P-तरंग किस प्रकार की तरंग होती है?", o: ["अनुदैर्ध्य", "अनुप्रस्थ", "सतही", "विद्युत चुंबकीय"], a: 0 },
+            { q: "S-तरंग किस प्रकार की तरंग होती है?", o: ["अनुप्रस्थ", "अनुदैर्ध्य", "सतही", "ध्वनि तरंग"], a: 0 },
+            { q: "भूस्खलन वाले क्षेत्रों में मकानों का निर्माण कैसा होना चाहिए?", o: ["आयताकार और साधारण", "ढालू छतों वाला", "त्रिकोणात्मक", "बहुमंजिला"], a: 0 },
+            { q: "सुनामी प्रभावित क्षेत्र में मकानों का निर्माण कहाँ करना चाहिए?", o: ["समुद्र तट से दूर ऊँचाई पर", "समुद्र तट के पास", "समुद्र के भीतर", "समतल मैदान में"], a: 0 },
+            { q: "आपदा प्रबंधन किसे कहा जाता है?", o: ["प्राकृतिक आपदाओं के दुष्परिणामों को कम करने का उपाय", "भूकंप को रोकना", "बाढ़ को पूरी तरह समाप्त करना", "केवल राहत सामग्री बांटना"], a: 0 },
+            { q: "निम्नलिखित में से कौन भौमिक आपदा का उदाहरण है?", o: ["भूस्खलन", "चक्रवात", "ओलावृष्टि", "सुनामी"], a: 0 },
+            { q: "निम्नलिखित में से कौन जलीय आपदा का उदाहरण है?", o: ["बाढ़", "भूस्खलन", "भूकंप", "ज्वालामुखी"], a: 0 },
+            { q: "अचानक आने वाली प्राकृतिक आपदा कौन सी है?", o: ["भूकंप", "सूखा", "रेगिस्तान का प्रसार", "पर्यावरणीय ह्रास"], a: 0 },
+            { q: "धीमी गति से आने वाली आपदा का उदाहरण कौन सा है?", o: ["सूखा", "भूकंप", "सुनामी", "आकाशीय बिजली"], a: 0 },
+            { q: "भारत में राष्ट्रीय आपदा प्रबंधन प्राधिकरण (NDMA) का गठन कब हुआ?", o: ["2005", "2001", "2008", "2010"], a: 0 },
+            { q: "राष्ट्रीय आपदा प्रबंधन प्राधिकरण के अध्यक्ष कौन होते हैं?", o: ["प्रधानमंत्री", "गृह मंत्री", "राष्ट्रपति", "पर्यावरण मंत्री"], a: 0 },
+            { q: "बिहार में बाढ़ की विभीषिका मुख्यतः किस ऋतु में आती है?", o: ["वर्षा ऋतु", "ग्रीष्म ऋतु", "शीत ऋतु", "वसन्त ऋतु"], a: 0 },
+            { q: "सड़कों के किनारे वृक्षारोपण किस आपदा को कम करने में सहायक है?", o: ["भूस्खलन एवं मृदा अपरदन", "भूकंप", "सुनामी", "आगजनी"], a: 0 },
+            { q: "तटबंध के टूटने से किस आपदा का खतरा बढ़ता है?", o: ["बाढ़", "सूखा", "भूकंप", "सुनामी"], a: 0 },
+            { q: "बिहार का कौन सा जिला बाढ़ से सबसे कम प्रभावित है?", o: ["जमुई", "दरभंगा", "सहरसा", "मुजफ्फरपुर"], a: 0 },
+            { q: "उत्तरी बिहार की प्रमुख नदियों में कौन शामिल है?", o: ["कोशी और गंडक", "सोन और पुनपुन", "फल्गु और अजय", "कर्मनाशा"], a: 0 },
+            { q: "दक्षिण बिहार की प्रमुख नदियों में कौन शामिल है?", o: ["सोन और फल्गु", "कोशी और बागमती", "गंडक और बूढ़ी गंडक", "महानंदा"], a: 0 },
+            { q: "आपदा के समय स्वयंसेवी संस्थाओं का मुख्य कार्य क्या है?", o: ["राहत शिविर चलाना", "कानून बनाना", "सेना को निर्देश देना", "दवाइयां बनाना"], a: 0 },
+            { q: "आपदा मित्र योजना का उद्देश्य क्या है?", o: ["स्थानीय स्तर पर स्वयंसेवकों को प्रशिक्षित करना", "विदेशों में मदद भेजना", "केवल वित्तीय सहायता देना", "अस्पताल बनाना"], a: 0 },
+            { q: "हैम रेडियो (HAM Radio) क्या है?", o: ["एक शौकिया एमेच्योर रेडियो संचार व्यवस्था", "एक प्रकार का टीवी चैनल", "एक मोबाइल ऐप", "एक सरकारी समाचार पत्र"], a: 0 },
+            { q: "उपग्रह संचार में मुख्य भूमिका किसकी होती है?", o: ["कृत्रिम उपग्रह की", "रेडियो टावर की", "केबल की", "टेलीफोन तार की"], a: 0 },
+            { q: "समुद्र में उठने वाली विशाल लहरों को क्या कहते हैं?", o: ["सुनामी", "ज्वार-भाटा", "चक्रवात", "तरंग"], a: 0 },
+            { q: "भारत में किस वर्ष राष्ट्रीय आपदा नीति बनाई गई थी?", o: ["2009", "2005", "2001", "2012"], a: 0 },
+            { q: "भूकंप रोधी मकानों की आकृति कैसी होनी चाहिए?", o: ["आयताकार", "वृत्ताकार", "त्रिभुजाकार", "विषमकोणीय"], a: 0 },
+            { q: "पहाड़ी ढलों पर मकानों का निर्माण किस प्रकार किया जाना चाहिए?", o: ["समतल और पंक्तिबद्ध", "बहुमंजिला", "भारी पत्थरों से", "ढाल के लंबवत"], a: 0 },
+            { q: "कृषि में सूखे का प्रभाव कम करने के लिए क्या करना चाहिए?", o: ["जल संरक्षण एवं ड्रिप सिंचाई", "अधिक पेड़ काटना", "रासायनिक खाद का प्रयोग", "नदी का जल रोकना"], a: 0 },
+            { q: "आकास्मिक आपदा प्रबंधन का सबसे प्रमुख घटक कौन सा है?", o: ["स्थानीय लोग", "केंद्र सरकार", "राज्य सरकार", "विदेशी संस्थाएं"], a: 0 },
+            { q: "रिंग बांध (Ring Dam) किसके लिए उपयोगी होता है?", o: ["बाढ़ नियंत्रण के लिए", "सूखा रोकने के लिए", "भूकंप रोकने के लिए", "आग बुझाने के लिए"], a: 0 },
+            { q: "आपदा प्रबंधन का मुख्य लक्ष्य क्या होता है?", o: ["जीवन और संपत्ति की सुरक्षा", "केवल पुनर्निर्माण", "सड़कों की मरम्मत", "आर्थिक अनुदान देना"], a: 0 },
+            { q: "पर्यावरणीय संतुलन बिगड़ने से किस आपदा का खतरा बढ़ता है?", o: ["सूखा और बाढ़", "भूकंप", "ज्वालामुखी", "सुनामी"], a: 0 },
+            { q: "आपदा के दौरान निम्नलिखित में से कौन सी प्राथमिक आवश्यकता होती है?", o: ["भोजन, जल और प्राथमिक चिकित्सा", "मनोरंजन", "यातायात के साधन", "टेलीविज़न"], a: 0 },
+            { q: "प्राकृतिक आपदाओं के अध्ययन को क्या कहा जाता है?", o: ["आपदा विज्ञान", "भू-गर्भ शास्त्र", "पर्यावरण विज्ञान", "मौसम विज्ञान"], a: 0 }
+        ];
+
+        // Fisher-Yates Shuffle Algorithm for Questions and Options
+        function shuffleQuestionsAndOptions(array) {
+            const shuffled = JSON.parse(JSON.stringify(array));
+            
+            // Shuffle question order
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // Shuffle options and update correct answer index
+            shuffled.forEach(item => {
+                const correctAnswerText = item.o[item.a];
+                for (let i = item.o.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [item.o[i], item.o[j]] = [item.o[j], item.o[i]];
+                }
+                item.a = item.o.indexOf(correctAnswerText);
+            });
+
+            return shuffled;
+        }
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let questionStates = [];
+
+        const appDiv = document.getElementById('app');
+
+        function renderStartScreen() {
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in h-full">
+                    <div style="width: 88px; height: 88px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; color: #f8fafc;">BSEB कक्षा 10 - आपदा प्रबंधन</h1>
+                    <h2 style="font-size: 1.35rem; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">अध्याय 1: प्राकृतिक आपदा: एक परिचय</h2>
+                    <p style="color: #94a3b8; margin-bottom: 32px; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">प्रथम अध्याय पर आधारित 70 अति-महत्वपूर्ण वस्तुनिष्ठ प्रश्नों का प्रीमियम इंटरैक्टिव क्विज़।</p>
+                    <button onclick="startQuiz()" class="btn-start">क्विज़ प्रारंभ करें</button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            questions = shuffleQuestionsAndOptions(rawQuestions);
+            currentQuestion = 0;
+            score = 0;
+            questionStates = new Array(questions.length).fill('default');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.o.forEach((opt, index) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(${index}, this)" class="option-btn">
+                        <span>${opt}</span>
+                        <span class="icon-container hidden"></span>
+                    </button>
+                `;
+            });
+
+            appDiv.innerHTML = `
+                <div class="quiz-header">
+                    <div class="flex justify-between items-center" style="margin-bottom: 12px; padding-right: 50px;">
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #38bdf8; letter-spacing: 0.5px;">प्रश्न ${currentQuestion + 1} / ${questions.length}</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #e2e8f0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 9999px;">स्कोर: ${score}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="profile-icon" onclick="openOverview()" title="प्रश्नावली नेविगेशन">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 fade-in flex flex-col" style="padding: 28px 32px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 600; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9;">${q.q}</h2>
+                    <div id="options-container" class="flex-1 flex flex-col justify-center">
+                        ${optionsHtml}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center" style="padding: 20px 32px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); min-height: 80px;">
+                    <div>
+                        <button id="skip-btn" onclick="skipQuestion()" class="btn-action btn-skip">स्किप करें</button>
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-action btn-next">
+                        ${currentQuestion === questions.length - 1 ? 'परिणाम देखें' : 'अगला प्रश्न'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            if(skipBtn) skipBtn.classList.add('hidden');
+
+            allBtns.forEach((btn, index) => {
+                btn.classList.add('disabled-option');
+                btn.disabled = true;
+                const iconContainer = btn.querySelector('.icon-container');
+                iconContainer.classList.remove('hidden');
+
+                if (index === q.a) {
+                    btn.classList.add('correct');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #4ade80; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                }
+                
+                if (index === selectedIndex && selectedIndex !== q.a) {
+                    btn.classList.add('wrong');
+                    btn.classList.remove('disabled-option');
+                    iconContainer.innerHTML = `<svg style="color: #f87171; width: 22px; height: 22px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                }
+            });
+
+            if (selectedIndex === q.a) {
+                score++;
+                questionStates[currentQuestion] = 'correct';
+            } else {
+                questionStates[currentQuestion] = 'wrong';
+            }
+
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        function skipQuestion() {
+            questionStates[currentQuestion] = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                renderResultScreen();
+            }
+        }
+
+        function openOverview() {
+            let gridHtml = '';
+            for(let i = 0; i < questions.length; i++) {
+                let stateClass = 'state-default';
+                if(questionStates[i] === 'correct') stateClass = 'state-correct';
+                if(questionStates[i] === 'wrong') stateClass = 'state-wrong';
+                if(questionStates[i] === 'skipped') stateClass = 'state-skipped';
+                
+                gridHtml += `<button onclick="jumpToQuestion(${i})" class="q-circle ${stateClass}">${i + 1}</button>`;
+            }
+
+            const overviewDiv = document.createElement('div');
+            overviewDiv.id = 'overview-overlay';
+            overviewDiv.className = 'overview-panel fade-in';
+            overviewDiv.innerHTML = `
+                <h3 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 16px; text-align: center; color: #f8fafc;">प्रश्नावली ओवरव्यू (कुल ${questions.length} प्रश्न)</h3>
+                <div class="grid-container">
+                    ${gridHtml}
+                </div>
+                <div class="flex justify-center" style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="closeOverview()" class="btn-action btn-skip" style="margin: 0 8px;">वापस जाएँ</button>
+                    <button onclick="submitQuizFromOverview()" class="btn-action btn-next" style="margin: 0 8px;">सबमिट करें</button>
+                </div>
+            `;
+            appDiv.appendChild(overviewDiv);
+        }
+
+        function closeOverview() {
+            const overlay = document.getElementById('overview-overlay');
+            if(overlay) overlay.remove();
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            closeOverview();
+            renderQuestion();
+        }
+
+        function submitQuizFromOverview() {
+            closeOverview();
+            renderResultScreen();
+        }
+
+        function renderResultScreen() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            
+            if (percentage === 100) { message = "उत्कृष्ट! आपने आपदा प्रबंधन के इस अध्याय में पूरे अंक प्राप्त किए हैं!"; }
+            else if (percentage >= 80) { message = "शानदार प्रदर्शन! बिहार बोर्ड परीक्षा की आपकी तैयारी बहुत अच्छी है।"; }
+            else if (percentage >= 50) { message = "अच्छा प्रयास! पाठ को एक बार और दोहराएँ।"; }
+            else { message = "अभ्यास जारी रखें! पाठ्यपुस्तक को ध्यान से पढ़ें और पुनः प्रयास करें।"; }
+
+            const strokeDasharray = `${percentage}, 100`;
+            const colorClass = percentage >= 80 ? '#22c55e' : percentage >= 50 ? '#eab308' : '#ef4444';
+
+            let correctCount = 0;
+            let wrongCount = 0;
+            let skippedCount = 0;
+
+            questionStates.forEach(st => {
+                if(st === 'correct') correctCount++;
+                else if(st === 'wrong') wrongCount++;
+                else if(st === 'skipped') skippedCount++;
+            });
+
+            appDiv.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in overflow-y-auto" style="padding: 32px;">
+                    <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; color: #f8fafc;">BSEB कक्षा 10 - आपदा प्रबंधन</h2>
+                    <p style="font-size: 1rem; color: #94a3b8; margin-bottom: 20px;">अध्याय 1: प्राकृतिक आपदा: एक परिचय (कुल प्रश्न: ${questions.length})</p>
+                    
+                    <h3 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 20px; color: #38bdf8;">क्विज़ पूर्ण हुई!</h3>
+
+                    <div style="position: relative; width: 180px; height: 180px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" stroke="${colorClass}" stroke-dasharray="${strokeDasharray}" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="font-size: 2.25rem; font-weight: 900; color: #38bdf8;">${percentage}%</span>
+                        </div>
+                    </div>
+
+                    <div class="stats-box">
+                        <div class="flex justify-between items-center text-center">
+                            <div>
+                                <p style="font-size: 0.8rem; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">कुल प्रश्न</p>
+                                <p style="font-size: 1.4rem; font-weight: 800; color: #f8fafc;">${questions.length}</p>
+                            </div>
+                            <div>
+                                <p style="font-size: 0.8rem; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">सही उत्तर</p>
+                                <p style="font-size: 1.4rem; font-weight: 800; color: #4ade80;">${correctCount}</p>
+                            </div>
+                            <div>
+                                <p style="font-size: 0.8rem; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">गलत उत्तर</p>
+                                <p style="font-size: 1.4rem; font-weight: 800; color: #f87171;">${wrongCount}</p>
+                            </div>
+                            <div>
+                                <p style="font-size: 0.8rem; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">छोड़े गए</p>
+                                <p style="font-size: 1.4rem; font-weight: 800; color: #facc15;">${skippedCount}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 1.05rem; color: #cbd5e1; margin-bottom: 28px; max-width: 450px; line-height: 1.5;">${message}</p>
+                    
+                    <button onclick="startQuiz()" class="btn-action" style="padding: 14px 40px; border-radius: 12px; font-size: 1.05rem; background: #22c55e; color: white;">
+                        पुनः प्रयास करें
+                    </button>
+                </div>
+            `;
+        }
+
+        renderStartScreen();
+    </script>
+</body>
+</html>
